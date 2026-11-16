@@ -47,7 +47,8 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'exists:roles,name'],
+            'roles' => ['required', 'array', 'min:1'],
+            'roles.*' => ['string', 'exists:roles,name'],
         ]);
 
         $user = User::create([
@@ -56,7 +57,7 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        $user->assignRole($validated['role']);
+        $user->syncRoles($validated['roles']);
 
         return redirect()
             ->route('admin.users.index')
@@ -86,7 +87,8 @@ class UserController extends Controller
                 'unique:users,email,'.$user->id,
             ],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'exists:roles,name'],
+            'roles' => ['required', 'array', 'min:1'],
+            'roles.*' => ['string', 'exists:roles,name'],
         ]);
 
         $data = [
@@ -100,7 +102,12 @@ class UserController extends Controller
 
         $user->update($data);
 
-        $user->syncRoles([$validated['role']]);
+        $user->syncRoles($validated['roles']);
+
+        // Si el rol activo ya no le pertenece, currentRole() toma el primero.
+        if ($user->active_role_id && ! $user->roles()->whereKey($user->active_role_id)->exists()) {
+            $user->forceFill(['active_role_id' => null])->save();
+        }
 
         return redirect()
             ->route('admin.users.index')

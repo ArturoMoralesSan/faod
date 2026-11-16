@@ -43,6 +43,15 @@ class HandleInertiaRequests extends Middleware
 
             'auth' => [
                 'user' => $request->user(),
+
+                // Roles disponibles para el selector de menú.
+                'roles' => fn () => $request->user()?->roles
+                    ->map(fn ($role) => ['id' => $role->id, 'name' => $role->name])
+                    ->values() ?? [],
+
+                'activeRole' => fn () => ($role = $request->user()?->currentRole())
+                    ? ['id' => $role->id, 'name' => $role->name]
+                    : null,
             ],
 
             'profile' => fn () => $request->user()?->profile,

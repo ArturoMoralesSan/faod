@@ -4,24 +4,38 @@ import { Link, usePage } from '@inertiajs/vue3';
 
 import {
     BadgeCheck,
+    BookOpen,
     BriefcaseBusiness,
+    Building2,
+    CalendarClock,
     CalendarDays,
     CreditCard,
+    DoorOpen,
+    GraduationCap,
+    Hospital,
+    KeyRound,
     LayoutDashboard,
     LayoutGrid,
+    Library,
+    ListTree,
+    Settings,
     Shield,
     ShoppingCart,
+    Stethoscope,
     Store,
     Tag,
     Ticket,
     Trophy,
+    UserRoundCheck,
     Users,
 } from '@lucide/vue';
+import { computed } from 'vue';
 
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
+import RoleSwitcher from '@/components/RoleSwitcher.vue';
 
 import {
     Sidebar,
@@ -60,21 +74,34 @@ interface Menu {
 
 const page = usePage();
 
-const menus = (page.props.menus ?? []) as Menu[];
+// Reactivo: el menú cambia cuando el usuario cambia de rol.
+const menus = computed(() => (page.props.menus ?? []) as Menu[]);
 
 const icons = {
     BadgeCheck,
+    BookOpen,
     BriefcaseBusiness,
+    Building2,
+    CalendarClock,
     CalendarDays,
     CreditCard,
+    DoorOpen,
+    GraduationCap,
+    Hospital,
+    KeyRound,
     LayoutDashboard,
     LayoutGrid,
+    Library,
+    ListTree,
+    Settings,
     Shield,
     ShoppingCart,
+    Stethoscope,
     Store,
     Tag,
     Ticket,
     Trophy,
+    UserRoundCheck,
     Users,
 };
 
@@ -86,7 +113,7 @@ function getIcon(icon: string | null) {
     return icons[icon as keyof typeof icons] ?? LayoutGrid;
 }
 
-const mainNavItems: NavItem[] = menus.map((menu) => {
+const mainNavItems = computed<NavItem[]>(() => menus.value.map((menu) => {
     if (menu.is_submenu) {
         return {
             title: menu.name,
@@ -104,7 +131,7 @@ const mainNavItems: NavItem[] = menus.map((menu) => {
         href: menu.url ?? '#',
         icon: getIcon(menu.icon),
     };
-});
+}));
 
 const footerNavItems: NavItem[] = [];
 </script>
@@ -124,6 +151,8 @@ const footerNavItems: NavItem[] = [];
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
+
+            <RoleSwitcher />
         </SidebarHeader>
 
         <SidebarContent>

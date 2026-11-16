@@ -53,7 +53,48 @@ class RolesAndPermissionsSeeder extends Seeder
             'permissions.create',
             'permissions.edit',
             'permissions.delete',
+
+            // Personas
+            'people.view',
+            'people.create',
+            'people.edit',
+            'people.delete',
+
+            // Configuración general
+            'settings.view',
+            'settings.edit',
         ];
+
+        // Módulos con CRUD completo: modulo.view|create|edit|delete
+        $crudModules = [
+            'departments',
+            'catalogs',
+            'specialties',
+            'academic-programs',
+            'academic-periods',
+            'cohorts',
+            'subjects',
+            'study-plans',
+            'clinics',
+            'spaces',
+            'groups',
+            'students',
+            'knowledge-areas',
+        ];
+
+        foreach ($crudModules as $module) {
+            foreach (['view', 'create', 'edit', 'delete'] as $action) {
+                $permissions[] = "{$module}.{$action}";
+            }
+        }
+
+        // Módulos sin alta/baja propia
+        array_push(
+            $permissions,
+            'schedules.edit',
+            'teachers.view',
+            'teachers.edit',
+        );
 
         /*
         |--------------------------------------------------------------------------
@@ -90,6 +131,53 @@ class RolesAndPermissionsSeeder extends Seeder
         */
 
         $admin->syncPermissions($permissions);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Roles de perfil
+        |--------------------------------------------------------------------------
+        |
+        | PeopleController los asigna al crear perfiles de alumno, docente o
+        | personal administrativo. Un usuario puede tener varios y elegir con
+        | cuál navegar desde el selector de rol.
+        |
+        */
+
+        $roles = [
+            'alumno' => [
+                'groups.view',
+            ],
+            'docente' => [
+                'groups.view',
+                'students.view',
+                'teachers.view',
+                'study-plans.view',
+                'academic-programs.view',
+            ],
+            'personal_administrativo' => [
+                'people.view',
+                'people.create',
+                'people.edit',
+                'students.view',
+                'students.create',
+                'students.edit',
+                'teachers.view',
+                'teachers.edit',
+                'groups.view',
+                'groups.create',
+                'groups.edit',
+                'schedules.edit',
+                'cohorts.view',
+                'academic-programs.view',
+                'study-plans.view',
+                'spaces.view',
+            ],
+        ];
+
+        foreach ($roles as $name => $rolePermissions) {
+            Role::firstOrCreate(['name' => $name, 'guard_name' => 'web'])
+                ->givePermissionTo($rolePermissions);
+        }
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
     }

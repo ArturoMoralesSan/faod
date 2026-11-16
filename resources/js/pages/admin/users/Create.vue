@@ -2,7 +2,6 @@
 import { Head, useForm } from '@inertiajs/vue3';
 import {
     ArrowLeft,
-    ChevronDown,
     Info,
     LockKeyhole,
     Mail,
@@ -15,6 +14,7 @@ import AdminButton from '@/components/admin/AdminButton.vue';
 import AdminCard from '@/components/admin/AdminCard.vue';
 import CancelButton from '@/components/admin/CancelButton.vue';
 import PageHeader from '@/components/admin/PageHeader.vue';
+import RoleCheckboxes from '@/components/admin/RoleCheckboxes.vue';
 import admin from '@/routes/admin';
 
 interface Role {
@@ -31,7 +31,7 @@ const form = useForm({
     email: '',
     password: '',
     password_confirmation: '',
-    role: props.roles[0]?.name ?? '',
+    roles: [] as string[],
 });
 
 const submit = (): void => {
@@ -189,58 +189,12 @@ const submit = (): void => {
                         </div>
                     </div>
 
-                    <!-- Rol -->
-                    <div class="form-field md:col-span-2">
-                        <label for="role" class="form-label">
-                            Rol del usuario
-                            <span class="text-red-500">*</span>
-                        </label>
-
-                        <div class="form-select-wrapper">
-                            <select
-                                id="role"
-                                v-model="form.role"
-                                required
-                                :class="[
-                                    'form-select',
-                                    form.errors.role && 'form-select-error',
-                                ]"
-                            >
-                                <option value="" disabled>
-                                    Selecciona un rol
-                                </option>
-
-                                <option
-                                    v-for="role in props.roles"
-                                    :key="role.id"
-                                    :value="role.name"
-                                >
-                                    {{ role.name }}
-                                </option>
-                            </select>
-
-                            <ChevronDown
-                                class="form-select-icon h-4 w-4"
-                            />
-                        </div>
-
-                        <p class="form-help">
-                            El rol determina los permisos y las funciones
-                            disponibles para el usuario.
-                        </p>
-
-                        <p v-if="form.errors.role" class="form-error">
-                            {{ form.errors.role }}
-                        </p>
-
-                        <p
-                            v-if="props.roles.length === 0"
-                            class="form-error"
-                        >
-                            No hay roles disponibles. Crea un rol antes de
-                            registrar el usuario.
-                        </p>
-                    </div>
+                    <!-- Roles -->
+                    <RoleCheckboxes
+                        v-model="form.roles"
+                        :roles="props.roles"
+                        :error="form.errors.roles"
+                    />
                 </div>
             </AdminCard>
 
@@ -260,7 +214,7 @@ const submit = (): void => {
                     :icon="Save"
                     :loading="form.processing"
                     loading-text="Creando..."
-                    :disabled="props.roles.length === 0"
+                    :disabled="props.roles.length === 0 || form.roles.length === 0"
                 >
                     Crear usuario
                 </AdminButton>

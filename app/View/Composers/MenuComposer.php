@@ -17,7 +17,14 @@ class MenuComposer
             return collect();
         }
 
-        $isSuperAdmin = $user->hasRole('SuperAdmin');
+        // El menú se arma con los permisos del rol activo (selector de rol),
+        // no con la suma de todos los roles del usuario.
+        $activeRole = $user->currentRole();
+        $isSuperAdmin = $activeRole?->name === 'SuperAdmin';
+
+        $canSee = fn (string $permission) => $activeRole
+            ? $activeRole->hasPermissionTo($permission)
+            : $user->can($permission);
 
         $menus = Menu::with([
             'links' => function ($query) {
@@ -29,7 +36,7 @@ class MenuComposer
             ->get();
 
         return $menus
-            ->map(function ($menu) use ($user, $isSuperAdmin) {
+            ->map(function ($menu) use ($canSee, $isSuperAdmin) {
 
                 /*
                 |--------------------------------------------------------------------------
@@ -40,16 +47,16 @@ class MenuComposer
 
                     if (! $isSuperAdmin) {
                         $menu->links = $menu->links
-                            ->filter(function ($link) use ($user) {
+                            ->filter(function ($link) use ($canSee) {
 
                                 // Sin permiso = visible
                                 if (! $link->permission_id) {
                                     return true;
                                 }
 
-                                // Con permiso = verificar Spatie
+                                // Con permiso = verificar contra el rol activo
                                 return $link->permission
-                                    && $user->can($link->permission->name);
+                                    && $canSee($link->permission->name);
                             })
                             ->values();
                     }

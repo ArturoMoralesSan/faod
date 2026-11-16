@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\People;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -59,7 +60,7 @@ class UserSeeder extends Seeder
 
         $adminUser = User::updateOrCreate(
             [
-                'email' => 'admin@industriashusky.com.mx',
+                'email' => 'admin@odontologia.test',
             ],
             [
                 'name' => 'Administrador',
@@ -70,6 +71,67 @@ class UserSeeder extends Seeder
         $this->ensureQrToken($adminUser);
 
         $adminUser->syncRoles([$admin]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Usuario de prueba con varios roles (solo local)
+        |--------------------------------------------------------------------------
+        |
+        | Docente y alumno a la vez, para probar el selector de rol del menú.
+        |
+        */
+
+        if (app()->environment('local')) {
+            $this->seedMultiRoleUser();
+        }
+    }
+
+    private function seedMultiRoleUser(): void
+    {
+        $user = User::updateOrCreate(
+            ['email' => 'docente.alumno@odontologia.test'],
+            [
+                'name' => 'Laura Gómez Rivera',
+                'password' => Hash::make('12345678'),
+            ]
+        );
+
+        $this->ensureQrToken($user);
+
+        $person = People::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'first_name' => 'Laura',
+                'paternal_surname' => 'Gómez',
+                'maternal_surname' => 'Rivera',
+                'personal_email' => $user->email,
+                'country' => 'México',
+            ]
+        );
+
+        $person->teacherProfile()->updateOrCreate(
+            ['people_id' => $person->id],
+            [
+                'professional_title' => 'Cirujana Dentista',
+                'highest_degree' => 'Especialidad',
+                'status' => 'active',
+            ]
+        );
+
+        $person->studentProfile()->updateOrCreate(
+            ['people_id' => $person->id],
+            [
+                'registration_number' => 'DEMO-0001',
+                'status' => 'active',
+            ]
+        );
+
+        $roles = Role::whereIn('name', ['docente', 'alumno'])
+            ->where('guard_name', 'web')
+            ->pluck('name')
+            ->all();
+
+        $user->syncRoles($roles);
     }
 
     /*

@@ -109,6 +109,7 @@ class StorePeopleRequest extends FormRequest
             ],
             'staff_profile.position' => ['required_with:staff_profile', 'nullable', 'string', 'max:255'],
             'staff_profile.department' => ['nullable', 'string', 'max:255'],
+            'staff_profile.department_id' => ['nullable', 'exists:departments,id'],
             'staff_profile.status' => [
                 'nullable',
                 Rule::in(['active', 'inactive']),

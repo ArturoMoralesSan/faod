@@ -14,6 +14,7 @@ class StaffProfile extends Model
         'people_id',
         'employee_number',
         'position',
+        'department_id',
         'department',
         'status',
         'hired_at',
@@ -30,5 +31,10 @@ class StaffProfile extends Model
     public function people(): BelongsTo
     {
         return $this->belongsTo(People::class, 'people_id');
+    }
+
+    public function departmentRecord(): BelongsTo
+    {
+        return $this->belongsTo(Department::class, 'department_id');
     }
 }

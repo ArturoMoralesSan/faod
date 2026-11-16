@@ -48,7 +48,7 @@ class PeopleController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return Inertia::render('Admin/People/Index', [
+        return Inertia::render('admin/people/Index', [
             'people' => $people,
             'filters' => $request->only('search', 'profile'),
         ]);
@@ -56,7 +56,9 @@ class PeopleController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('Admin/People/Create');
+        return Inertia::render('admin/people/Create', [
+            'departments' => $this->departments(),
+        ]);
     }
 
     public function store(StorePeopleRequest $request): RedirectResponse
@@ -128,13 +130,16 @@ class PeopleController extends Controller
     public function show(People $people): Response
     {
         $people->load([
-            'user:id,name,email',
-            'studentProfile',
-            'teacherProfile',
-            'staffProfile',
+            'user:id,name,email,is_active',
+            'user.roles:id,name',
+            'studentProfile.enrollments.academicProgram:id,name,code',
+            'studentProfile.enrollments.cohort:id,name',
+            'teacherProfile.specialties:id,name',
+            'staffProfile.departmentRecord:id,name',
+            'attachments',
         ]);
 
-        return Inertia::render('Admin/People/Show', [
+        return Inertia::render('admin/people/Show', [
             'person' => $people,
         ]);
     }
@@ -148,8 +153,9 @@ class PeopleController extends Controller
             'staffProfile',
         ]);
 
-        return Inertia::render('Admin/People/Edit', [
+        return Inertia::render('admin/people/Edit', [
             'person' => $people,
+            'departments' => $this->departments(),
         ]);
     }
 
@@ -262,6 +268,13 @@ class PeopleController extends Controller
         return redirect()
             ->route('admin.people.index')
             ->with('success', 'Persona eliminada correctamente.');
+    }
+
+    private function departments()
+    {
+        return \App\Models\Department::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name']);
     }
 
     private function assignProfileRole(?User $user, string $role): void

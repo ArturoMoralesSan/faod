@@ -12,7 +12,9 @@ use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\Permission\Models\Role;
 
 #[Hidden([
     'password',
@@ -34,6 +36,9 @@ class User extends Authenticatable implements PasskeyUser
         'email',
         'password',
         'qr_token',
+        'is_active',
+        'last_login_at',
+        'active_role_id',
     ];
 
     protected function casts(): array
@@ -42,7 +47,8 @@ class User extends Authenticatable implements PasskeyUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
-            'points' => 'integer',
+            'is_active' => 'boolean',
+            'last_login_at' => 'datetime',
         ];
     }
 
@@ -60,5 +66,28 @@ class User extends Authenticatable implements PasskeyUser
     public function people(): HasOne
     {
         return $this->hasOne(People::class, 'user_id');
+    }
+
+    public function activeRole(): BelongsTo
+    {
+        return $this->belongsTo(Role::class, 'active_role_id');
+    }
+
+    /**
+     * Rol con el que el usuario navega. Si el guardado ya no le pertenece,
+     * se usa el primero de sus roles.
+     */
+    public function currentRole(): ?Role
+    {
+        $roles = $this->roles;
+
+        return $roles->firstWhere('id', $this->active_role_id) ?? $roles->first();
+    }
+
+    public function switchRole(Role $role): void
+    {
+        abort_unless($this->roles->contains('id', $role->id), 403);
+
+        $this->forceFill(['active_role_id' => $role->id])->save();
     }
 }

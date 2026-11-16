@@ -10,8 +10,17 @@ export type User = {
     [key: string]: unknown;
 };
 
+export type RoleSummary = {
+    id: number;
+    name: string;
+};
+
 export type Auth = {
     user: User;
+    /** Roles del usuario para el selector de menú. */
+    roles: RoleSummary[];
+    /** Rol con el que navega actualmente. */
+    activeRole: RoleSummary | null;
 };
 
 export type Passkey = {
