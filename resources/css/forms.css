@@ -1,0 +1,290 @@
+
+@layer components {
+    /* =========================================================
+       FACULTAD DE ODONTOLOGÍA - UJED
+       Formularios institucionales
+       ========================================================= */
+
+    :root {
+        --ujed-form-red: #941B2B;
+        --ujed-form-red-dark: #721421;
+        --ujed-form-red-hover: #831827;
+        --ujed-form-red-light: #F9ECEE;
+        --ujed-form-red-border: #E8C7CC;
+
+        --ujed-form-text: #292D32;
+        --ujed-form-muted: #737982;
+        --ujed-form-border: #E3E5E8;
+        --ujed-form-background: #FFFFFF;
+        --ujed-form-soft: #F7F8FA;
+        --ujed-form-disabled: #F1F2F4;
+    }
+
+    /* Contenedor principal */
+    .form-container {
+        @apply space-y-8;
+        color: var(--ujed-form-text);
+        font-family: 'DM Sans', sans-serif;
+    }
+
+    /* Secciones */
+    .form-section {
+        @apply space-y-6 rounded-2xl border p-6;
+        background-color: var(--ujed-form-background);
+        border-color: var(--ujed-form-border);
+    }
+
+    .form-section-header {
+        @apply border-b pb-4;
+        border-color: var(--ujed-form-border);
+    }
+
+    .form-section-title {
+        @apply text-lg font-semibold;
+        color: var(--ujed-form-red);
+        font-family: 'Manrope', sans-serif;
+    }
+
+    .form-section-description {
+        @apply mt-1 text-sm;
+        color: var(--ujed-form-muted);
+    }
+
+    /* Etiquetas */
+    .form-label {
+        @apply mb-2 block text-sm font-semibold;
+        color: var(--ujed-form-text);
+    }
+
+    .form-label-required::after {
+        content: ' *';
+        color: var(--ujed-form-red);
+    }
+
+    /* Campos */
+    .form-input,
+    .form-select,
+    .form-textarea {
+        @apply block w-full rounded-xl border px-4 py-3 text-sm
+               transition-[border-color,box-shadow,background-color]
+               duration-[250ms] ease-in-out
+               focus:outline-none
+               disabled:cursor-not-allowed disabled:opacity-60;
+
+        font-family: 'DM Sans', sans-serif;
+        color: var(--ujed-form-text);
+        background-color: var(--ujed-form-background);
+        border-color: var(--ujed-form-border);
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+        color: var(--ujed-form-muted);
+        opacity: 1;
+    }
+
+    .form-input:hover:not(:disabled):not(:focus),
+    .form-select:hover:not(:disabled):not(:focus),
+    .form-textarea:hover:not(:disabled):not(:focus) {
+        border-color: var(--ujed-form-red-border);
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        border-color: var(--ujed-form-red);
+        box-shadow: 0 0 0 3px rgba(148, 27, 43, 0.10);
+        background-color: var(--ujed-form-background);
+    }
+
+    .form-input:disabled,
+    .form-select:disabled,
+    .form-textarea:disabled {
+        background-color: var(--ujed-form-disabled);
+        color: var(--ujed-form-muted);
+        cursor: not-allowed;
+    }
+
+    /* Select */
+    .form-select {
+        @apply cursor-pointer pr-10;
+    }
+
+    .form-select option {
+        color: var(--ujed-form-text);
+        background-color: var(--ujed-form-background);
+    }
+
+    /* Textarea */
+    .form-textarea {
+        @apply min-h-32 resize-y;
+    }
+
+    /* Mensajes de ayuda */
+    .form-help {
+        @apply mt-2 text-xs;
+        color: var(--ujed-form-muted);
+    }
+
+    /* Errores */
+    .form-error {
+        @apply mt-2 text-sm;
+        color: var(--ujed-form-red);
+    }
+
+    .form-input-error,
+    .form-select-error,
+    .form-textarea-error {
+        border-color: var(--ujed-form-red);
+    }
+
+    .form-input-error:focus,
+    .form-select-error:focus,
+    .form-textarea-error:focus {
+        border-color: var(--ujed-form-red);
+        box-shadow: 0 0 0 3px rgba(148, 27, 43, 0.12);
+    }
+
+    /* Carga de archivos */
+    .form-upload {
+        @apply flex w-full cursor-pointer flex-col items-center
+               justify-center rounded-xl border border-dashed p-8
+               text-center
+               transition-[border-color,background-color]
+               duration-[250ms] ease-in-out;
+
+        border-color: var(--ujed-form-red-border);
+        background-color: var(--ujed-form-soft);
+    }
+
+    .form-upload:hover {
+        border-color: var(--ujed-form-red);
+        background-color: var(--ujed-form-red-light);
+    }
+
+    .form-upload:focus-within {
+        border-color: var(--ujed-form-red);
+        box-shadow: 0 0 0 3px rgba(148, 27, 43, 0.10);
+    }
+
+    .form-upload-title {
+        @apply text-sm font-semibold;
+        color: var(--ujed-form-text);
+    }
+
+    .form-upload-description {
+        @apply mt-1 text-xs;
+        color: var(--ujed-form-muted);
+    }
+
+    /* Vista previa de imágenes */
+    .form-preview {
+        @apply relative overflow-hidden rounded-xl border;
+        border-color: var(--ujed-form-border);
+        background-color: var(--ujed-form-soft);
+    }
+
+    .form-preview img {
+        @apply h-full w-full object-cover;
+    }
+
+    .form-preview-remove {
+        @apply absolute right-2 top-2 inline-flex h-8 w-8
+               items-center justify-center rounded-full
+               transition-colors duration-200;
+
+        color: #FFFFFF;
+        background-color: var(--ujed-form-red);
+    }
+
+    .form-preview-remove:hover {
+        background-color: var(--ujed-form-red-dark);
+    }
+
+    /* Checkbox y controles */
+    .form-checkbox {
+        @apply h-4 w-4 rounded border
+               focus:ring-2 focus:ring-offset-2;
+
+        accent-color: var(--ujed-form-red);
+        border-color: #C9CDD2;
+        --tw-ring-color: rgba(148, 27, 43, 0.20);
+    }
+
+    .form-checkbox-label {
+        @apply flex cursor-pointer items-start gap-3 text-sm;
+        color: var(--ujed-form-text);
+    }
+
+    .form-radio {
+        @apply h-4 w-4 border
+               focus:ring-2 focus:ring-offset-2;
+
+        accent-color: var(--ujed-form-red);
+        border-color: #C9CDD2;
+        --tw-ring-color: rgba(148, 27, 43, 0.20);
+    }
+
+    /* Acciones del formulario */
+    .form-actions {
+        @apply flex flex-col-reverse gap-3 border-t pt-5
+               sm:flex-row sm:items-center sm:justify-end;
+
+        border-color: var(--ujed-form-border);
+    }
+
+    /* Botones */
+    .form-button {
+        @apply inline-flex min-h-12 items-center justify-center
+               gap-3 rounded-full border px-6 py-0
+               text-[13px] font-semibold
+               transition-[transform,background,color,border-color]
+               duration-[250ms] ease-in-out
+               hover:-translate-y-0.5
+               focus-visible:outline
+               focus-visible:outline-[3px]
+               focus-visible:outline-[#E8C7CC]
+               focus-visible:outline-offset-1
+               disabled:cursor-not-allowed disabled:opacity-60
+               disabled:hover:translate-y-0;
+
+        font-family: 'DM Sans', sans-serif;
+        cursor: pointer;
+    }
+
+    .form-button-primary {
+        @apply border-[#941B2B] bg-[#941B2B] text-white
+               hover:border-[#721421] hover:bg-[#721421]
+               active:translate-y-0;
+    }
+
+    .form-button-secondary {
+        @apply border-[#E3E5E8] bg-white
+               text-[#383D43]
+               hover:border-[#941B2B] hover:bg-[#F9ECEE]
+               hover:text-[#941B2B] active:translate-y-0;
+    }
+
+    .form-button-danger {
+        @apply border-[#941B2B] bg-[#941B2B] text-white
+               hover:border-[#721421] hover:bg-[#721421]
+               active:translate-y-0;
+    }
+
+    /* Bloques informativos */
+    .form-info {
+        @apply rounded-xl border p-4 text-sm;
+        color: var(--ujed-form-text);
+        border-color: var(--ujed-form-red-border);
+        background-color: var(--ujed-form-red-light);
+    }
+
+    .form-info-title {
+        @apply mb-1 font-semibold;
+        color: var(--ujed-form-red);
+    }
+
+    .form-info-description {
+        color: var(--ujed-form-muted);
+    }
+}

@@ -1,0 +1,323 @@
+
+/* =========================================================
+   FACULTAD DE ODONTOLOGÍA - UJED
+   ADMIN CONTENT / SIDEBAR INSET
+   Laravel + Inertia + Vue 3 + Tailwind CSS 4
+========================================================= */
+
+/* =========================================================
+   TIPOGRAFÍA INSTITUCIONAL
+========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+/* =========================================================
+   VARIABLES
+========================================================= */
+
+:root {
+    --ujed-content-bg: #F7F8FA;
+    --ujed-content-surface: #FFFFFF;
+    --ujed-content-border: #E3E5E8;
+
+    --ujed-content-text: #292D32;
+    --ujed-content-muted: #737982;
+
+    --ujed-content-radius: 12px;
+
+    --ujed-red: #941B2B;
+    --ujed-red-dark: #721421;
+    --ujed-red-hover: #831827;
+    --ujed-red-light: #F9ECEE;
+    --ujed-red-border: #E8C7CC;
+
+    --ujed-gray: #5F646C;
+    --ujed-gray-dark: #34383D;
+    --ujed-gray-light: #F4F5F6;
+}
+
+/* =========================================================
+   CONTENEDOR PRINCIPAL
+========================================================= */
+
+[data-slot="sidebar-inset"] {
+    position: relative;
+    isolation: isolate;
+
+    display: flex;
+    flex: 1 1 0%;
+    flex-direction: column;
+
+    min-width: 0;
+    min-height: 100vh;
+
+    background: var(--ujed-content-bg);
+    color: var(--ujed-content-text);
+
+    font-family: 'DM Sans', sans-serif;
+
+    transition:
+        background-color 180ms ease,
+        margin 200ms ease;
+
+    margin: 0;
+    border-radius: 0;
+}
+
+/* =========================================================
+   CONTENIDO INTERNO
+========================================================= */
+
+[data-slot="sidebar-inset"] > * {
+    min-width: 0;
+}
+
+/* Tipografía general */
+
+[data-slot="sidebar-inset"],
+[data-slot="sidebar-inset"] *,
+main.mx-auto.flex.h-full.w-full.max-w-7xl,
+main.mx-auto.flex.h-full.w-full.max-w-7xl * {
+    font-family: 'DM Sans', sans-serif;
+}
+
+/* Evitar desbordamientos */
+
+[data-slot="sidebar-inset"] img,
+[data-slot="sidebar-inset"] video,
+[data-slot="sidebar-inset"] canvas {
+    max-width: 100%;
+}
+
+/* =========================================================
+   CONTENEDOR ALTERNATIVO
+========================================================= */
+
+main.mx-auto.flex.h-full.w-full.max-w-7xl {
+    position: relative;
+
+    min-width: 0;
+    min-height: 100vh;
+
+    padding: 24px;
+
+    background-color: var(--ujed-content-bg);
+    color: var(--ujed-content-text);
+
+    font-family: 'DM Sans', sans-serif;
+}
+
+/* =========================================================
+   ENCABEZADOS
+========================================================= */
+
+[data-slot="sidebar-inset"] h1,
+main.mx-auto.flex.h-full.w-full.max-w-7xl h1 {
+    color: var(--ujed-content-text);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.2;
+}
+
+[data-slot="sidebar-inset"] h2,
+main.mx-auto.flex.h-full.w-full.max-w-7xl h2 {
+    color: var(--ujed-content-text);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+[data-slot="sidebar-inset"] h3,
+main.mx-auto.flex.h-full.w-full.max-w-7xl h3 {
+    color: var(--ujed-content-text);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+}
+
+/* =========================================================
+   SUPERFICIES
+========================================================= */
+
+[data-slot="sidebar-inset"] .bg-card,
+main.mx-auto.flex.h-full.w-full.max-w-7xl .bg-card {
+    background-color: var(--ujed-content-surface);
+    border-color: var(--ujed-content-border);
+}
+
+/* =========================================================
+   FORMULARIOS
+========================================================= */
+
+[data-slot="sidebar-inset"] input,
+[data-slot="sidebar-inset"] select,
+[data-slot="sidebar-inset"] textarea,
+main.mx-auto.flex.h-full.w-full.max-w-7xl input,
+main.mx-auto.flex.h-full.w-full.max-w-7xl select,
+main.mx-auto.flex.h-full.w-full.max-w-7xl textarea {
+    max-width: 100%;
+
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ujed-content-text);
+
+    background-color: #FFFFFF;
+    border-color: var(--ujed-content-border);
+    border-radius: 8px;
+
+    transition:
+        border-color 180ms ease,
+        box-shadow 180ms ease,
+        background-color 180ms ease;
+}
+
+/* Placeholder */
+
+[data-slot="sidebar-inset"] input::placeholder,
+[data-slot="sidebar-inset"] textarea::placeholder,
+main.mx-auto.flex.h-full.w-full.max-w-7xl input::placeholder,
+main.mx-auto.flex.h-full.w-full.max-w-7xl textarea::placeholder {
+    color: #9CA1A8;
+    opacity: 1;
+}
+
+/* Hover */
+
+[data-slot="sidebar-inset"] input:hover:not(:focus):not(:disabled),
+[data-slot="sidebar-inset"] select:hover:not(:focus):not(:disabled),
+[data-slot="sidebar-inset"] textarea:hover:not(:focus):not(:disabled),
+main.mx-auto.flex.h-full.w-full.max-w-7xl input:hover:not(:focus):not(:disabled),
+main.mx-auto.flex.h-full.w-full.max-w-7xl select:hover:not(:focus):not(:disabled),
+main.mx-auto.flex.h-full.w-full.max-w-7xl textarea:hover:not(:focus):not(:disabled) {
+    border-color: #C99AA2;
+}
+
+/* Foco */
+
+[data-slot="sidebar-inset"] input:focus,
+[data-slot="sidebar-inset"] select:focus,
+[data-slot="sidebar-inset"] textarea:focus,
+main.mx-auto.flex.h-full.w-full.max-w-7xl input:focus,
+main.mx-auto.flex.h-full.w-full.max-w-7xl select:focus,
+main.mx-auto.flex.h-full.w-full.max-w-7xl textarea:focus {
+    border-color: var(--ujed-red);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(148, 27, 43, 0.10);
+    background-color: #FFFFFF;
+}
+
+/* Deshabilitados */
+
+[data-slot="sidebar-inset"] input:disabled,
+[data-slot="sidebar-inset"] select:disabled,
+[data-slot="sidebar-inset"] textarea:disabled,
+main.mx-auto.flex.h-full.w-full.max-w-7xl input:disabled,
+main.mx-auto.flex.h-full.w-full.max-w-7xl select:disabled,
+main.mx-auto.flex.h-full.w-full.max-w-7xl textarea:disabled {
+    background-color: #F1F2F4;
+    color: #858B93;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* =========================================================
+   TABLAS
+========================================================= */
+
+[data-slot="sidebar-inset"] table,
+main.mx-auto.flex.h-full.w-full.max-w-7xl table {
+    width: 100%;
+    max-width: 100%;
+    border-color: var(--ujed-content-border);
+}
+
+[data-slot="sidebar-inset"] th,
+main.mx-auto.flex.h-full.w-full.max-w-7xl th {
+    color: #656B73;
+    font-weight: 700;
+    background-color: #F7F8FA;
+}
+
+[data-slot="sidebar-inset"] td,
+main.mx-auto.flex.h-full.w-full.max-w-7xl td {
+    color: #454B52;
+}
+
+/* =========================================================
+   ENLACES
+========================================================= */
+
+[data-slot="sidebar-inset"] a,
+main.mx-auto.flex.h-full.w-full.max-w-7xl a {
+    text-underline-offset: 3px;
+}
+
+/* =========================================================
+   BOTONES
+========================================================= */
+
+[data-slot="sidebar-inset"] button,
+main.mx-auto.flex.h-full.w-full.max-w-7xl button {
+    font-family: 'DM Sans', sans-serif;
+}
+
+/* =========================================================
+   HEADER BLANCO
+========================================================= */
+
+[data-slot="sidebar-inset"] header {
+    background-color: #FFFFFF !important;
+    border-bottom: 1px solid var(--ujed-content-border);
+}
+
+/* =========================================================
+   RESPONSIVE - TABLET
+========================================================= */
+
+@media (max-width: 1023px) {
+    main.mx-auto.flex.h-full.w-full.max-w-7xl {
+        padding: 20px;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE - MÓVIL
+========================================================= */
+
+@media (max-width: 767px) {
+    [data-slot="sidebar-inset"] {
+        width: 100%;
+        min-width: 0;
+        min-height: 100dvh;
+    }
+
+    main.mx-auto.flex.h-full.w-full.max-w-7xl {
+        width: 100%;
+        min-width: 0;
+        min-height: 100dvh;
+
+        padding: 14px;
+        gap: 14px;
+    }
+
+    [data-slot="sidebar-inset"] h1,
+    main.mx-auto.flex.h-full.w-full.max-w-7xl h1 {
+        font-size: clamp(1.25rem, 5vw, 1.65rem);
+    }
+
+    /* Tablas desplazables */
+
+    [data-slot="sidebar-inset"] table,
+    main.mx-auto.flex.h-full.w-full.max-w-7xl table {
+        white-space: nowrap;
+    }
+}
+
+/* =========================================================
+   ACCESIBILIDAD
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    [data-slot="sidebar-inset"] {
+        transition: none !important;
+    }
+}

@@ -1,0 +1,426 @@
+
+@import 'tailwindcss';
+
+@import 'tw-animate-css';
+@import '../css/sidebar.css';
+@import '../css/admin-content.css';
+@import '../css/forms.css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+/* =========================================================
+   TAILWIND CSS 4 - THEME
+========================================================= */
+
+@theme inline {
+    --font-sans:
+        Instrument Sans, ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar-background);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* =========================================================
+   IDENTIDAD INSTITUCIONAL UJED
+   FACULTAD DE ODONTOLOGÍA
+========================================================= */
+
+:root {
+    color-scheme: light;
+
+    /* Colores institucionales */
+    --ujed-red: #941B2B;
+    --ujed-red-dark: #721421;
+    --ujed-red-hover: #831827;
+    --ujed-red-light: #F9ECEE;
+    --ujed-red-border: #E8C7CC;
+
+    /* Grises institucionales */
+    --ujed-gray: #5F646C;
+    --ujed-gray-dark: #34383D;
+    --ujed-gray-light: #F4F5F6;
+
+    /* Fondo */
+    --background: #F7F8FA;
+    --foreground: #292D32;
+
+    /* Tarjetas */
+    --card: #FFFFFF;
+    --card-foreground: #292D32;
+
+    /* Menús emergentes */
+    --popover: #FFFFFF;
+    --popover-foreground: #292D32;
+
+    /* Color principal */
+    --primary: #941B2B;
+    --primary-foreground: #FFFFFF;
+
+    /* Secundarios */
+    --secondary: #F0F1F3;
+    --secondary-foreground: #34383D;
+
+    /* Elementos discretos */
+    --muted: #F1F2F4;
+    --muted-foreground: #737982;
+
+    /* Elementos destacados */
+    --accent: #F9ECEE;
+    --accent-foreground: #721421;
+
+    /* Errores */
+    --destructive: #DC2626;
+    --destructive-foreground: #FFFFFF;
+
+    /* Bordes y controles */
+    --border: #E3E5E8;
+    --input: #DDE0E4;
+    --ring: #941B2B;
+
+    /* Gráficas */
+    --chart-1: #941B2B;
+    --chart-2: #647D70;
+    --chart-3: #A78B58;
+    --chart-4: #687B99;
+    --chart-5: #9B7181;
+
+    /* Radio */
+    --radius: 0.65rem;
+
+    /* Sidebar */
+    --sidebar-background: #FFFFFF;
+    --sidebar-foreground: #383D43;
+
+    --sidebar-primary: #941B2B;
+    --sidebar-primary-foreground: #FFFFFF;
+
+    --sidebar-accent: #F9ECEE;
+    --sidebar-accent-foreground: #941B2B;
+
+    --sidebar-border: #E9EAED;
+    --sidebar-ring: #941B2B;
+
+    --sidebar: #FFFFFF;
+}
+
+/* =========================================================
+   COMPATIBILIDAD TAILWIND CSS 4
+========================================================= */
+
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+
+    * {
+        @apply border-border outline-ring/50;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+
+        font-family:
+            'Instrument Sans',
+            ui-sans-serif,
+            system-ui,
+            sans-serif;
+
+        background-color: var(--background);
+        color: var(--foreground);
+    }
+
+    ::selection {
+        background: var(--ujed-red);
+        color: #FFFFFF;
+    }
+}
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #C9B2B5 transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: #C9B2B5;
+    border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--ujed-red);
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+[data-sidebar="sidebar"] {
+    background: var(--sidebar-background);
+    color: var(--sidebar-foreground);
+    border-color: var(--sidebar-border);
+}
+
+[data-sidebar="header"] {
+    border-bottom: 1px solid var(--sidebar-border);
+}
+
+[data-sidebar="footer"] {
+    border-top: 1px solid var(--sidebar-border);
+}
+
+[data-sidebar="group-label"] {
+    color: #8A9098;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+[data-sidebar="menu-button"] {
+    min-height: 2.65rem;
+    border-radius: 0.5rem;
+    color: #555B63;
+    font-size: 0.84rem;
+    font-weight: 500;
+
+    transition:
+        background-color 180ms ease,
+        color 180ms ease;
+}
+
+[data-sidebar="menu-button"]:hover {
+    background-color: #F5F5F6;
+    color: var(--ujed-red);
+}
+
+[data-sidebar="menu-button"][data-active="true"] {
+    background-color: var(--ujed-red-light);
+    color: var(--ujed-red);
+    font-weight: 700;
+}
+
+[data-sidebar="menu-button"][data-active="true"] svg {
+    color: var(--ujed-red);
+}
+
+[data-sidebar="menu-sub"] {
+    border-left-color: var(--ujed-red-border);
+}
+
+[data-sidebar="menu-sub-button"] {
+    min-height: 2.35rem;
+    border-radius: 0.4rem;
+    color: #6B7078;
+    font-size: 0.8rem;
+}
+
+[data-sidebar="menu-sub-button"]:hover {
+    background-color: #F8F2F3;
+    color: var(--ujed-red);
+}
+
+[data-sidebar="menu-sub-button"][data-active="true"] {
+    background-color: var(--ujed-red-light);
+    color: var(--ujed-red);
+    font-weight: 700;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+header {
+    border-color: var(--border);
+}
+
+header button:hover {
+    color: var(--ujed-red);
+}
+
+/* =========================================================
+   LINKS
+========================================================= */
+
+a {
+    transition: color 150ms ease;
+}
+
+a:hover {
+    color: var(--ujed-red);
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+button {
+    transition:
+        background-color 180ms ease,
+        border-color 180ms ease,
+        color 180ms ease;
+}
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+input,
+select,
+textarea {
+    border-color: var(--border);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--ujed-red);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #9CA1A8;
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.bg-card {
+    background-color: var(--card);
+}
+
+/* =========================================================
+   TABLES
+========================================================= */
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+thead {
+    background-color: #F7F7F8;
+}
+
+thead th {
+    color: #656B73;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.035em;
+    text-transform: uppercase;
+}
+
+tbody tr {
+    transition: background-color 150ms ease;
+}
+
+tbody tr:hover {
+    background-color: #FAF6F7;
+}
+
+/* =========================================================
+   UTILIDADES INSTITUCIONALES
+========================================================= */
+
+.ujed-primary {
+    background-color: var(--ujed-red);
+    color: #FFFFFF;
+}
+
+.ujed-primary:hover {
+    background-color: var(--ujed-red-dark);
+}
+
+.ujed-text {
+    color: var(--ujed-red);
+}
+
+.ujed-border {
+    border-color: var(--ujed-red);
+}
+
+.ujed-soft {
+    background-color: var(--ujed-red-light);
+    color: var(--ujed-red);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    [data-sidebar="menu-button"] {
+        min-height: 2.8rem;
+    }
+}
