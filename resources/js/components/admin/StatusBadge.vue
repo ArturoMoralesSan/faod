@@ -18,9 +18,9 @@ const props = withDefaults(
 const tone = computed(() => {
     const value = props.value;
 
-    const positive = ['activo', 'active', 'inscrito', 'en_curso', 'egresado', 'operativo', 'concluida', 'asistio', 'resuelta', 'cerrada'];
-    const negative = ['baja', 'inactive', 'no_inscrito', 'fuera_servicio', 'cancelada', 'falta', 'abierta'];
-    const pending = ['pendiente', 'planeada', 'programada', 'mantenimiento', 'en_proceso', 'justificada'];
+    const positive = ['activo', 'active', 'inscrito', 'en_curso', 'egresado', 'operativo', 'concluida', 'asistio', 'resuelta', 'cerrada', 'autorizado', 'concluido', 'realizado', 'confirmada', 'atendida', 'pagado', 'acreditado', 'becado'];
+    const negative = ['baja', 'inactive', 'no_inscrito', 'fuera_servicio', 'cancelada', 'falta', 'abierta', 'rechazado', 'cancelado', 'suspendido', 'no_asistio', 'no_acreditado'];
+    const pending = ['pendiente', 'planeada', 'programada', 'mantenimiento', 'en_proceso', 'justificada', 'correcciones', 'planeado', 'parcial'];
 
     if (value === true || positive.includes(String(value))) {
         return 'border-[#BFE3CC] bg-[#E2F3E8] text-[#187744]';

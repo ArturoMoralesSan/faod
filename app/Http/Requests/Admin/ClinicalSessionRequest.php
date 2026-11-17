@@ -27,14 +27,7 @@ class ClinicalSessionRequest extends FormRequest
             return;
         }
 
-        $date = $this->input('date');
-
-        $period = AcademicPeriod::query()
-            ->whereDate('starts_at', '<=', $date)
-            ->whereDate('ends_at', '>=', $date)
-            ->first();
-
-        $this->merge(['academic_period_id' => $period?->id]);
+        $this->merge(['academic_period_id' => AcademicPeriod::forDate($this->input('date'))?->id]);
     }
 
     public function rules(): array
@@ -106,16 +99,7 @@ class ClinicalSessionRequest extends FormRequest
                     }
 
                     // Si el consultorio tiene horario de atención definido, la sesión debe caber en él.
-                    $availabilities = SpaceAvailability::query()
-                        ->where('space_id', $spaceId)
-                        ->forPeriod($periodId);
-
-                    if ((clone $availabilities)->exists()
-                        && ! (clone $availabilities)
-                            ->where('day_of_week', $dayOfWeek)
-                            ->where('start_time', '<=', $start)
-                            ->where('end_time', '>=', $end)
-                            ->exists()) {
+                    if (! SpaceAvailability::coversSlot((int) $spaceId, $periodId, $date, $start, $end)) {
                         $validator->errors()->add('start_time', 'El consultorio no está disponible en ese día y horario.');
                     }
                 }

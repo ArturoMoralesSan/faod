@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Horario en que un consultorio está disponible para atención clínica.
@@ -37,6 +38,25 @@ class SpaceAvailability extends Model
     protected function endTime(): Attribute
     {
         return Attribute::set(fn (?string $value) => self::withSeconds($value));
+    }
+
+    /**
+     * ¿El consultorio atiende en ese día y horario? Si no tiene horario
+     * definido para el periodo, se considera disponible siempre.
+     */
+    public static function coversSlot(int $spaceId, ?int $periodId, string $date, string $start, string $end): bool
+    {
+        $availabilities = static::query()->where('space_id', $spaceId)->forPeriod($periodId);
+
+        if (! (clone $availabilities)->exists()) {
+            return true;
+        }
+
+        return $availabilities
+            ->where('day_of_week', Carbon::parse($date)->dayOfWeekIso)
+            ->where('start_time', '<=', self::withSeconds($start))
+            ->where('end_time', '>=', self::withSeconds($end))
+            ->exists();
     }
 
     public static function withSeconds(?string $time): ?string

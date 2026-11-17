@@ -54,6 +54,35 @@ class PeopleController extends Controller
         ]);
     }
 
+    /**
+     * Búsqueda de personas para selectores (JSON con {id, label, hint}).
+     */
+    public function search(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $search = trim((string) $request->input('q'));
+
+        if (mb_strlen($search) < 2) {
+            return response()->json([]);
+        }
+
+        return response()->json(
+            People::query()
+                ->search($search)
+                ->with(['studentProfile:id,people_id,registration_number', 'teacherProfile:id,people_id'])
+                ->limit(15)
+                ->get(['id', 'first_name', 'middle_name', 'paternal_surname', 'maternal_surname', 'curp', 'personal_email'])
+                ->map(fn (People $person) => [
+                    'id' => $person->id,
+                    'label' => $person->full_name,
+                    'hint' => collect([
+                        $person->studentProfile ? "Alumno {$person->studentProfile->registration_number}" : null,
+                        $person->teacherProfile ? 'Docente' : null,
+                        $person->personal_email,
+                    ])->filter()->implode(' · ') ?: null,
+                ])
+        );
+    }
+
     public function create(): Response
     {
         return Inertia::render('admin/people/Create', [

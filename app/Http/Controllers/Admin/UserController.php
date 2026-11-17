@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 
@@ -20,6 +22,7 @@ class UserController extends Controller
                         ->orWhere('email', 'like', "%{$search}%");
                 });
             })
+            ->when($request->filled('is_active'), fn ($q) => $q->where('is_active', $request->boolean('is_active')))
             ->orderBy('name')
             ->paginate(10)
             ->withQueryString();
@@ -28,6 +31,7 @@ class UserController extends Controller
             'users' => $users,
             'filters' => [
                 'search' => $request->search,
+                'is_active' => $request->is_active,
             ],
         ]);
     }
@@ -112,6 +116,33 @@ class UserController extends Controller
         return redirect()
             ->route('admin.users.index')
             ->with('success', 'Usuario actualizado correctamente.');
+    }
+
+    /**
+     * Activa o desactiva la cuenta. Una cuenta desactivada no puede iniciar sesión
+     * y sus sesiones abiertas se cierran en la siguiente petición.
+     */
+    public function toggleActive(User $user): RedirectResponse
+    {
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'No puedes desactivar tu propia cuenta.');
+        }
+
+        $user->forceFill(['is_active' => ! $user->is_active])->save();
+
+        return back()->with('success', $user->is_active ? 'Cuenta activada.' : 'Cuenta desactivada.');
+    }
+
+    /**
+     * Envía al correo del usuario un enlace para restablecer su contraseña.
+     */
+    public function sendPasswordReset(User $user): RedirectResponse
+    {
+        $status = Password::sendResetLink(['email' => $user->email]);
+
+        return $status === Password::RESET_LINK_SENT
+            ? back()->with('success', "Se envió el enlace de restablecimiento a {$user->email}.")
+            : back()->with('error', __($status));
     }
 
     public function destroy(User $user)

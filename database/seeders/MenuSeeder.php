@@ -37,7 +37,8 @@ class MenuSeeder extends Seeder
             ['name' => 'Configuración'],
             [
                 'icon' => 'Settings',
-                'order' => 4,
+                // Siempre al final del menú.
+                'order' => 20,
                 'route' => null,
                 'is_submenu' => true,
             ]
@@ -89,6 +90,7 @@ class MenuSeeder extends Seeder
         $this->link($academic, 'Asignaturas', 'BookOpen', 5, 'admin.subjects.index', 'subjects.view');
         $this->link($academic, 'Periodos', 'CalendarDays', 6, 'admin.academic-periods.index', 'academic-periods.view');
         $this->link($academic, 'Grupos y horarios', 'CalendarClock', 7, 'admin.groups.index', 'groups.view');
+        $this->link($academic, 'Cursos y actividades', 'Presentation', 8, 'admin.activities.index', 'activities.view');
 
         /*
         |--------------------------------------------------------------------------
@@ -109,7 +111,64 @@ class MenuSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        $clinics = $this->menu('Clínicas', 'Hospital', 3);
+        /*
+        |--------------------------------------------------------------------------
+        | Atención clínica
+        |--------------------------------------------------------------------------
+        */
+
+        $care = $this->menu('Atención clínica', 'Stethoscope', 3);
+
+        $this->link($care, 'Pacientes', 'Contact', 1, 'admin.patients.index', 'patients.view');
+        $this->link($care, 'Revisiones pendientes', 'ClipboardList', 2, 'admin.reviews.index', 'reviews.view');
+        $this->link($care, 'Catálogo de diagnósticos', 'ListTree', 3, 'admin.diagnoses.index', 'diagnosis-catalog.view');
+        $this->link($care, 'Catálogo de procedimientos', 'ClipboardPlus', 4, 'admin.procedures.index', 'procedure-catalog.view');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Clínicas
+        |--------------------------------------------------------------------------
+        */
+
+        $clinics = $this->menu('Clínicas', 'Hospital', 4);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Agenda
+        |--------------------------------------------------------------------------
+        */
+
+        $agenda = $this->menu('Agenda', 'CalendarRange', 5);
+
+        $this->link($agenda, 'Citas', 'CalendarRange', 1, 'admin.appointments.index', 'appointments.view');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Inventario
+        |--------------------------------------------------------------------------
+        */
+
+        $inventory = $this->menu('Inventario', 'Package', 6);
+
+        $this->link($inventory, 'Artículos y existencias', 'Package', 1, 'admin.inventory.index', 'inventory.view');
+        $this->link($inventory, 'Movimientos', 'ScrollText', 2, 'admin.inventory.movements.index', 'inventory.view');
+        $this->link($inventory, 'Inventario físico', 'ClipboardList', 3, 'admin.inventory-counts.index', 'inventory.view');
+        $this->link($inventory, 'Almacenes', 'Boxes', 4, 'admin.warehouses.index', 'inventory.view');
+        $this->link($inventory, 'Proveedores', 'Truck', 5, 'admin.suppliers.index', 'suppliers.view');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Finanzas
+        |--------------------------------------------------------------------------
+        */
+
+        $finance = $this->menu('Finanzas', 'Wallet', 7);
+
+        $this->link($finance, 'Adeudos', 'Receipt', 1, 'admin.finance.charges.index', 'charges.view');
+        $this->link($finance, 'Pagos', 'Banknote', 2, 'admin.finance.payments.index', 'payments.view');
+        $this->link($finance, 'Caja y cortes', 'Wallet', 3, 'admin.finance.cash-registers.index', 'cash.view');
+        $this->link($finance, 'Gastos', 'HandCoins', 4, 'admin.finance.expenses.index', 'expenses.view');
+        $this->link($finance, 'Conceptos y cuotas', 'Tag', 5, 'admin.finance.concepts.index', 'fee-concepts.view');
 
         $this->link($clinics, 'Clínicas', 'Hospital', 1, 'admin.clinics.index', 'clinics.view');
         $this->link($clinics, 'Aulas y espacios', 'DoorOpen', 2, 'admin.spaces.index', 'spaces.view');

@@ -2,7 +2,7 @@
  * Datos de los formularios compartidos entre Create y Edit.
  */
 
-import type { Option, TeacherOption } from '@/types/admin';
+import type { Option, StudentOption, TeacherOption } from '@/types/admin';
 
 export interface DepartmentFormData {
     parent_id: number | null;
@@ -160,6 +160,92 @@ export interface ClinicIncidentFormData {
     description: string;
     occurred_at: string;
     resolution: string;
+}
+
+export interface PatientFormData {
+    // Persona
+    curp: string;
+    first_name: string;
+    middle_name: string;
+    paternal_surname: string;
+    maternal_surname: string;
+    birth_date: string;
+    gender: string;
+    phone: string;
+    personal_email: string;
+    street: string;
+    exterior_number: string;
+    interior_number: string;
+    neighborhood: string;
+    postal_code: string;
+    city: string;
+    state: string;
+    // Expediente
+    clinic_id: number | null;
+    blood_type: string;
+    occupation: string;
+    marital_status: string;
+    referred_by: string;
+    status: string;
+    registered_at: string;
+    notes: string;
+}
+
+export interface PatientFormOptions {
+    clinics: Option[];
+    statuses: string[];
+    bloodTypes: string[];
+    maritalStatuses: string[];
+}
+
+export interface AppointmentFormData {
+    patient_id: number | null;
+    clinic_id: number | null;
+    space_id: number | null;
+    student_profile_id: number | null;
+    teacher_profile_id: number | null;
+    treatment_plan_id: number | null;
+    date: string;
+    start_time: string;
+    end_time: string;
+    reason: string;
+    notes: string;
+}
+
+export interface AppointmentFormOptions {
+    clinics: Option[];
+    spaces: (Option & { clinic_id: number })[];
+    students: StudentOption[];
+    teachers: TeacherOption[];
+    treatmentPlans: { id: number; patient_id: number; title: string }[];
+    patientSearchUrl: string;
+}
+
+export interface ActivityFormData {
+    type: string;
+    title: string;
+    description: string;
+    modality: string;
+    starts_at: string;
+    ends_at: string;
+    schedule: string;
+    space_id: number | null;
+    location: string;
+    capacity: number | null;
+    hours: number | null;
+    cost: number | null;
+    status: string;
+    coordinator_id: number | null;
+    issues_certificate: boolean;
+    min_attendance: number | null;
+}
+
+export interface ActivityFormOptions {
+    types: string[];
+    modalities: string[];
+    statuses: string[];
+    spaces: Option[];
+    teachers: TeacherOption[];
 }
 
 export interface AcademicGroupFormData {

@@ -43,6 +43,9 @@ const emit = defineEmits<{
         <div
             class="flex min-w-[220px] items-center justify-end gap-1.5 font-['DM_Sans',sans-serif]"
         >
+            <!-- Acciones adicionales de cada vista -->
+            <slot />
+
             <!-- Administrar preguntas -->
             <Link
                 v-if="showQuestions && questionsUrl"

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasAttachments;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -62,6 +63,33 @@ class People extends Model
     public function staffProfile(): HasOne
     {
         return $this->hasOne(StaffProfile::class, 'people_id');
+    }
+
+    public function patient(): HasOne
+    {
+        return $this->hasOne(Patient::class, 'people_id');
+    }
+
+    /**
+     * Búsqueda por nombre (cada palabra en cualquiera de los nombres o apellidos), CURP o teléfono.
+     */
+    public function scopeSearch(Builder $query, string $search): Builder
+    {
+        $search = trim($search);
+
+        return $query->where(function ($q) use ($search) {
+            $q->where('curp', 'like', "%{$search}%")
+                ->orWhere('phone', 'like', "%{$search}%")
+                ->orWhere(function ($q) use ($search) {
+                    foreach (preg_split('/\s+/', $search) as $word) {
+                        $q->where(fn ($q) => $q
+                            ->where('first_name', 'like', "%{$word}%")
+                            ->orWhere('middle_name', 'like', "%{$word}%")
+                            ->orWhere('paternal_surname', 'like', "%{$word}%")
+                            ->orWhere('maternal_surname', 'like', "%{$word}%"));
+                    }
+                });
+        });
     }
 
     public function getFullNameAttribute(): string

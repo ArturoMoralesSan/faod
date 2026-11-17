@@ -1,9 +1,13 @@
 <?php
 
+use App\Http\Controllers\Admin\AcademicActivityController;
 use App\Http\Controllers\Admin\AcademicGroupController;
+use App\Http\Controllers\Admin\ActivityParticipantController;
 use App\Http\Controllers\Admin\AcademicPeriodController;
 use App\Http\Controllers\Admin\AcademicProgramController;
 use App\Http\Controllers\Admin\ActiveRoleController;
+use App\Http\Controllers\Admin\AppointmentController;
+use App\Http\Controllers\Admin\Finance;
 use App\Http\Controllers\Admin\AttachmentController;
 use App\Http\Controllers\Admin\CatalogItemController;
 use App\Http\Controllers\Admin\CatalogTypeController;
@@ -14,8 +18,23 @@ use App\Http\Controllers\Admin\ClinicController;
 use App\Http\Controllers\Admin\ClinicIncidentController;
 use App\Http\Controllers\Admin\ClinicRecordController;
 use App\Http\Controllers\Admin\CohortController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\DiagnosisController;
+use App\Http\Controllers\Admin\OdontogramController;
+use App\Http\Controllers\Admin\PatientDiagnosisController;
+use App\Http\Controllers\Admin\ProcedureController;
+use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\TreatmentItemController;
+use App\Http\Controllers\Admin\TreatmentPlanController;
+use App\Http\Controllers\Admin\InventoryCountController;
+use App\Http\Controllers\Admin\InventoryItemController;
+use App\Http\Controllers\Admin\InventoryMovementController;
 use App\Http\Controllers\Admin\KnowledgeAreaController;
+use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\WarehouseController;
+use App\Http\Controllers\Admin\PatientController;
+use App\Http\Controllers\Admin\PatientRecordController;
 use App\Http\Controllers\Admin\PeopleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
@@ -74,7 +93,7 @@ Route::middleware(['auth', 'verified'])
         |
         */
 
-        Route::inertia('dashboard', 'Dashboard')
+        Route::get('dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
         /*
@@ -92,6 +111,13 @@ Route::middleware(['auth', 'verified'])
                 'update' => 'permission:users.edit',
                 'destroy' => 'permission:users.delete',
             ]);
+
+        Route::middleware('permission:users.edit')->group(function () {
+            Route::patch('users/{user}/toggle-active', [UserController::class, 'toggleActive'])
+                ->name('users.toggle-active');
+            Route::post('users/{user}/password-reset', [UserController::class, 'sendPasswordReset'])
+                ->name('users.password-reset');
+        });
 
         /*
         |--------------------------------------------------------------------------
@@ -125,6 +151,10 @@ Route::middleware(['auth', 'verified'])
                 'destroy' => 'permission:permissions.delete',
             ]);
         
+        Route::get('people/search', [PeopleController::class, 'search'])
+            ->name('people.search')
+            ->middleware('permission:people.view|activities.view');
+
         Route::resource('people', PeopleController::class)
             ->parameters(['people' => 'people'])
             ->middleware([
@@ -265,6 +295,238 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('clinic-incidents', ClinicIncidentController::class)
             ->middleware($crud('clinic-incidents'));
+
+        /*
+        |--------------------------------------------------------------------------
+        | Pacientes
+        |--------------------------------------------------------------------------
+        */
+
+        // Antes del resource para que "search" no se tome como {patient}.
+        Route::get('patients/search', [PatientController::class, 'search'])
+            ->name('patients.search')
+            ->middleware('permission:patients.view|appointments.view');
+
+        Route::resource('patients', PatientController::class)
+            ->middleware($crud('patients'));
+
+        Route::middleware('permission:patients.edit')
+            ->controller(PatientRecordController::class)
+            ->group(function () {
+                $types = PatientRecordController::TYPES;
+
+                Route::post('patients/{patient}/{type}', 'store')
+                    ->whereIn('type', $types)
+                    ->name('patients.records.store');
+                Route::put('patients/{patient}/{type}/{record}', 'update')
+                    ->whereIn('type', $types)
+                    ->whereNumber('record')
+                    ->name('patients.records.update');
+                Route::delete('patients/{patient}/{type}/{record}', 'destroy')
+                    ->whereIn('type', $types)
+                    ->whereNumber('record')
+                    ->name('patients.records.destroy');
+            });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Diagnósticos, odontograma y revisión docente
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('diagnoses', DiagnosisController::class)
+            ->only(['index', 'store', 'update', 'destroy'])
+            ->middleware($crud('diagnosis-catalog'));
+
+        Route::resource('patients.diagnoses', PatientDiagnosisController::class)
+            ->only(['store', 'update', 'destroy'])
+            ->middleware($crud('diagnoses'));
+
+        Route::post('patients/{patient}/odontogram', [OdontogramController::class, 'store'])
+            ->name('patients.odontogram.store')
+            ->middleware('permission:diagnoses.create');
+        Route::delete('patients/{patient}/odontogram/{entry}', [OdontogramController::class, 'destroy'])
+            ->name('patients.odontogram.destroy')
+            ->middleware('permission:diagnoses.delete');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tratamientos
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('procedures', ProcedureController::class)
+            ->only(['index', 'store', 'update', 'destroy'])
+            ->middleware($crud('procedure-catalog'));
+
+        Route::post('patients/{patient}/treatment-plans', [TreatmentPlanController::class, 'store'])
+            ->name('patients.treatment-plans.store')
+            ->middleware('permission:treatments.create');
+        Route::resource('treatment-plans', TreatmentPlanController::class)
+            ->only(['show', 'update', 'destroy'])
+            ->middleware($crud('treatments'));
+
+        Route::middleware('permission:treatments.edit')
+            ->controller(TreatmentItemController::class)
+            ->group(function () {
+                Route::post('treatment-plans/{treatment_plan}/stages', 'storeStage')->name('treatment-plans.stages.store');
+                Route::put('treatment-stages/{stage}', 'updateStage')->name('treatment-stages.update');
+                Route::delete('treatment-stages/{stage}', 'destroyStage')->name('treatment-stages.destroy');
+
+                Route::post('treatment-plans/{treatment_plan}/procedures', 'storeProcedure')->name('treatment-plans.procedures.store');
+                Route::put('treatment-procedures/{procedure}', 'updateProcedure')->name('treatment-procedures.update');
+                Route::delete('treatment-procedures/{procedure}', 'destroyProcedure')->name('treatment-procedures.destroy');
+
+                Route::post('treatment-procedures/{procedure}/materials', 'storeMaterial')->name('treatment-procedures.materials.store');
+                Route::delete('procedure-materials/{material}', 'destroyMaterial')->name('procedure-materials.destroy');
+            });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Agenda y citas
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('appointments', AppointmentController::class)
+            ->except('show')
+            ->middleware($crud('appointments'));
+
+        Route::middleware('permission:appointments.edit')
+            ->controller(AppointmentController::class)
+            ->prefix('appointments/{appointment}')
+            ->name('appointments.')
+            ->group(function () {
+                Route::patch('confirm', 'confirm')->name('confirm');
+                Route::patch('attend', 'attend')->name('attend');
+                Route::patch('no-show', 'noShow')->name('no-show');
+                Route::patch('cancel', 'cancel')->name('cancel');
+                Route::post('reschedule', 'reschedule')->name('reschedule');
+                Route::post('remind', 'remind')->name('remind');
+            });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Inventario y almacén
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('inventory/movements', [InventoryMovementController::class, 'index'])
+            ->name('inventory.movements.index')
+            ->middleware('permission:inventory.view');
+        Route::post('inventory/{inventory}/movements', [InventoryMovementController::class, 'store'])
+            ->name('inventory.movements.store')
+            ->middleware('permission:inventory.edit');
+
+        Route::resource('inventory', InventoryItemController::class)
+            ->only(['index', 'store', 'show', 'update', 'destroy'])
+            ->middleware($crud('inventory'));
+
+        Route::resource('inventory-counts', InventoryCountController::class)
+            ->only(['index', 'store', 'show', 'update'])
+            ->middleware([
+                'index' => 'permission:inventory.view',
+                'show' => 'permission:inventory.view',
+                'store' => 'permission:inventory.edit',
+                'update' => 'permission:inventory.edit',
+            ]);
+        Route::patch('inventory-counts/{inventory_count}/close', [InventoryCountController::class, 'close'])
+            ->name('inventory-counts.close')
+            ->middleware('permission:inventory.edit');
+
+        Route::resource('suppliers', SupplierController::class)
+            ->only(['index', 'store', 'update', 'destroy'])
+            ->middleware($crud('suppliers'));
+
+        Route::resource('warehouses', WarehouseController::class)
+            ->only(['index', 'store', 'update'])
+            ->middleware([
+                'index' => 'permission:inventory.view',
+                'store' => 'permission:inventory.edit',
+                'update' => 'permission:inventory.edit',
+            ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Control administrativo y financiero
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('finance')->name('finance.')->group(function () use ($crud) {
+            Route::resource('concepts', Finance\FeeConceptController::class)
+                ->only(['index', 'store', 'update', 'destroy'])
+                ->middleware($crud('fee-concepts'));
+
+            Route::get('payers/search', [Finance\AccountController::class, 'search'])
+                ->name('payers.search')
+                ->middleware('permission:charges.view');
+            Route::get('accounts/{type}/{id}', [Finance\AccountController::class, 'show'])
+                ->whereIn('type', array_keys(\App\Models\Charge::PAYER_TYPES))
+                ->whereNumber('id')
+                ->name('accounts.show')
+                ->middleware('permission:charges.view');
+
+            Route::get('charges', [Finance\ChargeController::class, 'index'])->name('charges.index')->middleware('permission:charges.view');
+            Route::post('charges', [Finance\ChargeController::class, 'store'])->name('charges.store')->middleware('permission:charges.create');
+            Route::post('charges/bulk', [Finance\ChargeController::class, 'bulk'])->name('charges.bulk')->middleware('permission:charges.create');
+            Route::patch('charges/{charge}/discount', [Finance\ChargeController::class, 'discount'])->name('charges.discount')->middleware('permission:charges.edit');
+            Route::patch('charges/{charge}/cancel', [Finance\ChargeController::class, 'cancel'])->name('charges.cancel')->middleware('permission:charges.edit');
+            Route::post('treatment-plans/{treatment_plan}/charges', [Finance\ChargeController::class, 'fromTreatmentPlan'])
+                ->name('treatment-plans.charges')
+                ->middleware('permission:charges.create');
+
+            Route::get('payments', [Finance\PaymentController::class, 'index'])->name('payments.index')->middleware('permission:payments.view');
+            Route::post('accounts/{type}/{id}/payments', [Finance\PaymentController::class, 'store'])
+                ->whereIn('type', array_keys(\App\Models\Charge::PAYER_TYPES))
+                ->whereNumber('id')
+                ->name('payments.store')
+                ->middleware('permission:payments.create');
+            Route::get('payments/{payment}', [Finance\PaymentController::class, 'show'])->name('payments.show')->middleware('permission:payments.view');
+            Route::patch('payments/{payment}/cancel', [Finance\PaymentController::class, 'cancel'])->name('payments.cancel')->middleware('permission:payments.delete');
+
+            Route::resource('expenses', Finance\ExpenseController::class)
+                ->only(['index', 'store', 'update', 'destroy'])
+                ->middleware($crud('expenses'));
+
+            Route::get('cash-registers', [Finance\CashRegisterController::class, 'index'])->name('cash-registers.index')->middleware('permission:cash.view');
+            Route::middleware('permission:cash.operate')->group(function () {
+                Route::post('cash-registers', [Finance\CashRegisterController::class, 'store'])->name('cash-registers.store');
+                Route::post('cash-registers/{cash_register}/open', [Finance\CashRegisterController::class, 'open'])->name('cash-registers.open');
+                Route::patch('cash-sessions/{cash_session}/close', [Finance\CashRegisterController::class, 'close'])->name('cash-sessions.close');
+            });
+            Route::get('cash-sessions/{cash_session}', [Finance\CashRegisterController::class, 'session'])->name('cash-sessions.show')->middleware('permission:cash.view');
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cursos y actividades académicas
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('activities', AcademicActivityController::class)
+            ->middleware($crud('activities'));
+
+        Route::middleware('permission:activities.edit')
+            ->controller(ActivityParticipantController::class)
+            ->prefix('activities/{activity}')
+            ->name('activities.')
+            ->group(function () {
+                Route::post('participants', 'store')->name('participants.store');
+                Route::put('participants', 'update')->name('participants.update');
+                Route::delete('participants/{participant}', 'destroy')->name('participants.destroy');
+                Route::post('certificates', 'issueCertificates')->name('certificates.issue');
+                Route::post('instructors', 'storeInstructor')->name('instructors.store');
+                Route::delete('instructors/{instructor}', 'destroyInstructor')->name('instructors.destroy');
+            });
+        Route::get('activities/{activity}/participants/{participant}/certificate', [ActivityParticipantController::class, 'certificate'])
+            ->name('activities.participants.certificate')
+            ->middleware('permission:activities.view');
+
+        Route::get('reviews', [ReviewController::class, 'index'])
+            ->name('reviews.index')
+            ->middleware('permission:reviews.view');
+        Route::post('reviews', [ReviewController::class, 'store'])
+            ->name('reviews.store')
+            ->middleware('permission:reviews.create');
 
         /*
         |--------------------------------------------------------------------------

@@ -21,6 +21,9 @@ class Attachment extends Model
         'academic_program' => AcademicProgram::class,
         'study_plan' => StudyPlan::class,
         'clinic_incident' => ClinicIncident::class,
+        'patient' => Patient::class,
+        'expense' => Expense::class,
+        'academic_activity' => AcademicActivity::class,
     ];
 
     protected $fillable = [

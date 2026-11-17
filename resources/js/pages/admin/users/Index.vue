@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { FilterX, Plus, Users } from 'lucide-vue-next';
+import { FilterX, KeyRound, Plus, Power, Users } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { ref } from 'vue';
 
 import DataTable from '@/components/admin/DataTable.vue';
+import FilterSelect from '@/components/admin/FilterSelect.vue';
 import PageHeader from '@/components/admin/PageHeader.vue';
+import StatusBadge from '@/components/admin/StatusBadge.vue';
 import TableActions from '@/components/admin/TableActions.vue';
+import { formatDateTime } from '@/lib/admin';
 import admin from '@/routes/admin';
 
 interface Role {
@@ -18,6 +21,8 @@ interface User {
     id: number;
     name: string;
     email: string;
+    is_active: boolean;
+    last_login_at: string | null;
     roles: Role[];
 }
 
@@ -41,18 +46,26 @@ const props = defineProps<{
     users: UsersPagination;
     filters: {
         search?: string;
+        is_active?: string;
     };
 }>();
 
 const search = ref(props.filters?.search ?? '');
+const status = ref(props.filters?.is_active ?? '');
 
-const hasFilters = () => Boolean(search.value.trim());
+const statusOptions = [
+    { value: '1', label: 'Activas' },
+    { value: '0', label: 'Desactivadas' },
+];
+
+const hasFilters = () => Boolean(search.value.trim() || status.value);
 
 const submitSearch = () => {
     router.get(
         admin.users.index().url,
         {
             search: search.value.trim() || undefined,
+            is_active: status.value || undefined,
         },
         {
             preserveState: true,
@@ -62,8 +75,47 @@ const submitSearch = () => {
     );
 };
 
+const toggleActive = (user: User) => {
+    Swal.fire({
+        title: user.is_active ? '¿Desactivar cuenta?' : '¿Activar cuenta?',
+        text: user.is_active
+            ? `"${user.name}" no podrá iniciar sesión y sus sesiones abiertas se cerrarán.`
+            : `"${user.name}" podrá volver a iniciar sesión.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: user.is_active ? 'Sí, desactivar' : 'Sí, activar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        confirmButtonColor: '#941B2B',
+        cancelButtonColor: '#737982',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.patch(admin.users.toggleActive(user.id).url, {}, { preserveScroll: true });
+        }
+    });
+};
+
+const sendReset = (user: User) => {
+    Swal.fire({
+        title: '¿Enviar enlace para restablecer contraseña?',
+        text: `Se enviará un correo a ${user.email} con un enlace para crear una nueva contraseña.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, enviar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        confirmButtonColor: '#941B2B',
+        cancelButtonColor: '#737982',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.post(admin.users.passwordReset(user.id).url, {}, { preserveScroll: true });
+        }
+    });
+};
+
 const clearFilters = () => {
     search.value = '';
+    status.value = '';
 
     router.get(
         admin.users.index().url,
@@ -129,13 +181,17 @@ defineOptions({
         <DataTable
             :pagination="users"
             :is-empty="users.data.length === 0"
-            :empty-colspan="4"
+            :empty-colspan="5"
             v-model:search="search"
             search-placeholder="Buscar usuario..."
             :has-filters="hasFilters()"
             @search="submitSearch"
             @clear-filters="clearFilters"
         >
+            <template #filters>
+                <FilterSelect v-model="status" placeholder="Todas las cuentas" :options="statusOptions" @change="submitSearch" />
+            </template>
+
             <template #active-filters>
                 <div
                     v-if="search.trim()"
@@ -162,6 +218,10 @@ defineOptions({
 
                     <th class="px-5 py-4 font-semibold text-[#383D43] sm:px-6">
                         Roles
+                    </th>
+
+                    <th class="px-5 py-4 font-semibold text-[#383D43] sm:px-6">
+                        Cuenta
                     </th>
 
                     <th class="px-5 py-4 text-right font-semibold text-[#383D43] sm:px-6">
@@ -221,12 +281,40 @@ defineOptions({
                         </div>
                     </td>
 
+                    <td class="px-5 py-4 sm:px-6">
+                        <StatusBadge :value="user.is_active" />
+                        <p class="mt-1 text-xs text-[#858B93]">
+                            {{ user.last_login_at ? `Último acceso: ${formatDateTime(user.last_login_at)}` : 'Sin accesos' }}
+                        </p>
+                    </td>
+
                     <TableActions
                         :edit-url="admin.users.edit(user.id).url"
                         :show-view="false"
                         item-name="usuario"
                         @delete="deleteUser(user)"
-                    />
+                    >
+                        <button
+                            type="button"
+                            title="Enviar enlace para restablecer contraseña"
+                            class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#737982] transition-colors hover:bg-[#F9ECEE] hover:text-[#941B2B]"
+                            @click="sendReset(user)"
+                        >
+                            <KeyRound :size="16" :stroke-width="1.8" />
+                        </button>
+
+                        <button
+                            type="button"
+                            :title="user.is_active ? 'Desactivar cuenta' : 'Activar cuenta'"
+                            :class="[
+                                'inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-[#F9ECEE]',
+                                user.is_active ? 'text-[#187744]' : 'text-[#941B2B]',
+                            ]"
+                            @click="toggleActive(user)"
+                        >
+                            <Power :size="16" :stroke-width="1.8" />
+                        </button>
+                    </TableActions>
                 </tr>
             </template>
 

@@ -42,6 +42,15 @@ class AcademicPeriod extends Model
         return static::where('is_current', true)->first();
     }
 
+    /** Periodo que contiene la fecha dada. */
+    public static function forDate(string $date): ?self
+    {
+        return static::query()
+            ->whereDate('starts_at', '<=', $date)
+            ->whereDate('ends_at', '>=', $date)
+            ->first();
+    }
+
     public function groups(): HasMany
     {
         return $this->hasMany(AcademicGroup::class);

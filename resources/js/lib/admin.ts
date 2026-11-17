@@ -133,6 +133,99 @@ const LABELS: Record<string, string> = {
     resuelta: 'Resuelta',
     cerrada: 'Cerrada',
 
+    // Pacientes ('alta' ya está arriba: sirve para gravedad y para el estado del paciente)
+    soltero: 'Soltero(a)',
+    casado: 'Casado(a)',
+    union_libre: 'Unión libre',
+    divorciado: 'Divorciado(a)',
+    viudo: 'Viudo(a)',
+    femenino: 'Femenino',
+    masculino: 'Masculino',
+    no_binario: 'No binario',
+    prefiero_no_decir: 'Prefiero no decir',
+    heredofamiliar: 'Heredofamiliares',
+    patologico: 'Personales patológicos',
+    no_patologico: 'Personales no patológicos',
+    odontologico: 'Odontológicos',
+    ginecoobstetrico: 'Ginecoobstétricos',
+    leve: 'Leve',
+    moderada: 'Moderada',
+    grave: 'Grave',
+
+    // Diagnósticos y revisiones
+    presuntivo: 'Presuntivo',
+    definitivo: 'Definitivo',
+    autorizado: 'Autorizado',
+    correcciones: 'Requiere correcciones',
+    rechazado: 'Rechazado',
+
+    // Odontograma
+    sano: 'Sano',
+    caries: 'Caries',
+    obturado: 'Obturado',
+    sellador: 'Sellador',
+    fractura: 'Fractura',
+    ausente: 'Ausente',
+    extraccion_indicada: 'Extracción indicada',
+    corona: 'Corona',
+    endodoncia: 'Endodoncia',
+    implante: 'Implante',
+    protesis: 'Prótesis',
+
+    // Tratamientos
+    concluido: 'Concluido',
+    suspendido: 'Suspendido',
+    cancelado: 'Cancelado',
+    planeado: 'Planeado',
+    realizado: 'Realizado',
+
+    // Citas
+    confirmada: 'Confirmada',
+    atendida: 'Atendida',
+    no_asistio: 'No asistió',
+    reprogramada: 'Reprogramada',
+
+    // Inventario
+    entrada: 'Entrada',
+    salida: 'Salida',
+    ajuste: 'Ajuste',
+    traspaso: 'Traspaso',
+    consumo: 'Consumo clínico',
+    abierto: 'Abierto',
+    cerrado: 'Cerrado',
+
+    // Finanzas
+    parcial: 'Pago parcial',
+    pagado: 'Pagado',
+    vencido: 'Vencido',
+    efectivo: 'Efectivo',
+    tarjeta: 'Tarjeta',
+    transferencia: 'Transferencia',
+    deposito: 'Depósito',
+    colegiatura: 'Colegiatura',
+    inscripcion: 'Inscripción',
+    tratamiento: 'Tratamiento',
+    curso: 'Curso',
+    constancia: 'Constancia',
+    material: 'Material',
+    servicios: 'Servicios',
+    papeleria: 'Papelería',
+    student: 'Alumno',
+    patient: 'Paciente',
+
+    // Actividades académicas
+    seminario: 'Seminario',
+    congreso: 'Congreso',
+    taller: 'Taller',
+    conferencia: 'Conferencia',
+    presencial: 'Presencial',
+    en_linea: 'En línea',
+    mixta: 'Mixta',
+    acreditado: 'Acreditado',
+    no_acreditado: 'No acreditado',
+    no_aplica: 'No aplica',
+    becado: 'Becado',
+
     // Perfiles
     active: 'Activo',
     inactive: 'Inactivo',
@@ -195,6 +288,37 @@ export function formatDateTime(value?: string | null): string {
         hour: '2-digit',
         minute: '2-digit',
     });
+}
+
+/** Cantidad sin ceros de más: 2.50 → "2.5", 3.00 → "3". */
+export function formatQty(value?: number | string | null): string {
+    return Number(value ?? 0).toLocaleString('es-MX', { maximumFractionDigits: 2 });
+}
+
+export function formatMoney(value?: number | string | null): string {
+    return Number(value ?? 0).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+}
+
+/** Edad en años a partir de la fecha de nacimiento. */
+export function age(birthDate?: string | null): number | null {
+    if (!birthDate) {
+        return null;
+    }
+
+    const birth = new Date(`${birthDate.substring(0, 10)}T00:00:00`);
+    const today = new Date();
+    let years = today.getFullYear() - birth.getFullYear();
+
+    if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) {
+        years--;
+    }
+
+    return years;
+}
+
+/** Fecha local de hoy en YYYY-MM-DD (sin desfase por zona horaria). */
+export function todayInput(): string {
+    return toDateTimeInput(new Date().toISOString()).substring(0, 10);
 }
 
 /** "08:00:00" → "08:00" */
