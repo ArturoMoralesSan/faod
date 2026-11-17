@@ -2,6 +2,8 @@
  * Datos de los formularios compartidos entre Create y Edit.
  */
 
+import type { Option, TeacherOption } from '@/types/admin';
+
 export interface DepartmentFormData {
     parent_id: number | null;
     type: string;
@@ -98,6 +100,7 @@ export interface ClinicFormData {
 
 export interface SpaceFormData {
     clinic_id: number | null;
+    clinic_area_id: number | null;
     type: string;
     code: string;
     name: string;
@@ -105,6 +108,58 @@ export interface SpaceFormData {
     floor: string;
     capacity: number | null;
     is_active: boolean;
+}
+
+export interface ClinicalSessionFormData {
+    clinic_id: number | null;
+    space_id: number | null;
+    academic_period_id: number | null;
+    academic_group_id: number | null;
+    subject_id: number | null;
+    supervisor_id: number | null;
+    date: string;
+    start_time: string;
+    end_time: string;
+    status: string;
+    topic: string;
+    notes: string;
+}
+
+/** Catálogos que recibe el formulario de sesión clínica. */
+export interface ClinicalSessionFormOptions {
+    clinics: Option[];
+    spaces: (Option & { clinic_id: number })[];
+    periods: (Option & { is_current: boolean })[];
+    groups: { id: number; academic_period_id: number; code: string }[];
+    subjects: Option[];
+    teachers: TeacherOption[];
+    clinicSupervisors: { clinic_id: number; teacher_profile_id: number }[];
+    statuses: string[];
+}
+
+/** Catálogos que recibe el formulario de incidencias. */
+export interface ClinicIncidentFormOptions {
+    clinics: Option[];
+    spaces: (Option & { clinic_id: number })[];
+    equipment: (Option & { clinic_id: number })[];
+    sessions: { id: number; clinic_id: number; date: string; start_time: string; topic: string | null }[];
+    types: string[];
+    severities: string[];
+    statuses: string[];
+}
+
+export interface ClinicIncidentFormData {
+    clinic_id: number | null;
+    space_id: number | null;
+    clinic_equipment_id: number | null;
+    clinical_session_id: number | null;
+    type: string;
+    severity: string;
+    status: string;
+    title: string;
+    description: string;
+    occurred_at: string;
+    resolution: string;
 }
 
 export interface AcademicGroupFormData {

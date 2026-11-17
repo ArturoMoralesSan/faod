@@ -9,13 +9,17 @@ import admin from '@/routes/admin';
 import type { Option } from '@/types/admin';
 import type { SpaceFormData } from '@/types/forms';
 
-defineProps<{
+const props = defineProps<{
     types: string[];
     clinics: Option[];
+    areas: (Option & { clinic_id: number })[];
+    /** Clínica preseleccionada al llegar desde su detalle (?clinic_id=). */
+    defaultClinicId: number | null;
 }>();
 
 const form = useForm<SpaceFormData>({
-    clinic_id: null,
+    clinic_id: props.defaultClinicId,
+    clinic_area_id: null,
     type: 'aula',
     code: '',
     name: '',
@@ -55,7 +59,7 @@ defineOptions({
         />
 
         <form class="flex flex-col gap-5" @submit.prevent="submit">
-            <SpaceForm :form="form" :types="types" :clinics="clinics" />
+            <SpaceForm :form="form" :types="types" :clinics="clinics" :areas="areas" />
 
             <FormActions
                 :cancel-href="admin.spaces.index().url"

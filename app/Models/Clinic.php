@@ -36,4 +36,29 @@ class Clinic extends Model
     {
         return $this->hasMany(Space::class);
     }
+
+    public function areas(): HasMany
+    {
+        return $this->hasMany(ClinicArea::class)->orderBy('name');
+    }
+
+    public function supervisors(): HasMany
+    {
+        return $this->hasMany(ClinicSupervisor::class);
+    }
+
+    public function equipment(): HasMany
+    {
+        return $this->hasMany(ClinicEquipment::class)->orderBy('name');
+    }
+
+    public function clinicalSessions(): HasMany
+    {
+        return $this->hasMany(ClinicalSession::class);
+    }
+
+    public function incidents(): HasMany
+    {
+        return $this->hasMany(ClinicIncident::class);
+    }
 }

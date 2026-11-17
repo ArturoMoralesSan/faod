@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { InertiaForm } from '@inertiajs/vue3';
 import { Building, DoorOpen, Hash, Users } from 'lucide-vue-next';
+import { computed, watch } from 'vue';
 
 import ActiveSwitch from '@/components/admin/ActiveSwitch.vue';
 import AdminCard from '@/components/admin/AdminCard.vue';
@@ -10,11 +11,24 @@ import { enumOptions, recordOptions } from '@/lib/admin';
 import type { Option } from '@/types/admin';
 import type { SpaceFormData } from '@/types/forms';
 
-defineProps<{
+const props = defineProps<{
     form: InertiaForm<SpaceFormData>;
     types: string[];
     clinics: Option[];
+    areas: (Option & { clinic_id: number })[];
 }>();
+
+const clinicAreas = computed(() => props.areas.filter((area) => area.clinic_id === props.form.clinic_id));
+
+// El área pertenece a la clínica: al cambiar de clínica se limpia.
+watch(
+    () => props.form.clinic_id,
+    () => {
+        if (!clinicAreas.value.some((area) => area.id === props.form.clinic_area_id)) {
+            props.form.clinic_area_id = null;
+        }
+    },
+);
 </script>
 
 <template>
@@ -61,6 +75,17 @@ defineProps<{
                 :options="recordOptions(clinics)"
                 :error="form.errors.clinic_id"
                 help="Solo para consultorios o espacios de una clínica."
+                nullable
+            />
+
+            <FormSelect
+                v-if="clinicAreas.length"
+                id="clinic_area_id"
+                v-model="form.clinic_area_id"
+                label="Área de la clínica"
+                placeholder="Sin área"
+                :options="recordOptions(clinicAreas)"
+                :error="form.errors.clinic_area_id"
                 nullable
             />
 

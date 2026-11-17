@@ -105,6 +105,34 @@ const LABELS: Record<string, string> = {
     no_inscrito: 'No inscrito',
     pendiente: 'Pendiente',
 
+    // Clínicas
+    responsable: 'Responsable',
+    supervisor: 'Supervisor',
+    operativo: 'Operativo',
+    mantenimiento: 'En mantenimiento',
+    fuera_servicio: 'Fuera de servicio',
+
+    // Sesiones clínicas
+    programada: 'Programada',
+    cancelada: 'Cancelada',
+    asistio: 'Asistió',
+    falta: 'Falta',
+    justificada: 'Justificada',
+
+    // Incidencias
+    equipo: 'Equipo',
+    instalaciones: 'Instalaciones',
+    bioseguridad: 'Bioseguridad',
+    seguridad: 'Seguridad',
+    paciente: 'Paciente',
+    media: 'Media',
+    alta: 'Alta',
+    critica: 'Crítica',
+    abierta: 'Abierta',
+    en_proceso: 'En proceso',
+    resuelta: 'Resuelta',
+    cerrada: 'Cerrada',
+
     // Perfiles
     active: 'Activo',
     inactive: 'Inactivo',
@@ -141,6 +169,32 @@ export function formatDate(value?: string | null): string {
 /** Fecha ISO a YYYY-MM-DD para inputs type="date". */
 export function toDateInput(value?: string | null): string {
     return value ? value.substring(0, 10) : '';
+}
+
+/** Fecha y hora ISO a "YYYY-MM-DDTHH:MM" (hora local) para inputs datetime-local. */
+export function toDateTimeInput(value?: string | null): string {
+    if (!value) {
+        return '';
+    }
+
+    const date = new Date(value);
+    const pad = (n: number) => String(n).padStart(2, '0');
+
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+export function formatDateTime(value?: string | null): string {
+    if (!value) {
+        return '—';
+    }
+
+    return new Date(value).toLocaleString('es-MX', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
 }
 
 /** "08:00:00" → "08:00" */

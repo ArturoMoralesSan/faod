@@ -113,6 +113,8 @@ class MenuSeeder extends Seeder
 
         $this->link($clinics, 'Clínicas', 'Hospital', 1, 'admin.clinics.index', 'clinics.view');
         $this->link($clinics, 'Aulas y espacios', 'DoorOpen', 2, 'admin.spaces.index', 'spaces.view');
+        $this->link($clinics, 'Sesiones clínicas', 'CalendarCheck', 3, 'admin.clinical-sessions.index', 'clinical-sessions.view');
+        $this->link($clinics, 'Incidencias', 'TriangleAlert', 4, 'admin.clinic-incidents.index', 'clinic-incidents.view');
     }
 
     private function menu(string $name, string $icon, int $order): Menu

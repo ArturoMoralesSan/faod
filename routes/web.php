@@ -9,7 +9,10 @@ use App\Http\Controllers\Admin\CatalogItemController;
 use App\Http\Controllers\Admin\CatalogTypeController;
 use App\Http\Controllers\Admin\ClassScheduleController;
 use App\Http\Controllers\Admin\ClassSectionController;
+use App\Http\Controllers\Admin\ClinicalSessionController;
 use App\Http\Controllers\Admin\ClinicController;
+use App\Http\Controllers\Admin\ClinicIncidentController;
+use App\Http\Controllers\Admin\ClinicRecordController;
 use App\Http\Controllers\Admin\CohortController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\KnowledgeAreaController;
@@ -17,6 +20,7 @@ use App\Http\Controllers\Admin\PeopleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\SpaceAvailabilityController;
 use App\Http\Controllers\Admin\SpaceController;
 use App\Http\Controllers\Admin\SpecialtyController;
 use App\Http\Controllers\Admin\StudentEnrollmentController;
@@ -228,6 +232,39 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('spaces', SpaceController::class)
             ->middleware($crud('spaces'));
+
+        // Áreas, supervisores y equipos de una clínica.
+        Route::middleware('permission:clinics.edit')
+            ->controller(ClinicRecordController::class)
+            ->group(function () {
+                $types = ClinicRecordController::TYPES;
+
+                Route::post('clinics/{clinic}/{type}', 'store')
+                    ->whereIn('type', $types)
+                    ->name('clinics.records.store');
+                Route::put('clinics/{clinic}/{type}/{record}', 'update')
+                    ->whereIn('type', $types)
+                    ->whereNumber('record')
+                    ->name('clinics.records.update');
+                Route::delete('clinics/{clinic}/{type}/{record}', 'destroy')
+                    ->whereIn('type', $types)
+                    ->whereNumber('record')
+                    ->name('clinics.records.destroy');
+            });
+
+        // Horario de atención de consultorios.
+        Route::resource('spaces.availabilities', SpaceAvailabilityController::class)
+            ->only(['store', 'update', 'destroy'])
+            ->middleware('permission:spaces.edit');
+
+        Route::resource('clinical-sessions', ClinicalSessionController::class)
+            ->middleware($crud('clinical-sessions'));
+        Route::put('clinical-sessions/{clinical_session}/attendance', [ClinicalSessionController::class, 'attendance'])
+            ->name('clinical-sessions.attendance')
+            ->middleware('permission:clinical-sessions.edit');
+
+        Route::resource('clinic-incidents', ClinicIncidentController::class)
+            ->middleware($crud('clinic-incidents'));
 
         /*
         |--------------------------------------------------------------------------

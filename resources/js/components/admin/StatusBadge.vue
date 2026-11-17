@@ -18,15 +18,19 @@ const props = withDefaults(
 const tone = computed(() => {
     const value = props.value;
 
-    if (value === true || ['activo', 'active', 'inscrito', 'en_curso', 'egresado'].includes(String(value))) {
+    const positive = ['activo', 'active', 'inscrito', 'en_curso', 'egresado', 'operativo', 'concluida', 'asistio', 'resuelta', 'cerrada'];
+    const negative = ['baja', 'inactive', 'no_inscrito', 'fuera_servicio', 'cancelada', 'falta', 'abierta'];
+    const pending = ['pendiente', 'planeada', 'programada', 'mantenimiento', 'en_proceso', 'justificada'];
+
+    if (value === true || positive.includes(String(value))) {
         return 'border-[#BFE3CC] bg-[#E2F3E8] text-[#187744]';
     }
 
-    if (value === false || ['baja', 'inactive', 'no_inscrito'].includes(String(value))) {
+    if (value === false || negative.includes(String(value))) {
         return 'border-[#E8C7CC] bg-[#F9ECEE] text-[#941B2B]';
     }
 
-    if (['pendiente', 'planeada'].includes(String(value))) {
+    if (pending.includes(String(value))) {
         return 'border-[#F1DDB0] bg-[#FDF6E7] text-[#8A5A00]';
     }
 

@@ -18,6 +18,7 @@ class Space extends Model
 
     protected $fillable = [
         'clinic_id',
+        'clinic_area_id',
         'type',
         'code',
         'name',
@@ -40,8 +41,30 @@ class Space extends Model
         return $this->belongsTo(Clinic::class);
     }
 
+    public function area(): BelongsTo
+    {
+        return $this->belongsTo(ClinicArea::class, 'clinic_area_id');
+    }
+
     public function classSchedules(): HasMany
     {
         return $this->hasMany(ClassSchedule::class);
+    }
+
+    public function availabilities(): HasMany
+    {
+        return $this->hasMany(SpaceAvailability::class)
+            ->orderBy('day_of_week')
+            ->orderBy('start_time');
+    }
+
+    public function clinicalSessions(): HasMany
+    {
+        return $this->hasMany(ClinicalSession::class);
+    }
+
+    public function equipment(): HasMany
+    {
+        return $this->hasMany(ClinicEquipment::class);
     }
 }

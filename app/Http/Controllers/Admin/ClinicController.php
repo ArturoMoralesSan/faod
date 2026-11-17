@@ -5,7 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ClinicRequest;
 use App\Models\Clinic;
+use App\Models\ClinicEquipment;
+use App\Models\ClinicIncident;
+use App\Models\ClinicSupervisor;
 use App\Models\Department;
+use App\Models\TeacherProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -43,12 +47,41 @@ class ClinicController extends Controller
             ->with('success', 'Clínica registrada correctamente.');
     }
 
+    /**
+     * Clínica con áreas, consultorios, supervisores, equipos,
+     * próximas sesiones e incidencias abiertas.
+     */
     public function show(Clinic $clinic): Response
     {
-        $clinic->load(['department:id,name', 'spaces']);
+        $clinic->load([
+            'department:id,name',
+            'areas',
+            'spaces' => fn ($q) => $q->with('area:id,name')->orderBy('name'),
+            'supervisors' => fn ($q) => $q
+                ->with(['teacher.people:id,first_name,paternal_surname,maternal_surname', 'area:id,name'])
+                ->orderBy('role'),
+            'equipment.space:id,code,name',
+        ]);
 
         return Inertia::render('admin/clinics/Show', [
             'clinic' => $clinic,
+            'upcomingSessions' => $clinic->clinicalSessions()
+                ->whereDate('date', '>=', today())
+                ->where('status', '!=', 'cancelada')
+                ->with(['space:id,code,name', 'group:id,code', 'supervisor.people:id,first_name,paternal_surname'])
+                ->orderBy('date')
+                ->orderBy('start_time')
+                ->limit(8)
+                ->get(),
+            'openIncidents' => $clinic->incidents()
+                ->whereNotIn('status', ClinicIncident::CLOSED_STATUSES)
+                ->latest('occurred_at')
+                ->get(['id', 'clinic_id', 'title', 'type', 'severity', 'status', 'occurred_at']),
+            'teachers' => TeacherProfile::where('status', 'active')
+                ->with('people:id,first_name,paternal_surname,maternal_surname')
+                ->get(['id', 'people_id']),
+            'supervisorRoles' => ClinicSupervisor::ROLES,
+            'equipmentStatuses' => ClinicEquipment::STATUSES,
         ]);
     }
 

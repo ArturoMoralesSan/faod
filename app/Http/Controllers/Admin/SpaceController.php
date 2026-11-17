@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\SpaceRequest;
 use App\Models\AcademicPeriod;
 use App\Models\ClassSchedule;
 use App\Models\Clinic;
+use App\Models\ClinicArea;
 use App\Models\Space;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -39,9 +40,12 @@ class SpaceController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
-        return Inertia::render('admin/spaces/Create', $this->formData());
+        return Inertia::render('admin/spaces/Create', [
+            ...$this->formData(),
+            'defaultClinicId' => $request->integer('clinic_id') ?: null,
+        ]);
     }
 
     public function store(SpaceRequest $request): RedirectResponse
@@ -73,8 +77,20 @@ class SpaceController extends Controller
             ->get();
 
         return Inertia::render('admin/spaces/Show', [
-            'space' => $space->load('clinic:id,name'),
+            'space' => $space->load([
+                'clinic:id,name',
+                'area:id,name',
+                'availabilities' => fn ($q) => $q->forPeriod($periodId)->with('academicPeriod:id,name'),
+            ]),
             'schedules' => $schedules,
+            'upcomingSessions' => $space->clinicalSessions()
+                ->whereDate('date', '>=', today())
+                ->where('status', '!=', 'cancelada')
+                ->with(['group:id,code', 'supervisor.people:id,first_name,paternal_surname'])
+                ->orderBy('date')
+                ->orderBy('start_time')
+                ->limit(10)
+                ->get(),
             'days' => ClassSchedule::DAYS,
             'periods' => AcademicPeriod::orderByDesc('starts_at')->get(['id', 'name']),
             'academicPeriodId' => $periodId,
@@ -112,6 +128,7 @@ class SpaceController extends Controller
         return [
             'types' => Space::TYPES,
             'clinics' => Clinic::where('is_active', true)->orderBy('name')->get(['id', 'name']),
+            'areas' => ClinicArea::where('is_active', true)->orderBy('name')->get(['id', 'clinic_id', 'name']),
         ];
     }
 }

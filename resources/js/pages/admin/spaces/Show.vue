@@ -1,15 +1,19 @@
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3';
-import { CalendarClock, DoorOpen, Info, Pencil } from 'lucide-vue-next';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { CalendarCheck, CalendarClock, Clock, DoorOpen, Info, Pencil, Plus } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 import AdminCard from '@/components/admin/AdminCard.vue';
 import DetailItem from '@/components/admin/DetailItem.vue';
 import FilterSelect from '@/components/admin/FilterSelect.vue';
+import FormDialog from '@/components/admin/FormDialog.vue';
+import FormInput from '@/components/admin/FormInput.vue';
+import FormSelect from '@/components/admin/FormSelect.vue';
 import PageHeader from '@/components/admin/PageHeader.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
+import RecordList from '@/components/admin/TeacherRecordList.vue';
 import WeeklySchedule from '@/components/admin/WeeklySchedule.vue';
-import { fullName, label, recordOptions } from '@/lib/admin';
+import { confirmDelete, formatDate, formatTime, fullName, label, recordOptions } from '@/lib/admin';
 import admin from '@/routes/admin';
 import type { Days, Option, PersonName, ScheduleBlock } from '@/types/admin';
 
@@ -26,6 +30,16 @@ interface Schedule {
     };
 }
 
+interface Availability {
+    id: number;
+    academic_period_id: number | null;
+    day_of_week: number;
+    start_time: string;
+    end_time: string;
+    notes: string | null;
+    academic_period: Option | null;
+}
+
 const props = defineProps<{
     space: {
         id: number;
@@ -36,9 +50,22 @@ const props = defineProps<{
         floor: string | null;
         capacity: number | null;
         is_active: boolean;
+        clinic_id: number | null;
         clinic: Option | null;
+        area: Option | null;
+        availabilities: Availability[];
     };
     schedules: Schedule[];
+    upcomingSessions: {
+        id: number;
+        date: string;
+        start_time: string;
+        end_time: string;
+        status: string;
+        topic: string | null;
+        group: { code: string } | null;
+        supervisor: { people: PersonName | null } | null;
+    }[];
     days: Days;
     periods: Option[];
     academicPeriodId: number | null;
@@ -67,6 +94,68 @@ const blocks = computed<ScheduleBlock[]>(() =>
     })),
 );
 
+/* ---------------------- Disponibilidad del consultorio ---------------------- */
+
+const dayOptions = computed(() =>
+    Object.entries(props.days).map(([value, name]) => ({ value: Number(value), label: name })),
+);
+
+const dialogOpen = ref(false);
+const editingId = ref<number | null>(null);
+
+const emptyAvailability = {
+    academic_period_id: null as number | null,
+    day_of_week: 1 as number | null,
+    start_time: '08:00',
+    end_time: '14:00',
+    notes: '',
+};
+
+const availabilityForm = useForm({ ...emptyAvailability });
+
+const openAvailability = (id: number | null = null): void => {
+    editingId.value = id;
+    availabilityForm.defaults({ ...emptyAvailability });
+    availabilityForm.reset();
+    availabilityForm.clearErrors();
+
+    const record = id ? props.space.availabilities.find((a) => a.id === id) : null;
+
+    if (record) {
+        availabilityForm.academic_period_id = record.academic_period_id;
+        availabilityForm.day_of_week = record.day_of_week;
+        availabilityForm.start_time = formatTime(record.start_time);
+        availabilityForm.end_time = formatTime(record.end_time);
+        availabilityForm.notes = record.notes ?? '';
+    }
+
+    dialogOpen.value = true;
+};
+
+const submitAvailability = (): void => {
+    const options = { preserveScroll: true, onSuccess: () => (dialogOpen.value = false) };
+
+    availabilityForm.transform((data) => ({ ...data, notes: data.notes || null }));
+
+    if (editingId.value) {
+        availabilityForm.put(
+            admin.spaces.availabilities.update({ space: props.space.id, availability: editingId.value }).url,
+            options,
+        );
+    } else {
+        availabilityForm.post(admin.spaces.availabilities.store(props.space.id).url, options);
+    }
+};
+
+const removeAvailability = (id: number): void => {
+    confirmDelete(
+        '¿Eliminar horario de disponibilidad?',
+        'Esta acción no se puede deshacer.',
+        admin.spaces.availabilities.destroy({ space: props.space.id, availability: id }).url,
+        { preserveState: true },
+    );
+};
+
 defineOptions({
     layout: {
         breadcrumbs: [
@@ -93,21 +182,105 @@ defineOptions({
         />
 
         <AdminCard title="Información general" :icon="Info">
-            <dl class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+            <dl class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-6">
                 <DetailItem label="Tipo" :value="label(space.type)" />
-                <DetailItem label="Clínica" :value="space.clinic?.name" />
+                <DetailItem label="Clínica">
+                    <Link v-if="space.clinic" :href="admin.clinics.show(space.clinic.id).url" class="text-sm font-semibold text-[#941B2B] hover:underline">
+                        {{ space.clinic.name }}
+                    </Link>
+                    <span v-else class="text-sm text-[#858B93]">—</span>
+                </DetailItem>
+                <DetailItem label="Área" :value="space.area?.name" />
                 <DetailItem label="Edificio" :value="space.building" />
                 <DetailItem label="Capacidad" :value="space.capacity" />
                 <DetailItem label="Estado"><StatusBadge :value="space.is_active" /></DetailItem>
             </dl>
         </AdminCard>
 
-        <AdminCard title="Ocupación semanal" description="Clases programadas en este espacio." :icon="CalendarClock">
-            <div class="mb-4 max-w-xs">
-                <FilterSelect v-model="period" placeholder="Selecciona un periodo" :options="recordOptions(periods)" @change="changePeriod" />
+        <div class="max-w-xs">
+            <FilterSelect v-model="period" placeholder="Selecciona un periodo" :options="recordOptions(periods)" @change="changePeriod" />
+        </div>
+
+        <div class="grid gap-5 xl:grid-cols-3">
+            <div class="flex flex-col gap-5 xl:col-span-2">
+                <AdminCard title="Ocupación semanal" description="Clases programadas en este espacio." :icon="CalendarClock">
+                    <WeeklySchedule :blocks="blocks" :days="days" />
+                </AdminCard>
+
+                <AdminCard v-if="space.clinic_id" title="Próximas sesiones clínicas" :icon="CalendarCheck" :padding="false">
+                    <div class="flex justify-end border-b border-[#E3E5E8] px-5 py-3 sm:px-6">
+                        <Link
+                            :href="admin.clinicalSessions.create({ query: { clinic_id: space.clinic_id, space_id: space.id } }).url"
+                            class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#941B2B] hover:underline"
+                        >
+                            <Plus class="h-4 w-4" /> Programar sesión
+                        </Link>
+                    </div>
+
+                    <ul v-if="upcomingSessions.length" class="divide-y divide-[#E3E5E8]">
+                        <li v-for="session in upcomingSessions" :key="session.id">
+                            <Link
+                                :href="admin.clinicalSessions.show(session.id).url"
+                                class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#FAF3F4] sm:px-6"
+                            >
+                                <div class="min-w-0">
+                                    <p class="text-sm font-semibold text-[#292D32]">
+                                        {{ formatDate(session.date) }} · {{ formatTime(session.start_time) }}–{{ formatTime(session.end_time) }}
+                                    </p>
+                                    <p class="truncate text-xs text-[#858B93]">
+                                        {{ [session.topic, session.group ? `Grupo ${session.group.code}` : null, session.supervisor ? fullName(session.supervisor.people) : null].filter(Boolean).join(' · ') || 'Sin detalle' }}
+                                    </p>
+                                </div>
+                                <StatusBadge :value="session.status" />
+                            </Link>
+                        </li>
+                    </ul>
+
+                    <p v-else class="px-5 py-4 text-sm italic text-[#858B93] sm:px-6">Sin sesiones próximas.</p>
+                </AdminCard>
             </div>
 
-            <WeeklySchedule :blocks="blocks" :days="days" />
-        </AdminCard>
+            <div class="flex flex-col gap-5">
+                <RecordList
+                    title="Horario de atención"
+                    :icon="Clock"
+                    :items="space.availabilities.map((a) => ({
+                        id: a.id,
+                        title: `${days[a.day_of_week]} ${formatTime(a.start_time)} – ${formatTime(a.end_time)}`,
+                        subtitle: a.academic_period?.name ?? 'Todos los periodos',
+                        meta: a.notes ?? undefined,
+                    }))"
+                    empty-text="Sin horario definido: se puede usar en cualquier horario libre."
+                    add-label="Agregar horario"
+                    @add="openAvailability()"
+                    @edit="(id) => openAvailability(id)"
+                    @remove="(id) => removeAvailability(id)"
+                />
+            </div>
+        </div>
+
+        <FormDialog
+            v-model:open="dialogOpen"
+            :title="`${editingId ? 'Editar' : 'Agregar'} horario de atención`"
+            description="Las sesiones clínicas en este espacio deberán caber en alguno de estos horarios."
+            :loading="availabilityForm.processing"
+            @submit="submitAvailability"
+        >
+            <FormSelect id="av_day" v-model="availabilityForm.day_of_week" label="Día" :options="dayOptions" :error="availabilityForm.errors.day_of_week" required />
+            <FormSelect
+                id="av_period"
+                v-model="availabilityForm.academic_period_id"
+                label="Periodo"
+                placeholder="Todos los periodos"
+                :options="recordOptions(periods)"
+                :error="availabilityForm.errors.academic_period_id"
+                nullable
+            />
+            <FormInput id="av_start" v-model="availabilityForm.start_time" type="time" label="Desde" :error="availabilityForm.errors.start_time" required />
+            <FormInput id="av_end" v-model="availabilityForm.end_time" type="time" label="Hasta" :error="availabilityForm.errors.end_time" required />
+            <div class="md:col-span-2">
+                <FormInput id="av_notes" v-model="availabilityForm.notes" label="Notas" :error="availabilityForm.errors.notes" />
+            </div>
+        </FormDialog>
     </div>
 </template>

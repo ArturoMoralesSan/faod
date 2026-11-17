@@ -17,6 +17,11 @@ class SpaceRequest extends FormRequest
     {
         return [
             'clinic_id' => ['nullable', 'exists:clinics,id'],
+            'clinic_area_id' => [
+                'nullable',
+                // El área debe ser de la clínica seleccionada.
+                Rule::exists('clinic_areas', 'id')->where('clinic_id', $this->input('clinic_id')),
+            ],
             'type' => ['required', Rule::in(Space::TYPES)],
             'code' => [
                 'required',

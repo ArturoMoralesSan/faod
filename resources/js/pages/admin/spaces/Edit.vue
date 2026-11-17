@@ -13,10 +13,12 @@ const props = defineProps<{
     space: SpaceFormData & { id: number };
     types: string[];
     clinics: Option[];
+    areas: (Option & { clinic_id: number })[];
 }>();
 
 const form = useForm<SpaceFormData>({
     clinic_id: props.space.clinic_id,
+    clinic_area_id: props.space.clinic_area_id,
     type: props.space.type,
     code: props.space.code,
     name: props.space.name,
@@ -56,7 +58,7 @@ defineOptions({
         />
 
         <form class="flex flex-col gap-5" @submit.prevent="submit">
-            <SpaceForm :form="form" :types="types" :clinics="clinics" />
+            <SpaceForm :form="form" :types="types" :clinics="clinics" :areas="areas" />
 
             <FormActions :cancel-href="admin.spaces.index().url" :loading="form.processing" />
         </form>

@@ -80,6 +80,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'groups',
             'students',
             'knowledge-areas',
+            'clinical-sessions',
+            'clinic-incidents',
         ];
 
         foreach ($crudModules as $module) {
@@ -153,6 +155,12 @@ class RolesAndPermissionsSeeder extends Seeder
                 'teachers.view',
                 'study-plans.view',
                 'academic-programs.view',
+                // Clínicas: supervisa sesiones, pasa asistencia y reporta incidencias.
+                'clinics.view',
+                'clinical-sessions.view',
+                'clinical-sessions.edit',
+                'clinic-incidents.view',
+                'clinic-incidents.create',
             ],
             'personal_administrativo' => [
                 'people.view',
@@ -171,6 +179,13 @@ class RolesAndPermissionsSeeder extends Seeder
                 'academic-programs.view',
                 'study-plans.view',
                 'spaces.view',
+                'clinics.view',
+                'clinical-sessions.view',
+                'clinical-sessions.create',
+                'clinical-sessions.edit',
+                'clinic-incidents.view',
+                'clinic-incidents.create',
+                'clinic-incidents.edit',
             ],
         ];
 
