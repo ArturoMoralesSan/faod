@@ -10,7 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Diagnosis extends Model
 {
-    protected $fillable = ['code', 'name', 'category', 'description', 'is_active'];
+    protected $fillable = ['code', 'name', 'category', 'specialty_id', 'description', 'is_active'];
+
+    public function specialty(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Specialty::class);
+    }
 
     protected function casts(): array
     {

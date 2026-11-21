@@ -94,6 +94,8 @@ class SpaceController extends Controller
             'days' => ClassSchedule::DAYS,
             'periods' => AcademicPeriod::orderByDesc('starts_at')->get(['id', 'name']),
             'academicPeriodId' => $periodId,
+            // Historial de uso de los últimos 90 días.
+            'usage' => $space->usageHistory(today()->subDays(90)->toDateString(), today()->toDateString()),
         ]);
     }
 

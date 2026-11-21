@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use App\Models\Concerns\HasAttachments;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Expense extends Model
 {
-    use HasAttachments, SoftDeletes;
+    use LogsActivity, HasAttachments, SoftDeletes;
 
     public const CATEGORIES = ['material', 'mantenimiento', 'servicios', 'papeleria', 'otro'];
 
@@ -21,6 +22,7 @@ class Expense extends Model
         'paid_at',
         'supplier_id',
         'clinic_id',
+        'space_id',
         'cash_register_session_id',
         'reference',
         'notes',
@@ -43,6 +45,12 @@ class Expense extends Model
     public function clinic(): BelongsTo
     {
         return $this->belongsTo(Clinic::class);
+    }
+
+    /** Laboratorio al que corresponde el gasto. */
+    public function space(): BelongsTo
+    {
+        return $this->belongsTo(Space::class);
     }
 
     public function session(): BelongsTo

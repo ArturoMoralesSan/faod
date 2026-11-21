@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { InertiaForm } from '@inertiajs/vue3';
-import { Award, CalendarDays, Presentation } from 'lucide-vue-next';
+import { Award, CalendarDays, ClipboardCheck, Presentation } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 import ActiveSwitch from '@/components/admin/ActiveSwitch.vue';
@@ -32,6 +32,9 @@ const teacherOptions = computed<SelectOption[]>(() => props.teachers.map((t) => 
             <div class="md:col-span-2">
                 <FormTextarea id="description" v-model="form.description" label="Descripción / temario" :rows="4" :error="form.errors.description" />
             </div>
+            <div class="md:col-span-2">
+                <FormTextarea id="objectives" v-model="form.objectives" label="Objetivos" placeholder="Qué aprenderán o lograrán los participantes." :rows="3" :error="form.errors.objectives" />
+            </div>
         </div>
     </AdminCard>
 
@@ -54,6 +57,28 @@ const teacherOptions = computed<SelectOption[]>(() => props.teachers.map((t) => 
                 <ActiveSwitch v-model="form.issues_certificate" label="Otorga constancia" />
             </div>
             <FormInput v-if="form.issues_certificate" id="min_attendance" v-model="form.min_attendance" type="number" min="0" max="100" label="Asistencia mínima (%)" :error="form.errors.min_attendance" required />
+        </div>
+    </AdminCard>
+
+    <AdminCard title="Evaluación y resultados" description="Se llena al concluir la actividad." :icon="ClipboardCheck">
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <FormInput
+                id="evaluation_score"
+                v-model="form.evaluation_score"
+                type="number"
+                step="0.1"
+                min="0"
+                max="10"
+                label="Evaluación interna (0 a 10)"
+                help="Calificación que la coordinación da a la actividad."
+                :error="form.errors.evaluation_score"
+            />
+            <div class="md:col-span-2">
+                <FormTextarea id="evaluation_notes" v-model="form.evaluation_notes" label="Comentarios de la evaluación" placeholder="Fortalezas, áreas de mejora, opinión de los participantes." :rows="3" :error="form.errors.evaluation_notes" />
+            </div>
+            <div class="md:col-span-2">
+                <FormTextarea id="results" v-model="form.results" label="Resultados y observaciones" placeholder="Asistencia final, productos obtenidos, acuerdos, incidencias." :rows="3" :error="form.errors.results" />
+            </div>
         </div>
     </AdminCard>
 </template>

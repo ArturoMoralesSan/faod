@@ -15,7 +15,6 @@ class StaffProfile extends Model
         'employee_number',
         'position',
         'department_id',
-        'department',
         'status',
         'hired_at',
         'notes',

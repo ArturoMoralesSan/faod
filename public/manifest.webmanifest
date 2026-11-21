@@ -1,18 +1,17 @@
-
 {
     "id": "/",
-    "name": "Industrias Husky",
-    "short_name": "Husky",
-    "description": "Soluciones en madera, maquinaria y productos industriales.",
+    "name": "FAOD · Facultad de Odontología UJED",
+    "short_name": "FAOD",
+    "description": "Sistema integral de gestión interna de la Facultad de Odontología de la Universidad Juárez del Estado de Durango.",
     "lang": "es-MX",
-    "start_url": "/",
+    "start_url": "/admin/dashboard",
     "scope": "/",
     "display": "standalone",
-    "orientation": "portrait",
-    "background_color": "#f5f3ec",
-    "theme_color": "#243b30",
+    "background_color": "#F7F8FA",
+    "theme_color": "#941B2B",
     "categories": [
-        "business",
+        "education",
+        "medical",
         "productivity"
     ],
     "icons": [
@@ -20,6 +19,12 @@
             "src": "/apple-touch-icon.png",
             "sizes": "180x180",
             "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
             "purpose": "any"
         }
     ]

@@ -32,7 +32,7 @@ import type { Option, PersonName, SelectOption, TeacherOption } from '@/types/ad
 
 type RecordType = 'areas' | 'supervisors' | 'equipment';
 
-interface Area { id: number; name: string; description: string | null; is_active: boolean }
+interface Area { id: number; name: string; description: string | null; is_active: boolean; specialty_id: number | null; specialty: Option | null }
 interface Supervisor {
     id: number;
     teacher_profile_id: number;
@@ -45,6 +45,7 @@ interface Supervisor {
 }
 interface Equipment {
     id: number;
+    kind: string;
     space_id: number | null;
     code: string;
     name: string;
@@ -96,6 +97,8 @@ const props = defineProps<{
     teachers: TeacherOption[];
     supervisorRoles: string[];
     equipmentStatuses: string[];
+    equipmentKinds: string[];
+    specialties: Option[];
 }>();
 
 const teacherOptions = computed<SelectOption[]>(() =>
@@ -115,20 +118,20 @@ const editingId = ref<number | null>(null);
 
 const emptyRecord = {
     // Área
-    name: '', description: '', is_active: true,
+    name: '', description: '', is_active: true, specialty_id: null as number | null,
     // Supervisor
     teacher_profile_id: null as number | null, clinic_area_id: null as number | null, role: 'supervisor', starts_at: '', ends_at: '',
     // Equipo
-    space_id: null as number | null, code: '', brand: '', model: '', serial_number: '', status: 'operativo',
+    kind: 'equipo', space_id: null as number | null, code: '', brand: '', model: '', serial_number: '', status: 'operativo',
     acquired_at: '', last_maintenance_at: '', next_maintenance_at: '', notes: '',
 };
 
 const recordForm = useForm({ ...emptyRecord });
 
 const FIELDS: Record<RecordType, (keyof typeof emptyRecord)[]> = {
-    areas: ['name', 'description', 'is_active'],
+    areas: ['specialty_id', 'name', 'description', 'is_active'],
     supervisors: ['teacher_profile_id', 'clinic_area_id', 'role', 'starts_at', 'ends_at'],
-    equipment: ['space_id', 'code', 'name', 'brand', 'model', 'serial_number', 'status', 'acquired_at', 'last_maintenance_at', 'next_maintenance_at', 'notes'],
+    equipment: ['kind', 'space_id', 'code', 'name', 'brand', 'model', 'serial_number', 'status', 'acquired_at', 'last_maintenance_at', 'next_maintenance_at', 'notes'],
 };
 
 const TITLES: Record<RecordType, string> = {
@@ -305,7 +308,7 @@ defineOptions({
                 </AdminCard>
 
                 <!-- Equipos -->
-                <AdminCard title="Equipos" description="Unidades dentales, autoclaves, rayos X y demás equipo de la clínica." :icon="Wrench">
+                <AdminCard title="Equipos e instrumental" description="Unidades dentales, autoclaves, rayos X e instrumental de la clínica." :icon="Wrench">
                     <ul v-if="clinic.equipment.length" class="flex flex-col gap-3">
                         <li
                             v-for="item in clinic.equipment"
@@ -313,7 +316,10 @@ defineOptions({
                             class="flex items-start justify-between gap-3 rounded-xl border border-[#E3E5E8] p-3"
                         >
                             <div class="min-w-0">
-                                <p class="text-sm font-semibold text-[#292D32]">{{ item.name }}</p>
+                                <p class="text-sm font-semibold text-[#292D32]">
+                                    {{ item.name }}
+                                    <span class="ml-1 rounded-full bg-[#F7F8FA] px-2 py-0.5 text-[11px] font-medium text-[#525960]">{{ label(item.kind) }}</span>
+                                </p>
                                 <p class="text-xs text-[#525960]">
                                     {{ [item.code, item.brand, item.model, item.space?.name].filter(Boolean).join(' · ') }}
                                 </p>
@@ -405,7 +411,7 @@ defineOptions({
                     :items="clinic.areas.map((a) => ({
                         id: a.id,
                         title: a.name,
-                        subtitle: a.description ?? undefined,
+                        subtitle: [a.specialty?.name, a.description].filter(Boolean).join(' · ') || undefined,
                         meta: a.is_active ? undefined : 'Inactiva',
                     }))"
                     empty-text="Sin áreas registradas."
@@ -425,9 +431,8 @@ defineOptions({
             @submit="submitRecord"
         >
             <template v-if="recordType === 'areas'">
-                <div class="md:col-span-2">
-                    <FormInput id="area_name" v-model="recordForm.name" label="Nombre" placeholder="Ej. Endodoncia" :error="recordForm.errors.name" required />
-                </div>
+                <FormInput id="area_name" v-model="recordForm.name" label="Nombre" placeholder="Ej. Endodoncia" :error="recordForm.errors.name" required />
+                <FormSelect id="area_specialty" v-model="recordForm.specialty_id" label="Especialidad" placeholder="General" :options="recordOptions(specialties)" :error="recordForm.errors.specialty_id" nullable />
                 <div class="md:col-span-2">
                     <FormTextarea id="area_description" v-model="recordForm.description" label="Descripción" :rows="3" :error="recordForm.errors.description" />
                 </div>
@@ -447,7 +452,8 @@ defineOptions({
             </template>
 
             <template v-else>
-                <FormInput id="eq_name" v-model="recordForm.name" label="Nombre" placeholder="Ej. Unidad dental" :error="recordForm.errors.name" required />
+                <FormSelect id="eq_kind" v-model="recordForm.kind" label="Tipo" :options="enumOptions(equipmentKinds)" :error="recordForm.errors.kind" required />
+                <FormInput id="eq_name" v-model="recordForm.name" label="Nombre" :placeholder="recordForm.kind === 'instrumental' ? 'Ej. Kit de fórceps' : 'Ej. Unidad dental'" :error="recordForm.errors.name" required />
                 <FormInput id="eq_code" v-model="recordForm.code" label="No. de inventario" :error="recordForm.errors.code" required />
                 <FormInput id="eq_brand" v-model="recordForm.brand" label="Marca" :error="recordForm.errors.brand" />
                 <FormInput id="eq_model" v-model="recordForm.model" label="Modelo" :error="recordForm.errors.model" />

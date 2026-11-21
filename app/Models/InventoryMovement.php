@@ -10,12 +10,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class InventoryMovement extends Model
 {
-    public const TYPES = ['entrada', 'salida', 'ajuste', 'traspaso', 'consumo'];
+    public const TYPES = ['entrada', 'salida', 'entrega', 'devolucion', 'merma', 'danado', 'ajuste', 'traspaso', 'consumo'];
+
+    /** Salidas que se reportan aparte: pérdidas y productos dañados. */
+    public const LOSS_TYPES = ['merma', 'danado'];
 
     protected $fillable = [
         'inventory_item_id',
         'warehouse_id',
         'inventory_lot_id',
+        'student_profile_id',
         'type',
         'quantity',
         'balance_after',
@@ -63,6 +67,12 @@ class InventoryMovement extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** Alumno que recibió (entrega) o devolvió el material. */
+    public function student(): BelongsTo
+    {
+        return $this->belongsTo(StudentProfile::class, 'student_profile_id');
     }
 
     public function treatmentProcedure(): BelongsTo

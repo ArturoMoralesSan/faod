@@ -12,7 +12,9 @@ use App\Models\Patient;
 use App\Models\PatientDiagnosis;
 use App\Models\PatientAllergy;
 use App\Models\PatientCondition;
+use App\Models\PatientConsultation;
 use App\Models\People;
+use App\Models\Specialty;
 use App\Models\StudentProfile;
 use App\Models\TeacherProfile;
 use Illuminate\Http\JsonResponse;
@@ -41,15 +43,25 @@ class PatientController extends Controller
                 ->orWhereHas('people', fn ($q) => $q->search($search))))
             ->when($request->status, fn ($q, $status) => $q->where('status', $status))
             ->when($request->clinic_id, fn ($q, $id) => $q->where('clinic_id', $id))
+            ->when($request->integer('student_profile_id'), fn ($q, $id) => $q->attendedBy($id))
+            ->when($request->integer('specialty_id'), fn ($q, $id) => $q->ofSpecialty($id))
             ->latest('id')
             ->paginate(15)
             ->withQueryString();
 
         return Inertia::render('admin/patients/Index', [
             'patients' => $patients,
-            'filters' => $request->only('search', 'status', 'clinic_id'),
+            'filters' => $request->only('search', 'status', 'clinic_id', 'student_profile_id', 'specialty_id'),
             'statuses' => Patient::STATUSES,
             'clinics' => Clinic::orderBy('name')->get(['id', 'name']),
+            'students' => StudentProfile::query()
+                ->whereHas('enrollments', fn ($q) => $q->where('status', 'activo'))
+                ->with('people:id,first_name,paternal_surname,maternal_surname')
+                ->get(['id', 'people_id', 'registration_number'])
+                ->map(fn ($s) => ['value' => $s->id, 'label' => "{$s->registration_number} · {$s->people?->full_name}"])
+                ->sortBy('label')
+                ->values(),
+            'specialties' => Specialty::where('is_active', true)->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -178,6 +190,7 @@ class PatientController extends Controller
             ],
             'conditionCategories' => PatientCondition::CATEGORIES,
             'allergySeverities' => PatientAllergy::SEVERITIES,
+            'symptomGroups' => PatientConsultation::SYMPTOMS,
             'clinics' => Clinic::where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'sessions' => ClinicalSession::whereDate('date', '>=', now()->subDays(30))
                 ->where('status', '!=', 'cancelada')

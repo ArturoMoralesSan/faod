@@ -63,6 +63,12 @@ class RolesAndPermissionsSeeder extends Seeder
             // Configuración general
             'settings.view',
             'settings.edit',
+
+            // Historial de cambios (solo consulta)
+            'activity-log.view',
+
+            // Reportes (cada uno exige además el permiso de consulta de su módulo)
+            'reports.view',
         ];
 
         // Módulos con CRUD completo: modulo.view|create|edit|delete

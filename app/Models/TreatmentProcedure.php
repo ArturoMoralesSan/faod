@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use App\Models\Concerns\Reviewable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class TreatmentProcedure extends Model
 {
-    use Reviewable;
+    use LogsActivity, Reviewable;
 
     public const STATUSES = ['planeado', 'realizado', 'cancelado'];
 
@@ -32,6 +33,7 @@ class TreatmentProcedure extends Model
         'student_profile_id',
         'teacher_profile_id',
         'notes',
+        'patient_instructions',
     ];
 
     protected function casts(): array

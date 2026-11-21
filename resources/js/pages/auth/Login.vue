@@ -9,15 +9,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 
 defineOptions({
     layout: {
-        title: 'Inicia sesión en tu cuenta',
-        description:
-            'Ingresa tu correo electrónico y contraseña para iniciar sesión',
+        title: 'Bienvenido',
+        description: 'Ingresa con tu correo institucional y tu contraseña.',
     },
 });
 
@@ -50,7 +48,7 @@ defineProps<{
                     autofocus
                     :tabindex="1"
                     autocomplete="email"
-                    placeholder="correo@ejemplo.com"
+                    placeholder="usuario@ujed.mx"
                 />
 
                 <InputError :message="errors.email" />

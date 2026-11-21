@@ -128,6 +128,7 @@ class TreatmentItemController extends Controller
             'student_profile_id' => ['nullable', Rule::exists('student_profiles', 'id')->whereNull('deleted_at')],
             'teacher_profile_id' => ['nullable', Rule::exists('teacher_profiles', 'id')->whereNull('deleted_at')],
             'notes' => ['nullable', 'string'],
+            'patient_instructions' => ['nullable', 'string'],
         ], [
             'procedure_id.required_without' => 'Elige un procedimiento del catálogo o escribe una descripción.',
             'description.required_without' => 'Elige un procedimiento del catálogo o escribe una descripción.',

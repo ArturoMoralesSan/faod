@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { CalendarCheck, CalendarClock, Clock, DoorOpen, Info, Pencil, Plus } from 'lucide-vue-next';
+import { CalendarCheck, CalendarClock, Clock, DoorOpen, History, Info, Pencil, Plus } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 import AdminCard from '@/components/admin/AdminCard.vue';
@@ -14,6 +14,7 @@ import StatusBadge from '@/components/admin/StatusBadge.vue';
 import RecordList from '@/components/admin/TeacherRecordList.vue';
 import WeeklySchedule from '@/components/admin/WeeklySchedule.vue';
 import { confirmDelete, formatDate, formatTime, fullName, label, recordOptions } from '@/lib/admin';
+import PrintLink from '@/components/admin/PrintLink.vue';
 import admin from '@/routes/admin';
 import type { Days, Option, PersonName, ScheduleBlock } from '@/types/admin';
 
@@ -69,7 +70,19 @@ const props = defineProps<{
     days: Days;
     periods: Option[];
     academicPeriodId: number | null;
+    usage: { kind: 'sesion' | 'cita' | 'actividad' | 'incidencia'; date: string | null; time: string | null; title: string; detail: string; status: string }[];
 }>();
+
+const USAGE_KINDS: Record<string, { label: string; classes: string }> = {
+    sesion: { label: 'Sesión clínica', classes: 'bg-[#EAF1FB] text-[#2457A6]' },
+    cita: { label: 'Cita', classes: 'bg-[#E2F3E8] text-[#187744]' },
+    actividad: { label: 'Actividad', classes: 'bg-[#F3EDFB] text-[#5B3A9B]' },
+    incidencia: { label: 'Incidencia', classes: 'bg-[#F9ECEE] text-[#941B2B]' },
+};
+
+const usageCounts = computed(() =>
+    Object.keys(USAGE_KINDS).map((kind) => ({ kind, count: props.usage.filter((u) => u.kind === kind).length })).filter((row) => row.count),
+);
 
 const period = ref(props.academicPeriodId ? String(props.academicPeriodId) : '');
 
@@ -205,6 +218,10 @@ defineOptions({
             <div class="flex flex-col gap-5 xl:col-span-2">
                 <AdminCard title="Ocupación semanal" description="Clases programadas en este espacio." :icon="CalendarClock">
                     <WeeklySchedule :blocks="blocks" :days="days" />
+
+                    <template v-if="blocks.length" #footer>
+                        <PrintLink :href="admin.spaces.schedulePdf(space.id, { query: { academic_period_id: academicPeriodId ?? undefined } }).url" />
+                    </template>
                 </AdminCard>
 
                 <AdminCard v-if="space.clinic_id" title="Próximas sesiones clínicas" :icon="CalendarCheck" :padding="false">
@@ -237,6 +254,27 @@ defineOptions({
                     </ul>
 
                     <p v-else class="px-5 py-4 text-sm italic text-[#858B93] sm:px-6">Sin sesiones próximas.</p>
+                </AdminCard>
+
+                <AdminCard title="Historial de uso" description="Últimos 90 días: sesiones clínicas, citas, actividades e incidencias." :icon="History" :padding="false">
+                    <div v-if="usageCounts.length" class="flex flex-wrap gap-2 border-b border-[#E3E5E8] px-5 py-3 sm:px-6">
+                        <span v-for="row in usageCounts" :key="row.kind" class="rounded-full px-2.5 py-1 text-xs font-semibold" :class="USAGE_KINDS[row.kind].classes">
+                            {{ row.count }} {{ USAGE_KINDS[row.kind].label.toLowerCase() }}{{ row.count === 1 ? '' : '(s)' }}
+                        </span>
+                    </div>
+                    <ul v-if="usage.length" class="divide-y divide-[#E3E5E8]">
+                        <li v-for="(u, index) in usage" :key="index" class="flex items-center justify-between gap-3 px-5 py-3 sm:px-6">
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-[#292D32]">
+                                    <span class="mr-1 rounded-full px-2 py-0.5 text-[11px] font-semibold" :class="USAGE_KINDS[u.kind].classes">{{ USAGE_KINDS[u.kind].label }}</span>
+                                    {{ u.title }}
+                                </p>
+                                <p class="truncate text-xs text-[#858B93]">{{ [formatDate(u.date), u.time, u.detail].filter(Boolean).join(' · ') }}</p>
+                            </div>
+                            <StatusBadge :value="u.status" />
+                        </li>
+                    </ul>
+                    <p v-else class="px-5 py-4 text-sm italic text-[#858B93] sm:px-6">Sin uso registrado en los últimos 90 días.</p>
                 </AdminCard>
             </div>
 

@@ -20,13 +20,16 @@ class DiagnosisController extends Controller
         return Inertia::render('admin/diagnoses/Index', [
             'diagnoses' => Diagnosis::query()
                 ->withCount('patientDiagnoses')
+                ->with('specialty:id,name')
+                ->when($request->integer('specialty_id'), fn ($q, $id) => $q->where('specialty_id', $id))
                 ->when($request->search, fn ($q, $search) => $q->where(fn ($q) => $q
                     ->where('code', 'like', "%{$search}%")
                     ->orWhere('name', 'like', "%{$search}%")))
                 ->orderBy('code')
                 ->get(),
             'categories' => Diagnosis::whereNotNull('category')->distinct()->orderBy('category')->pluck('category'),
-            'filters' => $request->only('search'),
+            'filters' => $request->only('search', 'specialty_id'),
+            'specialties' => \App\Models\Specialty::where('is_active', true)->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -61,6 +64,7 @@ class DiagnosisController extends Controller
             'code' => ['required', 'string', 'max:20', Rule::unique('diagnoses', 'code')->ignore($diagnosis)],
             'name' => ['required', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:60'],
+            'specialty_id' => ['nullable', Rule::exists('specialties', 'id')],
             'description' => ['nullable', 'string'],
             'is_active' => ['boolean'],
         ]);

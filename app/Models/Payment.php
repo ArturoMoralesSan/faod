@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,12 +13,19 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 class Payment extends Model
 {
+    use LogsActivity;
+
     public const METHODS = ['efectivo', 'tarjeta', 'transferencia', 'deposito'];
 
     protected $fillable = [
         'folio',
         'payer_type',
         'payer_id',
+        // Ingresos sin alumno ni paciente (cursos, externos, donativos).
+        'payer_name',
+        'concept',
+        'fee_concept_id',
+        'activity_participant_id',
         'cash_register_session_id',
         'method',
         'amount',
@@ -62,5 +70,16 @@ class Payment extends Model
     public function canceller(): BelongsTo
     {
         return $this->belongsTo(User::class, 'cancelled_by');
+    }
+
+    public function feeConcept(): BelongsTo
+    {
+        return $this->belongsTo(FeeConcept::class);
+    }
+
+    /** Participante de un curso o actividad cuyo pago se registró aquí. */
+    public function participant(): BelongsTo
+    {
+        return $this->belongsTo(ActivityParticipant::class, 'activity_participant_id');
     }
 }

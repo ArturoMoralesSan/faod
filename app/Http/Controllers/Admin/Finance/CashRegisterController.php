@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Models\CashRegister;
+use App\Models\CashMovement;
 use App\Models\CashRegisterSession;
 use App\Models\Clinic;
 use Illuminate\Http\RedirectResponse;
@@ -74,7 +75,30 @@ class CashRegisterController extends Controller
             'summary' => $cashSession->summary(),
             'payments' => $payments,
             'expenses' => $cashSession->expenses()->latest('paid_at')->get(['id', 'description', 'amount', 'method', 'paid_at']),
+            'movements' => $cashSession->cashMovements()->with('user:id,name')->get(),
         ]);
+    }
+
+    /** Depósito o retiro de efectivo que no es un cobro ni un gasto. */
+    public function movement(Request $request, CashRegisterSession $cashSession): RedirectResponse
+    {
+        $data = $request->validate([
+            'type' => ['required', Rule::in(CashMovement::TYPES)],
+            'amount' => ['required', 'numeric', 'gt:0'],
+            'reason' => ['required', 'string', 'max:255'],
+        ]);
+
+        if ($cashSession->status !== 'abierta') {
+            return back()->with('error', 'El turno ya está cerrado.');
+        }
+
+        if ($data['type'] === 'retiro' && $data['amount'] > $cashSession->summary()['expected_cash'] + 0.004) {
+            return back()->withErrors(['amount' => 'No hay suficiente efectivo en la caja para ese retiro.']);
+        }
+
+        $cashSession->cashMovements()->create([...$data, 'user_id' => $request->user()->id]);
+
+        return back()->with('success', $data['type'] === 'retiro' ? 'Retiro registrado.' : 'Depósito registrado.');
     }
 
     public function close(Request $request, CashRegisterSession $cashSession): RedirectResponse

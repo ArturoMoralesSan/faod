@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class InventoryCount extends Model
 {
+    use LogsActivity;
+
     protected $fillable = ['warehouse_id', 'status', 'notes', 'user_id', 'closed_at', 'closed_by'];
 
     protected function casts(): array

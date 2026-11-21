@@ -20,6 +20,8 @@ class ProcedureController extends Controller
         return Inertia::render('admin/procedures/Index', [
             'procedures' => Procedure::query()
                 ->withCount('treatmentProcedures')
+                ->with('specialty:id,name')
+                ->when($request->integer('specialty_id'), fn ($q, $id) => $q->where('specialty_id', $id))
                 ->when($request->search, fn ($q, $search) => $q->where(fn ($q) => $q
                     ->where('code', 'like', "%{$search}%")
                     ->orWhere('name', 'like', "%{$search}%")))
@@ -27,7 +29,8 @@ class ProcedureController extends Controller
                 ->orderBy('code')
                 ->get(),
             'categories' => Procedure::whereNotNull('category')->distinct()->orderBy('category')->pluck('category'),
-            'filters' => $request->only('search'),
+            'filters' => $request->only('search', 'specialty_id'),
+            'specialties' => \App\Models\Specialty::where('is_active', true)->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -62,6 +65,7 @@ class ProcedureController extends Controller
             'code' => ['required', 'string', 'max:20', Rule::unique('procedures', 'code')->ignore($procedure)],
             'name' => ['required', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:60'],
+            'specialty_id' => ['nullable', Rule::exists('specialties', 'id')],
             'default_cost' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['boolean'],
         ]);

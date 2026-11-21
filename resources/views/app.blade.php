@@ -41,11 +41,12 @@
             <title>{{ config('app.name', 'Laravel') }}</title>
         </x-inertia::head>
         <link rel="manifest" href="/manifest.webmanifest">
-        <meta name="theme-color" content="#243b30">
+        <meta name="theme-color" content="#941B2B">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-        <meta name="apple-mobile-web-app-title" content="Husky">
+        <meta name="apple-mobile-web-app-title" content="FAOD">
+        <meta name="description" content="Sistema integral de gestión interna de la Facultad de Odontología, Universidad Juárez del Estado de Durango.">
     </head>
     <body class="font-sans antialiased">
         <x-inertia::app />

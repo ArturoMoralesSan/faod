@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use App\Models\Concerns\HasAttachments;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,9 +14,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class AcademicActivity extends Model
 {
-    use HasAttachments, SoftDeletes;
+    use LogsActivity, HasAttachments, SoftDeletes;
 
-    public const TYPES = ['curso', 'seminario', 'congreso', 'taller', 'diplomado', 'conferencia', 'otro'];
+    public const TYPES = ['curso', 'seminario', 'congreso', 'taller', 'jornada', 'diplomado', 'conferencia', 'otro'];
 
     public const MODALITIES = ['presencial', 'en_linea', 'mixta'];
 
@@ -25,6 +26,7 @@ class AcademicActivity extends Model
         'type',
         'title',
         'description',
+        'objectives',
         'modality',
         'starts_at',
         'ends_at',
@@ -38,6 +40,9 @@ class AcademicActivity extends Model
         'coordinator_id',
         'issues_certificate',
         'min_attendance',
+        'evaluation_score',
+        'evaluation_notes',
+        'results',
         'created_by',
     ];
 
@@ -51,6 +56,7 @@ class AcademicActivity extends Model
             'cost' => 'float',
             'issues_certificate' => 'boolean',
             'min_attendance' => 'integer',
+            'evaluation_score' => 'float',
         ];
     }
 

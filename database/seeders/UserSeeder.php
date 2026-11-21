@@ -109,13 +109,18 @@ class UserSeeder extends Seeder
             ]
         );
 
-        $person->teacherProfile()->updateOrCreate(
+        $teacher = $person->teacherProfile()->updateOrCreate(
             ['people_id' => $person->id],
             [
                 'professional_title' => 'Cirujana Dentista',
-                'highest_degree' => 'Especialidad',
                 'status' => 'active',
             ]
+        );
+
+        // El grado máximo se registra en "Títulos y grados".
+        $teacher->degrees()->firstOrCreate(
+            ['level' => 'especialidad'],
+            ['title' => 'Especialidad', 'institution' => 'Universidad Juárez del Estado de Durango']
         );
 
         $person->studentProfile()->updateOrCreate(

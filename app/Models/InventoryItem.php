@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,12 +14,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class InventoryItem extends Model
 {
-    use SoftDeletes;
+    use LogsActivity, SoftDeletes;
+
+    /** Material e insumos (se consumen), instrumental (se reutiliza) o equipo. */
+    public const KINDS = ['material', 'instrumental', 'equipo'];
 
     protected $fillable = [
         'code',
         'name',
         'category',
+        'kind',
         'unit',
         'minimum_stock',
         'tracks_expiration',
@@ -31,6 +36,8 @@ class InventoryItem extends Model
     {
         return [
             'minimum_stock' => 'float',
+            // Existencia calculada con withStock() (MySQL la regresa como texto).
+            'stock' => 'float',
             'tracks_expiration' => 'boolean',
             'is_active' => 'boolean',
         ];

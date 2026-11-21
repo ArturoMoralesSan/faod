@@ -25,11 +25,13 @@ interface Expense {
     paid_at: string;
     supplier_id: number | null;
     clinic_id: number | null;
+    space_id: number | null;
     cash_register_session_id: number | null;
     reference: string | null;
     notes: string | null;
     supplier: Option | null;
     clinic: Option | null;
+    space: (Option & { code: string }) | null;
     creator: { name: string } | null;
     session: { register: { name: string } } | null;
     attachments: Attachment[];
@@ -38,11 +40,12 @@ interface Expense {
 const props = defineProps<{
     expenses: Paginated<Expense>;
     total: number;
-    filters: { category?: string; clinic_id?: string; date_from?: string; date_to?: string; search?: string };
+    filters: { category?: string; clinic_id?: string; space_id?: string; date_from?: string; date_to?: string; search?: string };
     categories: string[];
     methods: string[];
     suppliers: Option[];
     clinics: Option[];
+    laboratories: (Option & { code: string })[];
     openSessions: { id: number; register: Option }[];
 }>();
 
@@ -52,10 +55,15 @@ const { filters, hasFilters, submit, clear } = useIndexFilters(
         search: filterValue(props.filters.search),
         category: filterValue(props.filters.category),
         clinic_id: filterValue(props.filters.clinic_id),
+        space_id: filterValue(props.filters.space_id),
         date_from: filterValue(props.filters.date_from),
         date_to: filterValue(props.filters.date_to),
     },
 );
+
+/** "mantenimiento" en las etiquetas generales es el estado de un equipo ("En mantenimiento"). */
+const categoryLabel = (category: string): string => (category === 'mantenimiento' ? 'Mantenimiento' : label(category));
+const categoryOptions = computed<SelectOption[]>(() => props.categories.map((c) => ({ value: c, label: categoryLabel(c) })));
 
 const sessionOptions = computed<SelectOption[]>(() => props.openSessions.map((s) => ({ value: s.id, label: s.register.name })));
 const dateClass = 'h-[42px] rounded-xl border border-[#E3E5E8] bg-white px-3 text-sm';
@@ -71,6 +79,7 @@ const empty = {
     paid_at: '',
     supplier_id: null as number | null,
     clinic_id: null as number | null,
+    space_id: null as number | null,
     cash_register_session_id: null as number | null,
     reference: '',
     notes: '',
@@ -111,6 +120,7 @@ const submitForm = (): void => {
         paid_at: data.paid_at,
         supplier_id: data.supplier_id,
         clinic_id: data.clinic_id,
+        space_id: data.space_id,
         cash_register_session_id: data.method === 'efectivo' ? data.cash_register_session_id : null,
         reference: data.reference || null,
         notes: data.notes || null,
@@ -180,8 +190,9 @@ defineOptions({
             @clear-filters="clear"
         >
             <template #filters>
-                <FilterSelect v-model="filters.category" placeholder="Todas las categorías" :options="enumOptions(categories)" @change="submit" />
+                <FilterSelect v-model="filters.category" placeholder="Todas las categorías" :options="categoryOptions" @change="submit" />
                 <FilterSelect v-model="filters.clinic_id" placeholder="Todas las clínicas" :options="recordOptions(clinics)" @change="submit" />
+                <FilterSelect v-if="laboratories.length" v-model="filters.space_id" placeholder="Todos los laboratorios" :options="recordOptions(laboratories, true)" @change="submit" />
                 <input v-model="filters.date_from" type="date" :class="dateClass" title="Desde" @change="submit" />
                 <input v-model="filters.date_to" type="date" :class="dateClass" title="Hasta" @change="submit" />
             </template>
@@ -200,7 +211,7 @@ defineOptions({
                 <tr v-for="e in expenses.data" :key="e.id" class="transition-colors hover:bg-[#FAF3F4]">
                     <td class="px-5 py-4 sm:px-6">
                         <p class="font-semibold text-[#292D32]">{{ e.description }}</p>
-                        <p class="text-xs text-[#858B93]">{{ [label(e.category), formatDateTime(e.paid_at), e.clinic?.name].filter(Boolean).join(' · ') }}</p>
+                        <p class="text-xs text-[#858B93]">{{ [categoryLabel(e.category), formatDateTime(e.paid_at), e.clinic?.name, e.space ? `Lab. ${e.space.name}` : null].filter(Boolean).join(' · ') }}</p>
                         <p v-if="e.attachments.length" class="mt-1 flex flex-wrap gap-2 text-xs">
                             <a v-for="a in e.attachments" :key="a.id" :href="admin.attachments.download(a.id).url" class="text-[#941B2B] hover:underline">{{ a.title }}</a>
                         </p>
@@ -238,7 +249,7 @@ defineOptions({
             <div class="md:col-span-2">
                 <FormInput id="ex_desc" v-model="form.description" label="Descripción" :error="form.errors.description" required />
             </div>
-            <FormSelect id="ex_cat" v-model="form.category" label="Categoría" :options="enumOptions(categories)" :error="form.errors.category" required />
+            <FormSelect id="ex_cat" v-model="form.category" label="Categoría" :options="categoryOptions" :error="form.errors.category" required />
             <FormInput id="ex_amount" v-model="form.amount" type="number" step="0.01" min="0.01" label="Monto" :error="form.errors.amount" required />
             <FormSelect id="ex_method" v-model="form.method" label="Forma de pago" :options="enumOptions(methods)" :error="form.errors.method" required />
             <FormInput id="ex_date" v-model="form.paid_at" type="datetime-local" label="Fecha" :error="form.errors.paid_at" required />
@@ -247,6 +258,7 @@ defineOptions({
             </div>
             <FormSelect id="ex_supplier" v-model="form.supplier_id" label="Proveedor" placeholder="Sin proveedor" :options="recordOptions(suppliers)" nullable />
             <FormSelect id="ex_clinic" v-model="form.clinic_id" label="Clínica" placeholder="General" :options="recordOptions(clinics)" nullable />
+            <FormSelect id="ex_lab" v-model="form.space_id" label="Laboratorio" placeholder="No es de un laboratorio" :options="recordOptions(laboratories, true)" :error="form.errors.space_id" nullable />
             <div class="md:col-span-2">
                 <FormInput id="ex_ref" v-model="form.reference" label="Referencia" placeholder="Factura, folio fiscal…" :error="form.errors.reference" />
             </div>

@@ -3,7 +3,9 @@ import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import {
     Bell,
     CalendarCheck,
+    CalendarDays,
     CalendarRange,
+    CalendarSearch,
     CalendarX,
     Check,
     ChevronLeft,
@@ -42,10 +44,9 @@ import {
     label,
     recordOptions,
     todayInput,
-    toDateInput,
 } from '@/lib/admin';
 import admin from '@/routes/admin';
-import type { Option, Paginated, PersonName, StudentOption } from '@/types/admin';
+import type { Option, Paginated, PersonName, StudentOption, TeacherOption } from '@/types/admin';
 
 interface Appointment {
     id: number;
@@ -72,14 +73,16 @@ interface Appointment {
 }
 
 const props = defineProps<{
-    view: 'week' | 'list';
+    view: 'day' | 'week' | 'month' | 'list';
     appointments: Appointment[] | Paginated<Appointment>;
+    date: string;
     weekStart: string;
-    filters: { clinic_id?: string; space_id?: string; student_profile_id?: string; status?: string; search?: string; date_from?: string; date_to?: string };
+    filters: { clinic_id?: string; space_id?: string; student_profile_id?: string; teacher_profile_id?: string; status?: string; search?: string; date_from?: string; date_to?: string };
     statuses: string[];
     clinics: Option[];
     spaces: (Option & { clinic_id: number })[];
     students: StudentOption[];
+    teachers: TeacherOption[];
     can: { create: boolean; edit: boolean; delete: boolean };
 }>();
 
@@ -89,6 +92,7 @@ const filters = ref({
     clinic_id: filterValue(props.filters.clinic_id),
     space_id: filterValue(props.filters.space_id),
     student_profile_id: filterValue(props.filters.student_profile_id),
+    teacher_profile_id: filterValue(props.filters.teacher_profile_id),
     status: filterValue(props.filters.status),
     search: filterValue(props.filters.search),
     date_from: filterValue(props.filters.date_from),
@@ -97,16 +101,27 @@ const filters = ref({
 
 const visit = (extra: Record<string, string | undefined> = {}): void => {
     const params = Object.fromEntries(
-        Object.entries({ ...filters.value, view: props.view, date: props.weekStart, ...extra }).filter(([, v]) => v),
+        Object.entries({ ...filters.value, view: props.view, date: props.date, ...extra }).filter(([, v]) => v),
     );
 
     router.get(admin.appointments.index().url, params, { preserveState: true, preserveScroll: true, replace: true });
 };
 
-const shiftWeek = (days: number): void => {
-    const date = new Date(`${props.weekStart}T00:00:00`);
-    date.setDate(date.getDate() + days);
-    visit({ date: toDateInput(date.toISOString()) });
+const isoDate = (date: Date): string =>
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+/** Avanza o retrocede un día, una semana o un mes según la vista. */
+const shift = (step: number): void => {
+    const date = new Date(`${props.date}T00:00:00`);
+
+    if (props.view === 'month') {
+        date.setDate(1);
+        date.setMonth(date.getMonth() + step);
+    } else {
+        date.setDate(date.getDate() + step * (props.view === 'day' ? 1 : 7));
+    }
+
+    visit({ date: isoDate(date) });
 };
 
 const spaceOptions = computed(() =>
@@ -115,6 +130,7 @@ const spaceOptions = computed(() =>
 const studentOptions = computed(() =>
     props.students.map((s) => ({ value: s.id, label: `${s.registration_number} · ${fullName(s.people)}` })),
 );
+const teacherOptions = computed(() => props.teachers.map((t) => ({ value: t.id, label: fullName(t.people) })));
 
 const weekList = computed(() => (Array.isArray(props.appointments) ? props.appointments : []));
 const paginated = computed(() => (Array.isArray(props.appointments) ? null : props.appointments));
@@ -136,6 +152,48 @@ const days = computed(() =>
 
 const weekLabel = computed(() => `${formatDate(days.value[0]?.iso)} – ${formatDate(days.value[days.value.length - 1]?.iso)}`);
 const today = todayInput();
+
+const navLabel = computed(() => {
+    const date = new Date(`${props.date}T00:00:00`);
+
+    if (props.view === 'day') {
+        return date.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    if (props.view === 'month') {
+        return date.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+    }
+
+    return weekLabel.value;
+});
+
+/* Mes: cuadrícula de lunes a domingo con los días del mes y relleno de los meses vecinos. */
+const monthCells = computed(() => {
+    const anchor = new Date(`${props.date}T00:00:00`);
+    const first = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+    const offset = (first.getDay() + 6) % 7;
+    const start = new Date(first);
+    start.setDate(first.getDate() - offset);
+    const last = new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0);
+    const total = Math.ceil((offset + last.getDate()) / 7) * 7;
+
+    return Array.from({ length: total }, (_, i) => {
+        const date = new Date(start);
+        date.setDate(start.getDate() + i);
+        const iso = isoDate(date);
+
+        return {
+            iso,
+            day: date.getDate(),
+            inMonth: date.getMonth() === anchor.getMonth(),
+            items: weekList.value.filter((a) => a.date.substring(0, 10) === iso),
+        };
+    });
+});
+
+const WEEKDAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+const activeCount = (items: Appointment[]) => items.filter((a) => !['cancelada', 'reprogramada'].includes(a.status)).length;
 
 const BORDERS: Record<string, string> = {
     programada: 'border-l-[#D9A21B]',
@@ -277,24 +335,33 @@ defineOptions({
         <div class="flex flex-col gap-3 rounded-2xl border border-[#E3E5E8] bg-white p-4">
             <div class="flex flex-wrap items-center gap-3">
                 <div class="inline-flex rounded-xl border border-[#E3E5E8] p-1 text-xs font-semibold">
+                    <button type="button" :class="['inline-flex items-center gap-1 rounded-lg px-3 py-1.5', view === 'day' ? 'bg-[#941B2B] text-white' : 'text-[#525960]']" @click="visit({ view: 'day' })">
+                        <CalendarSearch class="h-3.5 w-3.5" /> Día
+                    </button>
                     <button type="button" :class="['inline-flex items-center gap-1 rounded-lg px-3 py-1.5', view === 'week' ? 'bg-[#941B2B] text-white' : 'text-[#525960]']" @click="visit({ view: 'week' })">
                         <CalendarRange class="h-3.5 w-3.5" /> Semana
+                    </button>
+                    <button type="button" :class="['inline-flex items-center gap-1 rounded-lg px-3 py-1.5', view === 'month' ? 'bg-[#941B2B] text-white' : 'text-[#525960]']" @click="visit({ view: 'month' })">
+                        <CalendarDays class="h-3.5 w-3.5" /> Mes
                     </button>
                     <button type="button" :class="['inline-flex items-center gap-1 rounded-lg px-3 py-1.5', view === 'list' ? 'bg-[#941B2B] text-white' : 'text-[#525960]']" @click="visit({ view: 'list' })">
                         <List class="h-3.5 w-3.5" /> Lista
                     </button>
                 </div>
 
-                <div v-if="view === 'week'" class="flex items-center gap-1">
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#E3E5E8] hover:bg-[#F9ECEE]" title="Semana anterior" @click="shiftWeek(-7)">
+                <div v-if="view !== 'list'" class="flex items-center gap-1">
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#E3E5E8] hover:bg-[#F9ECEE]" title="Anterior" @click="shift(-1)">
                         <ChevronLeft class="h-4 w-4" />
                     </button>
                     <button type="button" class="h-9 rounded-lg border border-[#E3E5E8] px-3 text-xs font-semibold hover:bg-[#F9ECEE]" @click="visit({ date: today })">Hoy</button>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#E3E5E8] hover:bg-[#F9ECEE]" title="Semana siguiente" @click="shiftWeek(7)">
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#E3E5E8] hover:bg-[#F9ECEE]" title="Siguiente" @click="shift(1)">
                         <ChevronRight class="h-4 w-4" />
                     </button>
-                    <span class="ml-2 text-sm font-semibold text-[#292D32]">{{ weekLabel }}</span>
+                    <span class="ml-2 text-sm font-semibold capitalize text-[#292D32]">{{ navLabel }}</span>
                 </div>
+                <button v-else type="button" class="h-9 rounded-lg border border-[#E3E5E8] px-3 text-xs font-semibold hover:bg-[#F9ECEE]" @click="visit({ view: 'day', date: today })">
+                    Citas de hoy
+                </button>
             </div>
 
             <div class="flex flex-wrap gap-3">
@@ -304,6 +371,7 @@ defineOptions({
                 <FilterSelect v-model="filters.clinic_id" placeholder="Todas las clínicas" :options="recordOptions(clinics)" @change="filters.space_id = ''; visit()" />
                 <FilterSelect v-model="filters.space_id" placeholder="Todos los consultorios" :options="spaceOptions" @change="visit()" />
                 <FilterSelect v-model="filters.student_profile_id" placeholder="Todos los alumnos" :options="studentOptions" @change="visit()" />
+                <FilterSelect v-model="filters.teacher_profile_id" placeholder="Todos los docentes" :options="teacherOptions" @change="visit()" />
                 <FilterSelect v-model="filters.status" placeholder="Todos los estados" :options="enumOptions(statuses)" @change="visit()" />
                 <template v-if="view === 'list'">
                     <input v-model="filters.date_from" type="date" class="h-[42px] rounded-xl border border-[#E3E5E8] px-3 text-sm" title="Desde" @change="visit()" />
@@ -312,8 +380,79 @@ defineOptions({
             </div>
         </div>
 
+        <!-- Día -->
+        <AdminCard v-if="view === 'day'" :title="`${weekList.length} cita(s)`" :icon="CalendarSearch" :padding="false">
+            <ul v-if="weekList.length" class="divide-y divide-[#E3E5E8]">
+                <li v-for="a in weekList" :key="a.id">
+                    <button
+                        type="button"
+                        :class="['flex w-full flex-wrap items-center gap-4 border-l-4 px-5 py-4 text-left transition-colors hover:bg-[#FAF3F4] sm:px-6', BORDERS[a.status], ['cancelada', 'reprogramada'].includes(a.status) ? 'opacity-60' : '']"
+                        @click="openDetail(a)"
+                    >
+                        <span class="w-24 shrink-0">
+                            <span class="block text-base font-bold text-[#292D32]">{{ formatTime(a.start_time) }}</span>
+                            <span class="block text-xs text-[#858B93]">a {{ formatTime(a.end_time) }}</span>
+                        </span>
+                        <span class="min-w-[12rem] flex-1">
+                            <span class="block font-semibold text-[#292D32]">{{ fullName(a.patient.people) }}</span>
+                            <span class="block text-xs text-[#858B93]">{{ [a.patient.record_number, a.reason].filter(Boolean).join(' · ') }}</span>
+                        </span>
+                        <span class="min-w-[10rem] text-sm text-[#525960]">
+                            {{ a.clinic.name }}<span v-if="a.space" class="block text-xs text-[#858B93]">{{ a.space.name }}</span>
+                        </span>
+                        <span class="min-w-[10rem] text-xs text-[#525960]">
+                            <span class="block">{{ a.student ? fullName(a.student.people) : 'Sin alumno' }}</span>
+                            <span v-if="a.teacher" class="block text-[#858B93]">Supervisa: {{ fullName(a.teacher.people) }}</span>
+                        </span>
+                        <StatusBadge :value="a.status" />
+                    </button>
+                </li>
+            </ul>
+            <EmptyState v-else :icon="CalendarSearch" title="Sin citas este día" description="No hay citas con esos filtros." />
+            <template v-if="can.create && date >= today" #footer>
+                <Link
+                    :href="admin.appointments.create({ query: { date, clinic_id: filters.clinic_id || undefined, space_id: filters.space_id || undefined } }).url"
+                    class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#941B2B] hover:underline"
+                >
+                    <Plus class="h-4 w-4" /> Agendar en este día
+                </Link>
+            </template>
+        </AdminCard>
+
+        <!-- Mes -->
+        <div v-else-if="view === 'month'" class="overflow-x-auto">
+            <div class="min-w-[760px] overflow-hidden rounded-2xl border border-[#E3E5E8] bg-white">
+                <div class="grid grid-cols-7 border-b border-[#E3E5E8] bg-[#F7F8FA]">
+                    <p v-for="d in WEEKDAYS" :key="d" class="px-2 py-2 text-center text-xs font-semibold uppercase text-[#858B93]">{{ d }}</p>
+                </div>
+                <div class="grid grid-cols-7">
+                    <button
+                        v-for="cell in monthCells"
+                        :key="cell.iso"
+                        type="button"
+                        :class="['flex min-h-[104px] flex-col gap-1 border-b border-r border-[#E3E5E8] p-1.5 text-left transition-colors hover:bg-[#FAF3F4]', cell.inMonth ? '' : 'bg-[#FAFAFB] text-[#B5BAC1]']"
+                        :title="`Ver el ${formatDate(cell.iso)}`"
+                        @click="visit({ view: 'day', date: cell.iso })"
+                    >
+                        <span class="flex items-center justify-between">
+                            <span :class="['inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold', cell.iso === today ? 'bg-[#941B2B] text-white' : cell.inMonth ? 'text-[#292D32]' : '']">{{ cell.day }}</span>
+                            <span v-if="activeCount(cell.items)" class="text-[10px] font-semibold text-[#858B93]">{{ activeCount(cell.items) }}</span>
+                        </span>
+                        <span
+                            v-for="a in cell.items.slice(0, 3)"
+                            :key="a.id"
+                            :class="['truncate rounded border-l-2 bg-[#F7F8FA] px-1 py-0.5 text-[11px] text-[#383D43]', BORDERS[a.status], ['cancelada', 'reprogramada'].includes(a.status) ? 'line-through opacity-60' : '']"
+                        >
+                            {{ formatTime(a.start_time) }} {{ fullName(a.patient.people) }}
+                        </span>
+                        <span v-if="cell.items.length > 3" class="text-[11px] font-semibold text-[#941B2B]">+{{ cell.items.length - 3 }} más</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Semana -->
-        <div v-if="view === 'week'" class="overflow-x-auto">
+        <div v-else-if="view === 'week'" class="overflow-x-auto">
             <div class="grid min-w-[900px] gap-3" :style="{ gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` }">
                 <div v-for="day in days" :key="day.iso" class="flex flex-col gap-2">
                     <div :class="['rounded-xl border px-3 py-2 text-center', day.iso === today ? 'border-[#941B2B] bg-[#F9ECEE]' : 'border-[#E3E5E8] bg-white']">

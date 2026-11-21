@@ -22,6 +22,8 @@ const props = defineProps<{
         cancelled_at: string | null;
         cancellation_reason: string | null;
         payer_info: PayerInfo | null;
+        concept: string | null;
+        participant: { activity: { id: number; title: string } | null } | null;
         receiver: { name: string } | null;
         canceller: { name: string } | null;
         session: { register: { name: string } } | null;
@@ -54,7 +56,10 @@ defineOptions({
 
     <div class="flex h-full flex-1 flex-col gap-5 bg-[#F7F8FA] p-4 sm:p-6">
         <div class="flex flex-wrap gap-2 print:hidden">
-            <Link v-if="payment.payer_info" :href="payment.payer_info.url">
+            <Link v-if="payment.participant?.activity" :href="admin.activities.show(payment.participant.activity.id).url">
+                <AdminButton variant="secondary" :icon="ArrowLeft">Volver a la actividad</AdminButton>
+            </Link>
+            <Link v-if="payment.payer_info?.url" :href="payment.payer_info.url">
                 <AdminButton variant="secondary" :icon="ArrowLeft">Estado de cuenta</AdminButton>
             </Link>
             <AdminButton :icon="Printer" @click="print">Imprimir</AdminButton>
@@ -83,7 +88,7 @@ defineOptions({
                 <div>
                     <p class="text-xs text-[#737982]">Recibimos de</p>
                     <p class="font-semibold text-[#292D32]">{{ payment.payer_info?.name }}</p>
-                    <p class="text-xs text-[#737982]">{{ payment.payer_info ? `${label(payment.payer_info.type)} · ${payment.payer_info.code}` : '' }}</p>
+                    <p class="text-xs text-[#737982]">{{ payment.payer_info ? [label(payment.payer_info.type), payment.payer_info.code].filter(Boolean).join(' · ') : '' }}</p>
                 </div>
                 <div class="text-right">
                     <p class="text-xs text-[#737982]">Forma de pago</p>
@@ -103,6 +108,10 @@ defineOptions({
                     <tr v-for="a in payment.allocations" :key="a.id" class="border-b border-[#F1F2F4]">
                         <td class="py-2 text-[#292D32]">{{ a.charge.description }}</td>
                         <td class="py-2 text-right text-[#292D32]">{{ formatMoney(a.amount) }}</td>
+                    </tr>
+                    <tr v-if="!payment.allocations.length" class="border-b border-[#F1F2F4]">
+                        <td class="py-2 text-[#292D32]">{{ payment.concept ?? (payment.participant ? `Inscripción: ${payment.participant.activity?.title}` : 'Ingreso') }}</td>
+                        <td class="py-2 text-right text-[#292D32]">{{ formatMoney(payment.amount) }}</td>
                     </tr>
                 </tbody>
                 <tfoot>

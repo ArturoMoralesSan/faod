@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { Award, Info, Mic, Pencil, Plus, Presentation, Save, Trash2, UserPlus, Users } from 'lucide-vue-next';
+import { Award, Banknote, Info, Mic, Pencil, Plus, Presentation, Save, Trash2, UserPlus, Users } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 import AdminButton from '@/components/admin/AdminButton.vue';
@@ -8,6 +8,7 @@ import AdminCard from '@/components/admin/AdminCard.vue';
 import AttachmentsCard from '@/components/admin/AttachmentsCard.vue';
 import DetailItem from '@/components/admin/DetailItem.vue';
 import FormDialog from '@/components/admin/FormDialog.vue';
+import IncomeDialog from '@/components/admin/IncomeDialog.vue';
 import FormInput from '@/components/admin/FormInput.vue';
 import FormSelect from '@/components/admin/FormSelect.vue';
 import PageHeader from '@/components/admin/PageHeader.vue';
@@ -38,6 +39,10 @@ const props = defineProps<{
         type: string;
         title: string;
         description: string | null;
+        objectives: string | null;
+        evaluation_score: number | null;
+        evaluation_notes: string | null;
+        results: string | null;
         modality: string;
         starts_at: string;
         ends_at: string | null;
@@ -57,6 +62,9 @@ const props = defineProps<{
     };
     participantStatuses: string[];
     paymentStatuses: string[];
+    canCharge: boolean;
+    paymentMethods: string[];
+    openSessions: { id: number; register: { name: string } | null }[];
     teachers: TeacherOption[];
     peopleSearchUrl: string;
 }>();
@@ -76,6 +84,15 @@ const form = useForm({
 });
 
 const byId = (id: number) => props.activity.participants.find((p) => p.id === id)!;
+
+/* Cobro de la inscripción: lo registra a mano quien cobra y genera recibo. */
+const chargeOpen = ref(false);
+const charging = ref<{ id: number; name: string; activity: string; amount: number | null } | null>(null);
+
+const openCharge = (id: number): void => {
+    charging.value = { id, name: fullName(byId(id).people), activity: props.activity.title, amount: props.activity.cost };
+    chargeOpen.value = true;
+};
 
 const save = (): void => {
     form.transform((data) => ({
@@ -181,6 +198,18 @@ defineOptions({
                     <DetailItem label="Constancia" :value="activity.issues_certificate ? `Sí, con ${activity.min_attendance}% de asistencia` : 'No'" />
                 </dl>
                 <p v-if="activity.description" class="mt-5 whitespace-pre-line text-sm leading-6 text-[#525960]">{{ activity.description }}</p>
+                <div v-if="activity.objectives" class="mt-4">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-[#858B93]">Objetivos</p>
+                    <p class="mt-1 whitespace-pre-line text-sm leading-6 text-[#525960]">{{ activity.objectives }}</p>
+                </div>
+                <div v-if="activity.evaluation_score !== null || activity.evaluation_notes || activity.results" class="mt-5 rounded-xl border border-[#E3E5E8] bg-[#F7F8FA] p-4">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-[#858B93]">Evaluación y resultados</p>
+                        <span v-if="activity.evaluation_score !== null" class="rounded-full bg-[#941B2B] px-2.5 py-0.5 text-xs font-bold text-white">{{ activity.evaluation_score }} / 10</span>
+                    </div>
+                    <p v-if="activity.evaluation_notes" class="mt-2 whitespace-pre-line text-sm text-[#525960]">{{ activity.evaluation_notes }}</p>
+                    <p v-if="activity.results" class="mt-2 whitespace-pre-line text-sm text-[#525960]"><span class="font-semibold text-[#383D43]">Resultados:</span> {{ activity.results }}</p>
+                </div>
             </AdminCard>
 
             <AdminCard title="Ponentes" :icon="Mic">
@@ -241,9 +270,20 @@ defineOptions({
                             </td>
                             <td class="px-4 py-2"><input v-model="row.grade" type="number" min="0" max="100" step="0.1" class="form-input h-9 w-20 py-1 text-sm" /></td>
                             <td class="px-4 py-2">
-                                <select v-model="row.payment_status" class="form-select h-9 min-w-32 py-1 text-sm">
-                                    <option v-for="s in paymentStatuses" :key="s" :value="s">{{ label(s) }}</option>
-                                </select>
+                                <div class="flex items-center gap-1">
+                                    <select v-model="row.payment_status" class="form-select h-9 min-w-32 py-1 text-sm">
+                                        <option v-for="s in paymentStatuses" :key="s" :value="s">{{ label(s) }}</option>
+                                    </select>
+                                    <button
+                                        v-if="canCharge && byId(row.id).payment_status === 'pendiente'"
+                                        type="button"
+                                        class="inline-flex h-9 items-center gap-1 rounded-lg border border-[#BFE3CC] bg-[#E2F3E8] px-2 text-xs font-semibold text-[#187744] hover:border-[#187744]"
+                                        title="Registrar el pago y emitir recibo"
+                                        @click="openCharge(row.id)"
+                                    >
+                                        <Banknote class="h-3.5 w-3.5" /> Cobrar
+                                    </button>
+                                </div>
                             </td>
                             <td class="px-4 py-2">
                                 <Link
@@ -309,5 +349,7 @@ defineOptions({
             </div>
             <FormSelect id="in_role" v-model="instructorForm.role" label="Función" :options="enumOptions(['ponente', 'instructor', 'moderador', 'conferencista'])" required />
         </FormDialog>
+
+        <IncomeDialog v-if="canCharge" v-model:open="chargeOpen" :methods="paymentMethods" :open-sessions="openSessions" :participant="charging" />
     </div>
 </template>

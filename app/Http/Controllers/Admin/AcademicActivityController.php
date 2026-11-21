@@ -72,6 +72,10 @@ class AcademicActivityController extends Controller
             'paymentStatuses' => ActivityParticipant::PAYMENT_STATUSES,
             'teachers' => $this->teachers(),
             'peopleSearchUrl' => route('admin.people.search'),
+            // Cobro manual de inscripciones (lo registra quien cobra).
+            'canCharge' => (bool) auth()->user()?->can('payments.create'),
+            'paymentMethods' => \App\Models\Payment::METHODS,
+            'openSessions' => \App\Models\CashRegisterSession::where('status', 'abierta')->with('register:id,name')->get(['id', 'cash_register_id']),
         ]);
     }
 
@@ -103,6 +107,7 @@ class AcademicActivityController extends Controller
             'type' => ['required', Rule::in(AcademicActivity::TYPES)],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'objectives' => ['nullable', 'string'],
             'modality' => ['required', Rule::in(AcademicActivity::MODALITIES)],
             'starts_at' => ['required', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
@@ -116,6 +121,9 @@ class AcademicActivityController extends Controller
             'coordinator_id' => ['nullable', Rule::exists('teacher_profiles', 'id')->whereNull('deleted_at')],
             'issues_certificate' => ['boolean'],
             'min_attendance' => ['required', 'integer', 'between:0,100'],
+            'evaluation_score' => ['nullable', 'numeric', 'between:0,10'],
+            'evaluation_notes' => ['nullable', 'string'],
+            'results' => ['nullable', 'string'],
         ]);
     }
 

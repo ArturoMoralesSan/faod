@@ -241,13 +241,6 @@ const profileToggleClass = (active: boolean) => [
                 :error="errorFor('teacher_profile.professional_title')"
             />
             <FormInput
-                id="highest_degree"
-                v-model="form.teacher_profile.highest_degree"
-                label="Máximo grado"
-                placeholder="Ej. Maestría"
-                :error="errorFor('teacher_profile.highest_degree')"
-            />
-            <FormInput
                 id="years_experience"
                 v-model="form.teacher_profile.years_experience"
                 type="number"

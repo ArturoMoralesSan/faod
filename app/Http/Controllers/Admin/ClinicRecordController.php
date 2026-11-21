@@ -79,6 +79,7 @@ class ClinicRecordController extends Controller
 
         return match ($type) {
             'areas' => [
+                'specialty_id' => ['nullable', Rule::exists('specialties', 'id')],
                 'name' => [
                     'required',
                     'string',
@@ -98,6 +99,7 @@ class ClinicRecordController extends Controller
                 'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             ],
             'equipment' => [
+                'kind' => ['sometimes', 'required', Rule::in(ClinicEquipment::KINDS)],
                 'space_id' => ['nullable', $clinicSpace],
                 'code' => [
                     'required',

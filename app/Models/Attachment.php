@@ -26,6 +26,24 @@ class Attachment extends Model
         'academic_activity' => AcademicActivity::class,
     ];
 
+    /**
+     * Módulo de permisos de cada tipo de registro: ver para descargar,
+     * crear o editar para adjuntar, editar o eliminar para borrar.
+     */
+    public const MODULES = [
+        People::class => 'people',
+        StudentProfile::class => 'students',
+        TeacherProfile::class => 'teachers',
+        StudentEnrollment::class => 'students',
+        UniversityRegistration::class => 'students',
+        AcademicProgram::class => 'academic-programs',
+        StudyPlan::class => 'study-plans',
+        ClinicIncident::class => 'clinic-incidents',
+        Patient::class => 'patients',
+        Expense::class => 'expenses',
+        AcademicActivity::class => 'activities',
+    ];
+
     protected $fillable = [
         'attachable_type',
         'attachable_id',

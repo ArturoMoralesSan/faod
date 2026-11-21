@@ -130,6 +130,7 @@ class TreatmentPlanController extends Controller
         return $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'notes' => ['nullable', 'string'],
+            'patient_instructions' => ['nullable', 'string'],
             'status' => ['required', Rule::in(TreatmentPlan::STATUSES)],
             'student_profile_id' => ['nullable', Rule::exists('student_profiles', 'id')->whereNull('deleted_at')],
             'teacher_profile_id' => ['nullable', Rule::exists('teacher_profiles', 'id')->whereNull('deleted_at')],

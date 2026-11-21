@@ -11,6 +11,23 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class PatientConsultation extends Model
 {
+    /**
+     * Síntomas bucales que refiere el paciente, agrupados como en la historia clínica.
+     * Las etiquetas están en resources/js/lib/labels.json.
+     */
+    public const SYMPTOMS = [
+        'dolor' => ['dolor_espontaneo', 'dolor_provocado', 'dolor_al_masticar', 'dolor_nocturno', 'dolor_irradiado'],
+        'sensibilidad' => ['sensibilidad_frio', 'sensibilidad_calor', 'sensibilidad_dulce'],
+        'periodontal' => ['sangrado_encias', 'inflamacion', 'movilidad_dental', 'supuracion', 'halitosis'],
+        'otros' => ['diente_fracturado', 'lesion_mucosa', 'dolor_atm', 'limitacion_apertura', 'bruxismo', 'boca_seca'],
+    ];
+
+    /** @return array<int, string> */
+    public static function symptomKeys(): array
+    {
+        return array_merge(...array_values(self::SYMPTOMS));
+    }
+
     protected $fillable = [
         'patient_id',
         'clinic_id',
@@ -19,6 +36,9 @@ class PatientConsultation extends Model
         'teacher_profile_id',
         'attended_at',
         'reason',
+        'current_illness',
+        'symptoms',
+        'pain_intensity',
         'blood_pressure',
         'heart_rate',
         'respiratory_rate',
@@ -34,6 +54,8 @@ class PatientConsultation extends Model
     {
         return [
             'attended_at' => 'datetime',
+            'symptoms' => 'array',
+            'pain_intensity' => 'integer',
             'heart_rate' => 'integer',
             'respiratory_rate' => 'integer',
             'temperature' => 'float',

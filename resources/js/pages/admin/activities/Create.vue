@@ -15,6 +15,7 @@ const form = useForm<ActivityFormData>({
     type: 'curso',
     title: '',
     description: '',
+    objectives: '',
     modality: 'presencial',
     starts_at: todayInput(),
     ends_at: '',
@@ -28,6 +29,9 @@ const form = useForm<ActivityFormData>({
     coordinator_id: null,
     issues_certificate: true,
     min_attendance: 80,
+    evaluation_score: null,
+    evaluation_notes: '',
+    results: '',
 });
 
 const submit = (): void => {

@@ -80,6 +80,9 @@ class PatientTest extends TestCase
             'consultations' => [
                 'attended_at' => now()->subHour()->format('Y-m-d\TH:i'),
                 'reason' => 'Dolor en molar inferior',
+                'current_illness' => 'Inició hace 3 días, aumenta al masticar y con frío.',
+                'symptoms' => ['dolor_al_masticar', 'sensibilidad_frio'],
+                'pain_intensity' => 7,
                 'blood_pressure' => '120/80',
                 'heart_rate' => 72,
             ],
@@ -97,6 +100,15 @@ class PatientTest extends TestCase
         ])->assertSessionHasNoErrors();
 
         $this->assertNotNull($consultation->created_by);
+        $this->assertSame(['dolor_al_masticar', 'sensibilidad_frio'], $consultation->symptoms);
+        $this->assertSame(7, $consultation->pain_intensity);
+
+        // Síntoma fuera del catálogo e intensidad fuera de la escala.
+        $this->post(route('admin.patients.records.store', [$patient, 'consultations']), [
+            ...$entries['consultations'],
+            'symptoms' => ['inventado'],
+            'pain_intensity' => 11,
+        ])->assertSessionHasErrors(['symptoms.0', 'pain_intensity']);
 
         // Tensión arterial con formato inválido.
         $this->post(route('admin.patients.records.store', [$patient, 'consultations']), [

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use App\Models\Concerns\Reviewable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class PatientDiagnosis extends Model
 {
-    use Reviewable, SoftDeletes;
+    use LogsActivity, Reviewable, SoftDeletes;
 
     public const TYPES = ['presuntivo', 'definitivo'];
 

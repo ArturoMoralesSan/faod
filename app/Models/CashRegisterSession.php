@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class CashRegisterSession extends Model
 {
+    use LogsActivity;
+
     protected $fillable = [
         'cash_register_id',
         'status',
@@ -55,6 +58,12 @@ class CashRegisterSession extends Model
         return $this->hasMany(Payment::class);
     }
 
+    /** Depósitos y retiros de efectivo que no son cobros ni gastos. */
+    public function cashMovements(): HasMany
+    {
+        return $this->hasMany(CashMovement::class)->latest('id');
+    }
+
     public function expenses(): HasMany
     {
         return $this->hasMany(Expense::class);
@@ -75,14 +84,18 @@ class CashRegisterSession extends Model
 
         $cashIn = $byMethod['efectivo']['total'] ?? 0.0;
         $cashOut = (float) $this->expenses()->where('method', 'efectivo')->sum('amount');
+        $deposits = (float) $this->cashMovements()->where('type', 'deposito')->sum('amount');
+        $withdrawals = (float) $this->cashMovements()->where('type', 'retiro')->sum('amount');
 
         return [
             'by_method' => $byMethod,
             'total_collected' => (float) $byMethod->sum('total'),
             'cash_in' => $cashIn,
             'cash_out' => $cashOut,
+            'deposits' => $deposits,
+            'withdrawals' => $withdrawals,
             'cancelled' => $this->payments()->whereNotNull('cancelled_at')->count(),
-            'expected_cash' => round($this->opening_amount + $cashIn - $cashOut, 2),
+            'expected_cash' => round($this->opening_amount + $cashIn - $cashOut + $deposits - $withdrawals, 2),
         ];
     }
 }

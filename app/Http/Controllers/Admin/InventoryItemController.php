@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\CatalogType;
 use App\Models\InventoryItem;
 use App\Models\InventoryLot;
 use App\Models\InventoryMovement;
+use App\Models\StudentProfile;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use Illuminate\Http\RedirectResponse;
@@ -35,6 +37,7 @@ class InventoryItemController extends Controller
                 ->where('code', 'like', "%{$search}%")
                 ->orWhere('name', 'like', "%{$search}%")))
             ->when($request->category, fn ($q, $category) => $q->where('category', $category))
+            ->when($request->kind, fn ($q, $kind) => $q->where('kind', $kind))
             ->when($request->alert === 'low', fn ($q) => $q->lowStock())
             ->when($request->alert === 'expiring', fn ($q) => $q->whereHas('lots', fn ($q) => $q->expiringWithin(self::EXPIRATION_ALERT_DAYS)))
             ->orderBy('name')
@@ -43,7 +46,7 @@ class InventoryItemController extends Controller
 
         return Inertia::render('admin/inventory/Index', [
             'items' => $items,
-            'filters' => $request->only('search', 'category', 'warehouse_id', 'alert'),
+            'filters' => $request->only('search', 'category', 'kind', 'warehouse_id', 'alert'),
             'alerts' => [
                 'low' => InventoryItem::lowStock()->count(),
                 'expiring' => InventoryLot::expiringWithin(self::EXPIRATION_ALERT_DAYS)->count(),
@@ -77,14 +80,51 @@ class InventoryItemController extends Controller
                 ->get(),
             'movements' => InventoryMovement::query()
                 ->where('inventory_item_id', $inventory->id)
-                ->with(['warehouse:id,code,name', 'lot:id,lot_number,expires_at', 'user:id,name', 'supplier:id,name'])
+                ->with(['warehouse:id,code,name', 'lot:id,lot_number,expires_at', 'user:id,name', 'supplier:id,name', 'student:id,people_id,registration_number', 'student.people:id,first_name,paternal_surname,maternal_surname'])
                 ->latest('moved_at')
                 ->latest('id')
                 ->limit(50)
                 ->get(),
+            // Para devoluciones: también los lotes ya vacíos, para regresar el material a su lote.
+            'allLots' => $inventory->lots()
+                ->with('warehouse:id,code,name')
+                ->latest('id')
+                ->get(['id', 'warehouse_id', 'lot_number', 'expires_at', 'quantity']),
+            'students' => self::studentOptions(),
             'expirationAlertDays' => self::EXPIRATION_ALERT_DAYS,
             ...$this->formData(),
         ]);
+    }
+
+    /**
+     * Alumnos activos para entregas y devoluciones de material.
+     *
+     * @return \Illuminate\Support\Collection<int, array{value: int, label: string}>
+     */
+    public static function studentOptions()
+    {
+        return StudentProfile::query()
+            ->whereHas('enrollments', fn ($q) => $q->where('status', 'activo'))
+            ->with('people:id,first_name,paternal_surname,maternal_surname')
+            ->get(['id', 'people_id', 'registration_number'])
+            ->map(fn ($s) => ['value' => $s->id, 'label' => "{$s->registration_number} · {$s->people?->full_name}"])
+            ->sortBy('label')
+            ->values();
+    }
+
+    /**
+     * Categorías: las del catálogo "Categorías de inventario" más las que ya usan los artículos.
+     *
+     * @return array<int, string>
+     */
+    public static function categories(): array
+    {
+        return CatalogType::options('inventory_categories')->pluck('name')
+            ->merge(InventoryItem::whereNotNull('category')->distinct()->pluck('category'))
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
     }
 
     public function update(Request $request, InventoryItem $inventory): RedirectResponse
@@ -110,7 +150,8 @@ class InventoryItemController extends Controller
         return $request->validate([
             'code' => ['required', 'string', 'max:30', Rule::unique('inventory_items', 'code')->ignore($item)],
             'name' => ['required', 'string', 'max:255'],
-            'category' => ['nullable', 'string', 'max:60'],
+            'category' => ['nullable', 'string', 'max:60', Rule::in(self::categories())],
+            'kind' => ['sometimes', 'required', Rule::in(InventoryItem::KINDS)],
             'unit' => ['required', 'string', 'max:20'],
             'minimum_stock' => ['required', 'numeric', 'min:0'],
             'tracks_expiration' => ['boolean'],
@@ -125,7 +166,8 @@ class InventoryItemController extends Controller
         return [
             'warehouses' => Warehouse::where('is_active', true)->orderBy('name')->get(['id', 'code', 'name']),
             'suppliers' => Supplier::where('is_active', true)->orderBy('name')->get(['id', 'name']),
-            'categories' => InventoryItem::whereNotNull('category')->distinct()->orderBy('category')->pluck('category'),
+            'categories' => self::categories(),
+            'kinds' => InventoryItem::KINDS,
         ];
     }
 }

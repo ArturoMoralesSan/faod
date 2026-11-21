@@ -113,8 +113,6 @@ class UpdatePeopleRequest extends FormRequest
                 Rule::unique('teacher_profiles', 'professional_license')->ignore($teacherId),
             ],
             'teacher_profile.professional_title' => ['nullable', 'string', 'max:255'],
-            'teacher_profile.highest_degree' => ['nullable', 'string', 'max:255'],
-            'teacher_profile.specialty' => ['nullable', 'string', 'max:255'],
             'teacher_profile.years_experience' => ['nullable', 'integer', 'min:0', 'max:100'],
             'teacher_profile.status' => [
                 'nullable',
@@ -131,7 +129,6 @@ class UpdatePeopleRequest extends FormRequest
                 Rule::unique('staff_profiles', 'employee_number')->ignore($staffId),
             ],
             'staff_profile.position' => ['required_with:staff_profile', 'nullable', 'string', 'max:255'],
-            'staff_profile.department' => ['nullable', 'string', 'max:255'],
             'staff_profile.department_id' => ['nullable', 'exists:departments,id'],
             'staff_profile.status' => [
                 'nullable',

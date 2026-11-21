@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ActivityParticipantController;
 use App\Http\Controllers\Admin\AcademicPeriodController;
 use App\Http\Controllers\Admin\AcademicProgramController;
 use App\Http\Controllers\Admin\ActiveRoleController;
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\AppointmentController;
 use App\Http\Controllers\Admin\Finance;
 use App\Http\Controllers\Admin\AttachmentController;
@@ -38,8 +39,11 @@ use App\Http\Controllers\Admin\PatientRecordController;
 use App\Http\Controllers\Admin\PeopleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\PeoplePhotoController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SpaceAvailabilityController;
+use App\Http\Controllers\Admin\SchedulePrintController;
 use App\Http\Controllers\Admin\SpaceController;
 use App\Http\Controllers\Admin\SpecialtyController;
 use App\Http\Controllers\Admin\StudentEnrollmentController;
@@ -73,6 +77,15 @@ $crud = fn (string $module) => [
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Sitio público: oferta académica, cursos y actividades, y atención clínica.
+Route::name('public.')->group(function () {
+    Route::get('oferta-academica', [HomeController::class, 'programs'])->name('programs');
+    Route::get('oferta-academica/{code}', [HomeController::class, 'program'])->name('programs.show');
+    Route::get('cursos-y-actividades', [HomeController::class, 'activities'])->name('activities');
+    Route::get('cursos-y-actividades/{activity}', [HomeController::class, 'activity'])->whereNumber('activity')->name('activities.show');
+    Route::get('atencion-clinica', [HomeController::class, 'clinical'])->name('clinical');
+});
 /*
 |--------------------------------------------------------------------------
 | Administración
@@ -89,7 +102,7 @@ Route::middleware(['auth', 'verified'])
         | Dashboard
         |--------------------------------------------------------------------------
         |
-        | Página de bienvenida de Industrias Husky.
+        | Panel principal del sistema.
         |
         */
 
@@ -103,8 +116,9 @@ Route::middleware(['auth', 'verified'])
         */
 
         Route::resource('users', UserController::class)
-            ->middleware([
+            ->permissions([
                 'index' => 'permission:users.view',
+                'show' => 'permission:users.view',
                 'create' => 'permission:users.create',
                 'store' => 'permission:users.create',
                 'edit' => 'permission:users.edit',
@@ -126,8 +140,9 @@ Route::middleware(['auth', 'verified'])
         */
 
         Route::resource('roles', RoleController::class)
-            ->middleware([
+            ->permissions([
                 'index' => 'permission:roles.view',
+                'show' => 'permission:roles.view',
                 'create' => 'permission:roles.create',
                 'store' => 'permission:roles.create',
                 'edit' => 'permission:roles.edit',
@@ -142,8 +157,9 @@ Route::middleware(['auth', 'verified'])
         */
 
         Route::resource('permissions', PermissionController::class)
-            ->middleware([
+            ->permissions([
                 'index' => 'permission:permissions.view',
+                'show' => 'permission:permissions.view',
                 'create' => 'permission:permissions.create',
                 'store' => 'permission:permissions.create',
                 'edit' => 'permission:permissions.edit',
@@ -151,13 +167,18 @@ Route::middleware(['auth', 'verified'])
                 'destroy' => 'permission:permissions.delete',
             ]);
         
+        // Fotografía (los permisos se validan en el controlador según el perfil).
+        Route::get('people/{people}/photo', [PeoplePhotoController::class, 'show'])->name('people.photo.show');
+        Route::post('people/{people}/photo', [PeoplePhotoController::class, 'update'])->name('people.photo.update');
+        Route::delete('people/{people}/photo', [PeoplePhotoController::class, 'destroy'])->name('people.photo.destroy');
+
         Route::get('people/search', [PeopleController::class, 'search'])
             ->name('people.search')
             ->middleware('permission:people.view|activities.view');
 
         Route::resource('people', PeopleController::class)
             ->parameters(['people' => 'people'])
-            ->middleware([
+            ->permissions([
                 'index' => 'permission:people.view',
                 'create' => 'permission:people.create',
                 'store' => 'permission:people.create',
@@ -184,7 +205,7 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('departments', DepartmentController::class)
             ->except('show')
-            ->middleware($crud('departments'));
+            ->permissions($crud('departments'));
 
         Route::get('settings', [SettingController::class, 'index'])
             ->name('settings.index')
@@ -193,8 +214,28 @@ Route::middleware(['auth', 'verified'])
             ->name('settings.update')
             ->middleware('permission:settings.edit');
 
+        Route::get('activity-log', [ActivityLogController::class, 'index'])
+            ->name('activity-log.index')
+            ->middleware('permission:activity-log.view');
+        Route::get('activity-log/logins', [ActivityLogController::class, 'logins'])
+            ->name('activity-log.logins')
+            ->middleware('permission:activity-log.view');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Reportes (además, cada reporte exige el permiso de consulta de su módulo)
+        |--------------------------------------------------------------------------
+        */
+
+        Route::middleware('permission:reports.view')->prefix('reports')->name('reports.')->group(function () {
+            Route::get('/', [ReportController::class, 'index'])->name('index');
+            Route::get('{report}', [ReportController::class, 'show'])->name('show');
+            Route::get('{report}/pdf', [ReportController::class, 'pdf'])->name('pdf');
+            Route::get('{report}/csv', [ReportController::class, 'csv'])->name('csv');
+        });
+
         Route::resource('catalogs', CatalogTypeController::class)
-            ->middleware($crud('catalogs'));
+            ->permissions($crud('catalogs'));
 
         Route::middleware('permission:catalogs.edit')->group(function () {
             Route::post('catalogs/{catalog}/items', [CatalogItemController::class, 'store'])
@@ -220,24 +261,24 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('specialties', SpecialtyController::class)
             ->except('show')
-            ->middleware($crud('specialties'));
+            ->permissions($crud('specialties'));
 
         Route::resource('academic-programs', AcademicProgramController::class)
-            ->middleware($crud('academic-programs'));
+            ->permissions($crud('academic-programs'));
 
         Route::resource('academic-periods', AcademicPeriodController::class)
             ->except('show')
-            ->middleware($crud('academic-periods'));
+            ->permissions($crud('academic-periods'));
 
         Route::resource('cohorts', CohortController::class)
-            ->middleware($crud('cohorts'));
+            ->permissions($crud('cohorts'));
 
         Route::resource('subjects', SubjectController::class)
             ->except('show')
-            ->middleware($crud('subjects'));
+            ->permissions($crud('subjects'));
 
         Route::resource('study-plans', StudyPlanController::class)
-            ->middleware($crud('study-plans'));
+            ->permissions($crud('study-plans'));
 
         Route::middleware('permission:study-plans.edit')
             ->controller(StudyPlanItemController::class)
@@ -258,10 +299,13 @@ Route::middleware(['auth', 'verified'])
         */
 
         Route::resource('clinics', ClinicController::class)
-            ->middleware($crud('clinics'));
+            ->permissions($crud('clinics'));
 
         Route::resource('spaces', SpaceController::class)
-            ->middleware($crud('spaces'));
+            ->permissions($crud('spaces'));
+        Route::get('spaces/{space}/schedule-pdf', [SchedulePrintController::class, 'space'])
+            ->name('spaces.schedule-pdf')
+            ->middleware('permission:spaces.view');
 
         // Áreas, supervisores y equipos de una clínica.
         Route::middleware('permission:clinics.edit')
@@ -288,13 +332,13 @@ Route::middleware(['auth', 'verified'])
             ->middleware('permission:spaces.edit');
 
         Route::resource('clinical-sessions', ClinicalSessionController::class)
-            ->middleware($crud('clinical-sessions'));
+            ->permissions($crud('clinical-sessions'));
         Route::put('clinical-sessions/{clinical_session}/attendance', [ClinicalSessionController::class, 'attendance'])
             ->name('clinical-sessions.attendance')
             ->middleware('permission:clinical-sessions.edit');
 
         Route::resource('clinic-incidents', ClinicIncidentController::class)
-            ->middleware($crud('clinic-incidents'));
+            ->permissions($crud('clinic-incidents'));
 
         /*
         |--------------------------------------------------------------------------
@@ -308,7 +352,7 @@ Route::middleware(['auth', 'verified'])
             ->middleware('permission:patients.view|appointments.view');
 
         Route::resource('patients', PatientController::class)
-            ->middleware($crud('patients'));
+            ->permissions($crud('patients'));
 
         Route::middleware('permission:patients.edit')
             ->controller(PatientRecordController::class)
@@ -336,11 +380,11 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('diagnoses', DiagnosisController::class)
             ->only(['index', 'store', 'update', 'destroy'])
-            ->middleware($crud('diagnosis-catalog'));
+            ->permissions($crud('diagnosis-catalog'));
 
         Route::resource('patients.diagnoses', PatientDiagnosisController::class)
             ->only(['store', 'update', 'destroy'])
-            ->middleware($crud('diagnoses'));
+            ->permissions($crud('diagnoses'));
 
         Route::post('patients/{patient}/odontogram', [OdontogramController::class, 'store'])
             ->name('patients.odontogram.store')
@@ -357,14 +401,14 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('procedures', ProcedureController::class)
             ->only(['index', 'store', 'update', 'destroy'])
-            ->middleware($crud('procedure-catalog'));
+            ->permissions($crud('procedure-catalog'));
 
         Route::post('patients/{patient}/treatment-plans', [TreatmentPlanController::class, 'store'])
             ->name('patients.treatment-plans.store')
             ->middleware('permission:treatments.create');
         Route::resource('treatment-plans', TreatmentPlanController::class)
             ->only(['show', 'update', 'destroy'])
-            ->middleware($crud('treatments'));
+            ->permissions($crud('treatments'));
 
         Route::middleware('permission:treatments.edit')
             ->controller(TreatmentItemController::class)
@@ -389,7 +433,7 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('appointments', AppointmentController::class)
             ->except('show')
-            ->middleware($crud('appointments'));
+            ->permissions($crud('appointments'));
 
         Route::middleware('permission:appointments.edit')
             ->controller(AppointmentController::class)
@@ -419,11 +463,11 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('inventory', InventoryItemController::class)
             ->only(['index', 'store', 'show', 'update', 'destroy'])
-            ->middleware($crud('inventory'));
+            ->permissions($crud('inventory'));
 
         Route::resource('inventory-counts', InventoryCountController::class)
             ->only(['index', 'store', 'show', 'update'])
-            ->middleware([
+            ->permissions([
                 'index' => 'permission:inventory.view',
                 'show' => 'permission:inventory.view',
                 'store' => 'permission:inventory.edit',
@@ -435,11 +479,11 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('suppliers', SupplierController::class)
             ->only(['index', 'store', 'update', 'destroy'])
-            ->middleware($crud('suppliers'));
+            ->permissions($crud('suppliers'));
 
         Route::resource('warehouses', WarehouseController::class)
             ->only(['index', 'store', 'update'])
-            ->middleware([
+            ->permissions([
                 'index' => 'permission:inventory.view',
                 'store' => 'permission:inventory.edit',
                 'update' => 'permission:inventory.edit',
@@ -454,7 +498,7 @@ Route::middleware(['auth', 'verified'])
         Route::prefix('finance')->name('finance.')->group(function () use ($crud) {
             Route::resource('concepts', Finance\FeeConceptController::class)
                 ->only(['index', 'store', 'update', 'destroy'])
-                ->middleware($crud('fee-concepts'));
+                ->permissions($crud('fee-concepts'));
 
             Route::get('payers/search', [Finance\AccountController::class, 'search'])
                 ->name('payers.search')
@@ -480,18 +524,20 @@ Route::middleware(['auth', 'verified'])
                 ->whereNumber('id')
                 ->name('payments.store')
                 ->middleware('permission:payments.create');
+            Route::post('incomes', [Finance\PaymentController::class, 'storeIncome'])->name('incomes.store')->middleware('permission:payments.create');
             Route::get('payments/{payment}', [Finance\PaymentController::class, 'show'])->name('payments.show')->middleware('permission:payments.view');
             Route::patch('payments/{payment}/cancel', [Finance\PaymentController::class, 'cancel'])->name('payments.cancel')->middleware('permission:payments.delete');
 
             Route::resource('expenses', Finance\ExpenseController::class)
                 ->only(['index', 'store', 'update', 'destroy'])
-                ->middleware($crud('expenses'));
+                ->permissions($crud('expenses'));
 
             Route::get('cash-registers', [Finance\CashRegisterController::class, 'index'])->name('cash-registers.index')->middleware('permission:cash.view');
             Route::middleware('permission:cash.operate')->group(function () {
                 Route::post('cash-registers', [Finance\CashRegisterController::class, 'store'])->name('cash-registers.store');
                 Route::post('cash-registers/{cash_register}/open', [Finance\CashRegisterController::class, 'open'])->name('cash-registers.open');
                 Route::patch('cash-sessions/{cash_session}/close', [Finance\CashRegisterController::class, 'close'])->name('cash-sessions.close');
+                Route::post('cash-sessions/{cash_session}/movements', [Finance\CashRegisterController::class, 'movement'])->name('cash-sessions.movements.store');
             });
             Route::get('cash-sessions/{cash_session}', [Finance\CashRegisterController::class, 'session'])->name('cash-sessions.show')->middleware('permission:cash.view');
         });
@@ -503,7 +549,7 @@ Route::middleware(['auth', 'verified'])
         */
 
         Route::resource('activities', AcademicActivityController::class)
-            ->middleware($crud('activities'));
+            ->permissions($crud('activities'));
 
         Route::middleware('permission:activities.edit')
             ->controller(ActivityParticipantController::class)
@@ -535,7 +581,10 @@ Route::middleware(['auth', 'verified'])
         */
 
         Route::resource('groups', AcademicGroupController::class)
-            ->middleware($crud('groups'));
+            ->permissions($crud('groups'));
+        Route::get('groups/{group}/schedule-pdf', [SchedulePrintController::class, 'group'])
+            ->name('groups.schedule-pdf')
+            ->middleware('permission:groups.view');
 
         Route::middleware('permission:schedules.edit')->group(function () {
             Route::post('groups/{group}/sections', [ClassSectionController::class, 'store'])
@@ -557,7 +606,7 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('students', StudentEnrollmentController::class)
             ->parameters(['students' => 'student'])
-            ->middleware($crud('students'));
+            ->permissions($crud('students'));
 
         Route::middleware('permission:students.edit')->group(function () {
             Route::post('students/{student}/university-registrations', [UniversityRegistrationController::class, 'store'])
@@ -576,13 +625,16 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('knowledge-areas', KnowledgeAreaController::class)
             ->only(['index', 'store', 'update', 'destroy'])
-            ->middleware($crud('knowledge-areas'));
+            ->permissions($crud('knowledge-areas'));
 
         Route::get('teachers', [TeacherController::class, 'index'])
             ->name('teachers.index')
             ->middleware('permission:teachers.view');
         Route::get('teachers/{teacher}', [TeacherController::class, 'show'])
             ->name('teachers.show')
+            ->middleware('permission:teachers.view');
+        Route::get('teachers/{teacher}/schedule-pdf', [SchedulePrintController::class, 'teacher'])
+            ->name('teachers.schedule-pdf')
             ->middleware('permission:teachers.view');
 
         Route::middleware('permission:teachers.edit')->group(function () {

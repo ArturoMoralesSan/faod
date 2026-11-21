@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin\Finance;
 
 use App\Http\Controllers\Controller;
+use App\Models\CashRegisterSession;
 use App\Models\Charge;
+use App\Models\FeeConcept;
 use App\Models\Payment;
 use App\Services\FinanceService;
 use Illuminate\Http\RedirectResponse;
@@ -49,6 +51,9 @@ class PaymentController extends Controller
             'filters' => $request->only('search', 'method', 'date_from', 'date_to', 'status'),
             'methods' => Payment::METHODS,
             'total' => (float) $totalQuery->sum('amount'),
+            'feeConcepts' => FeeConcept::where('is_active', true)->orderBy('name')->get(['id', 'code', 'name', 'amount']),
+            'openSessions' => CashRegisterSession::where('status', 'abierta')->with('register:id,name')->get(['id', 'cash_register_id']),
+            'canCreate' => $request->user()->can('payments.create'),
         ]);
     }
 
@@ -77,10 +82,44 @@ class PaymentController extends Controller
             ->with('success', "Pago registrado con folio {$payment->folio}.");
     }
 
+    /**
+     * Ingreso sin adeudo, capturado a mano por quien cobra: inscripción a un curso,
+     * cobro a un externo, donativo, trabajo de laboratorio, etc.
+     */
+    public function storeIncome(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'activity_participant_id' => ['nullable', 'exists:activity_participants,id'],
+            'payer_name' => [Rule::requiredIf(! $request->filled('activity_participant_id')), 'nullable', 'string', 'max:255'],
+            'concept' => [Rule::requiredIf(! $request->filled('activity_participant_id') && ! $request->filled('fee_concept_id')), 'nullable', 'string', 'max:255'],
+            'fee_concept_id' => ['nullable', 'exists:fee_concepts,id'],
+            'method' => ['required', Rule::in(Payment::METHODS)],
+            'amount' => ['required', 'numeric', 'gt:0'],
+            'cash_register_session_id' => ['nullable', 'exists:cash_register_sessions,id'],
+            'reference' => [Rule::requiredIf(in_array($request->input('method'), ['transferencia', 'deposito'], true)), 'nullable', 'string', 'max:100'],
+            'paid_at' => ['nullable', 'date', 'before_or_equal:now'],
+            'notes' => ['nullable', 'string'],
+        ], [
+            'payer_name.required' => 'Escribe quién paga.',
+            'concept.required' => 'Indica el concepto del ingreso.',
+            'reference.required' => 'Indica la referencia de la transferencia o depósito.',
+        ]);
+
+        if (empty($data['concept']) && ! empty($data['fee_concept_id'])) {
+            $data['concept'] = FeeConcept::find($data['fee_concept_id'])?->name;
+        }
+
+        $payment = $this->finance->registerIncome($data, $request->user());
+
+        return redirect()
+            ->route('admin.finance.payments.show', $payment)
+            ->with('success', "Ingreso registrado con folio {$payment->folio}.");
+    }
+
     /** Recibo imprimible. */
     public function show(Payment $payment): Response
     {
-        $payment->load(['payer.people', 'allocations.charge:id,description,amount,discount_amount,paid_amount,status', 'receiver:id,name', 'canceller:id,name', 'session.register:id,name']);
+        $payment->load(['payer.people', 'allocations.charge:id,description,amount,discount_amount,paid_amount,status', 'receiver:id,name', 'canceller:id,name', 'session.register:id,name', 'participant.activity:id,title']);
         ChargeController::describePayer($payment);
 
         return Inertia::render('admin/finance/Receipt', [

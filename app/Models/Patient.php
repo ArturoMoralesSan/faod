@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use App\Models\Concerns\HasAttachments;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Patient extends Model
 {
-    use HasAttachments, SoftDeletes;
+    use LogsActivity, HasAttachments, SoftDeletes;
 
     public const STATUSES = ['activo', 'alta', 'baja'];
 
@@ -47,7 +49,8 @@ class Patient extends Model
         // Expediente consecutivo: P-000001, P-000002...
         static::creating(function (Patient $patient) {
             if (! $patient->record_number) {
-                $last = static::withTrashed()->max('id') ?? 0;
+                // Del último folio (no del id): los id pueden tener saltos.
+                $last = (int) substr((string) static::withTrashed()->where('record_number', 'like', 'P-%')->max('record_number'), 2);
 
                 do {
                     $patient->record_number = sprintf('P-%06d', ++$last);
@@ -109,6 +112,40 @@ class Patient extends Model
     public function treatmentPlans(): HasMany
     {
         return $this->hasMany(TreatmentPlan::class)->latest('started_at')->latest('id');
+    }
+
+    public function treatmentProcedures(): HasMany
+    {
+        return $this->hasMany(TreatmentProcedure::class);
+    }
+
+    /**
+     * Pacientes que atendieron los alumnos dados: aparecen en alguna cita, consulta,
+     * plan o procedimiento del paciente.
+     *
+     * @param  int|array<int, int>|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder  $students
+     */
+    public function scopeAttendedBy(Builder $query, mixed $students): Builder
+    {
+        $match = fn ($q) => is_int($students)
+            ? $q->where('student_profile_id', $students)
+            : $q->whereIn('student_profile_id', $students);
+
+        return $query->where(fn ($q) => $q
+            ->whereHas('appointments', $match)
+            ->orWhereHas('consultations', $match)
+            ->orWhereHas('treatmentPlans', $match)
+            ->orWhereHas('treatmentProcedures', $match));
+    }
+
+    /** Pacientes atendidos por alumnos inscritos en un programa de esa especialidad. */
+    public function scopeOfSpecialty(Builder $query, int $specialtyId): Builder
+    {
+        return $query->attendedBy(
+            StudentEnrollment::query()
+                ->whereHas('academicProgram', fn ($q) => $q->where('specialty_id', $specialtyId))
+                ->select('student_profile_id')
+        );
     }
 
     public function odontogramEntries(): HasMany

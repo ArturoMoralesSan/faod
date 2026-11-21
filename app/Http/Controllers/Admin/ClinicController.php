@@ -55,7 +55,7 @@ class ClinicController extends Controller
     {
         $clinic->load([
             'department:id,name',
-            'areas',
+            'areas.specialty:id,name',
             'spaces' => fn ($q) => $q->with('area:id,name')->orderBy('name'),
             'supervisors' => fn ($q) => $q
                 ->with(['teacher.people:id,first_name,paternal_surname,maternal_surname', 'area:id,name'])
@@ -82,6 +82,8 @@ class ClinicController extends Controller
                 ->get(['id', 'people_id']),
             'supervisorRoles' => ClinicSupervisor::ROLES,
             'equipmentStatuses' => ClinicEquipment::STATUSES,
+            'equipmentKinds' => ClinicEquipment::KINDS,
+            'specialties' => \App\Models\Specialty::where('is_active', true)->orderBy('name')->get(['id', 'name']),
         ]);
     }
 

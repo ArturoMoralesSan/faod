@@ -19,6 +19,7 @@ const form = useForm<ActivityFormData>({
     type: text(activity.type),
     title: text(activity.title),
     description: text(activity.description),
+    objectives: text(activity.objectives),
     modality: text(activity.modality),
     starts_at: toDateInput(activity.starts_at),
     ends_at: toDateInput(activity.ends_at),
@@ -32,6 +33,9 @@ const form = useForm<ActivityFormData>({
     coordinator_id: activity.coordinator_id,
     issues_certificate: Boolean(activity.issues_certificate),
     min_attendance: activity.min_attendance,
+    evaluation_score: activity.evaluation_score,
+    evaluation_notes: text(activity.evaluation_notes),
+    results: text(activity.results),
 });
 
 const submit = (): void => {

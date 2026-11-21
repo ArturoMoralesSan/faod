@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class FeeConcept extends Model
 {
-    public const CATEGORIES = ['colegiatura', 'inscripcion', 'tratamiento', 'curso', 'constancia', 'otro'];
+    public const CATEGORIES = ['colegiatura', 'inscripcion', 'tratamiento', 'curso', 'laboratorio', 'constancia', 'otro'];
 
     protected $fillable = ['code', 'name', 'category', 'amount', 'is_active'];
 

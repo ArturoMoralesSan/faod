@@ -7,7 +7,7 @@ import FormDialog from '@/components/admin/FormDialog.vue';
 import FormInput from '@/components/admin/FormInput.vue';
 import FormSelect from '@/components/admin/FormSelect.vue';
 import FormTextarea from '@/components/admin/FormTextarea.vue';
-import { recordOptions } from '@/lib/admin';
+import { enumOptions, recordOptions } from '@/lib/admin';
 import admin from '@/routes/admin';
 import type { InventoryItemData, Option } from '@/types/admin';
 
@@ -18,6 +18,7 @@ const props = defineProps<{
     item: InventoryItemData | null;
     suppliers: Option[];
     categories: string[];
+    kinds: string[];
 }>();
 
 const open = defineModel<boolean>('open', { required: true });
@@ -25,7 +26,8 @@ const open = defineModel<boolean>('open', { required: true });
 const form = useForm({
     code: '',
     name: '',
-    category: '',
+    category: null as string | null,
+    kind: 'material',
     unit: 'pza',
     minimum_stock: 0 as number | null,
     tracks_expiration: false,
@@ -45,7 +47,7 @@ watch(open, (isOpen) => {
     if (props.item) {
         Object.assign(form, {
             ...props.item,
-            category: props.item.category ?? '',
+            category: props.item.category ?? null,
             description: props.item.description ?? '',
         });
     }
@@ -67,13 +69,17 @@ const submit = (): void => {
 <template>
     <FormDialog v-model:open="open" :title="item ? 'Editar artículo' : 'Nuevo artículo'" :loading="form.processing" @submit="submit">
         <FormInput id="it_code" v-model="form.code" label="Clave" placeholder="Ej. ANE-01" :error="form.errors.code" required />
-        <FormInput
+        <FormSelect
             id="it_category"
             v-model="form.category"
             label="Categoría"
-            :placeholder="categories.length ? `Ej. ${categories.slice(0, 3).join(', ')}` : 'Ej. Anestésicos'"
+            placeholder="Sin categoría"
+            help="Se administran en Configuración → Catálogos → Categorías de inventario."
+            :options="categories.map((c) => ({ value: c, label: c }))"
             :error="form.errors.category"
+            nullable
         />
+        <FormSelect id="it_kind" v-model="form.kind" label="Tipo" :options="enumOptions(kinds)" :error="form.errors.kind" required />
         <div class="md:col-span-2">
             <FormInput id="it_name" v-model="form.name" label="Nombre" :error="form.errors.name" required />
         </div>

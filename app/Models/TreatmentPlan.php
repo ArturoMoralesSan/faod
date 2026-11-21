@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use App\Models\Concerns\Reviewable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class TreatmentPlan extends Model
 {
-    use Reviewable, SoftDeletes;
+    use LogsActivity, Reviewable, SoftDeletes;
 
     public const STATUSES = ['en_proceso', 'concluido', 'suspendido', 'cancelado'];
 
@@ -21,6 +22,7 @@ class TreatmentPlan extends Model
         'patient_id',
         'title',
         'notes',
+        'patient_instructions',
         'status',
         'review_status',
         'student_profile_id',

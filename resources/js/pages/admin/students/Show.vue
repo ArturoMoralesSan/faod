@@ -25,6 +25,7 @@ import FormInput from '@/components/admin/FormInput.vue';
 import FormSelect from '@/components/admin/FormSelect.vue';
 import FormTextarea from '@/components/admin/FormTextarea.vue';
 import PageHeader from '@/components/admin/PageHeader.vue';
+import PersonPhoto from '@/components/admin/PersonPhoto.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import { confirmDelete, enumOptions, formatDate, fullName, label, recordOptions, toDateInput } from '@/lib/admin';
 import admin from '@/routes/admin';
@@ -54,6 +55,8 @@ const props = defineProps<{
             id: number;
             registration_number: string;
             people: PersonName & {
+                id: number;
+                photo_path: string | null;
                 curp: string | null;
                 birth_date: string | null;
                 street: string | null;
@@ -82,6 +85,7 @@ const props = defineProps<{
     };
     universityStatuses: string[];
     periods: Option[];
+    canEdit: boolean;
 }>();
 
 const person = props.enrollment.student.people;
@@ -272,6 +276,9 @@ defineOptions({
             <div class="flex flex-col gap-5">
                 <!-- Datos personales -->
                 <AdminCard title="Datos personales" :icon="UserRound">
+                    <div class="mb-5 flex justify-center">
+                        <PersonPhoto :person-id="person.id" :photo-path="person.photo_path" :name="fullName(person)" :editable="canEdit" />
+                    </div>
                     <dl class="flex flex-col gap-4">
                         <DetailItem label="CURP" :value="person.curp" />
                         <DetailItem label="Fecha de nacimiento" :value="formatDate(person.birth_date)" />

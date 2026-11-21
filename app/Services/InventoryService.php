@@ -21,18 +21,27 @@ use Illuminate\Validation\ValidationException;
 class InventoryService
 {
     /**
-     * Entrada de mercancía (compra, donación, devolución).
+     * Entrada de mercancía (compra, donación) o devolución. Una devolución puede
+     * regresar al lote del que salió (inventory_lot_id) para conservar su caducidad.
      */
     public function receive(InventoryItem $item, Warehouse $warehouse, float $quantity, array $data = []): InventoryMovement
     {
         $this->assertPositive($quantity);
 
-        if ($item->tracks_expiration && empty($data['expires_at'])) {
+        if ($item->tracks_expiration && empty($data['expires_at']) && empty($data['inventory_lot_id'])) {
             throw ValidationException::withMessages(['expires_at' => 'Este artículo requiere fecha de caducidad.']);
         }
 
         return DB::transaction(function () use ($item, $warehouse, $quantity, $data) {
-            $lot = InventoryLot::query()
+            $lot = ! empty($data['inventory_lot_id'])
+                ? InventoryLot::query()
+                    ->where('inventory_item_id', $item->id)
+                    ->where('warehouse_id', $warehouse->id)
+                    ->lockForUpdate()
+                    ->find($data['inventory_lot_id'])
+                : null;
+
+            $lot ??= InventoryLot::query()
                 ->where('inventory_item_id', $item->id)
                 ->where('warehouse_id', $warehouse->id)
                 ->where('lot_number', $data['lot_number'] ?? null)
@@ -65,6 +74,7 @@ class InventoryService
                 'reason' => $data['reason'] ?? null,
                 'reference' => $data['reference'] ?? null,
                 'related_movement_id' => $data['related_movement_id'] ?? null,
+                'student_profile_id' => $data['student_profile_id'] ?? null,
             ]);
         });
     }
@@ -128,6 +138,7 @@ class InventoryService
                     'reason' => $data['reason'] ?? null,
                     'reference' => $data['reference'] ?? null,
                     'treatment_procedure_id' => $data['treatment_procedure_id'] ?? null,
+                    'student_profile_id' => $data['student_profile_id'] ?? null,
                 ]));
             }
 

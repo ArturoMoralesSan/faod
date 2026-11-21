@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Warehouse extends Model
 {
-    protected $fillable = ['clinic_id', 'code', 'name', 'is_active'];
+    protected $fillable = ['clinic_id', 'space_id', 'code', 'name', 'is_active'];
 
     protected function casts(): array
     {
@@ -23,6 +23,12 @@ class Warehouse extends Model
     public function clinic(): BelongsTo
     {
         return $this->belongsTo(Clinic::class);
+    }
+
+    /** Laboratorio al que pertenece (espacio de tipo laboratorio). */
+    public function space(): BelongsTo
+    {
+        return $this->belongsTo(Space::class);
     }
 
     public function lots(): HasMany

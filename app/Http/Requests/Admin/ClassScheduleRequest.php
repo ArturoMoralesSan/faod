@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Models\ClassSchedule;
 use App\Models\ClassSection;
+use App\Models\TeacherAvailability;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -60,6 +61,20 @@ class ClassScheduleRequest extends FormRequest
                         fn ($q) => $q->where('teacher_profile_id', $section->teacher_profile_id)
                     )->exists()) {
                     $validator->errors()->add('start_time', 'El docente ya tiene clase en ese horario.');
+                }
+
+                // Si el docente registró su disponibilidad, la clase debe quedar dentro de ella.
+                if ($section->teacher_profile_id) {
+                    $day = (int) $this->input('day_of_week');
+                    $blocks = TeacherAvailability::blocksFor($section->teacher_profile_id, $section->group->academic_period_id);
+
+                    if ($blocks && ! TeacherAvailability::covers($blocks, $day, $this->input('start_time'), $this->input('end_time'))) {
+                        $validator->errors()->add(
+                            'start_time',
+                            'El horario está fuera de la disponibilidad del docente ('
+                                .ClassSchedule::DAYS[$day].': '.TeacherAvailability::describeDay($blocks, $day).').'
+                        );
+                    }
                 }
 
                 if ($overlapping()->whereHas(

@@ -45,6 +45,7 @@ interface TreatmentProcedure {
     student_profile_id: number | null;
     teacher_profile_id: number | null;
     notes: string | null;
+    patient_instructions: string | null;
     procedure: { id: number; code: string; name: string } | null;
     diagnosis: { id: number; tooth: string | null; description: string | null; diagnosis: { code: string; name: string } | null } | null;
     student: Person;
@@ -59,6 +60,7 @@ const props = defineProps<{
         patient_id: number;
         title: string;
         notes: string | null;
+        patient_instructions: string | null;
         status: string;
         review_status: string;
         started_at: string;
@@ -138,6 +140,7 @@ const planDialog = ref(false);
 const planForm = useForm({
     title: props.plan.title,
     notes: props.plan.notes ?? '',
+    patient_instructions: props.plan.patient_instructions ?? '',
     status: props.plan.status,
     started_at: toDateInput(props.plan.started_at),
     completed_at: toDateInput(props.plan.completed_at),
@@ -146,7 +149,7 @@ const planForm = useForm({
 });
 
 const submitPlan = (): void => {
-    planForm.transform((data) => ({ ...data, notes: data.notes || null, completed_at: data.completed_at || null }))
+    planForm.transform((data) => ({ ...data, notes: data.notes || null, patient_instructions: data.patient_instructions || null, completed_at: data.completed_at || null }))
         .put(admin.treatmentPlans.update(props.plan.id).url, { preserveScroll: true, onSuccess: () => (planDialog.value = false) });
 };
 
@@ -210,6 +213,7 @@ const emptyProcedure = {
     student_profile_id: null as number | null,
     teacher_profile_id: null as number | null,
     notes: '',
+    patient_instructions: '',
 };
 
 const procedureForm = useForm({ ...emptyProcedure });
@@ -236,6 +240,7 @@ const openProcedure = (id: number | null = null, stageId: number | null = null):
             student_profile_id: p.student_profile_id,
             teacher_profile_id: p.teacher_profile_id,
             notes: p.notes ?? '',
+            patient_instructions: p.patient_instructions ?? '',
         });
     } else {
         procedureForm.treatment_stage_id = stageId;
@@ -282,6 +287,7 @@ const submitProcedure = (): void => {
         cost: data.cost === null || String(data.cost) === '' ? null : data.cost,
         performed_at: data.performed_at || null,
         notes: data.notes || null,
+        patient_instructions: data.patient_instructions || null,
     }));
 
     if (editingProcedure.value) {
@@ -400,6 +406,10 @@ defineOptions({
                     <DetailItem label="Registró" :value="plan.creator?.name" />
                 </dl>
                 <p v-if="plan.notes" class="mt-5 whitespace-pre-line text-sm leading-6 text-[#525960]">{{ plan.notes }}</p>
+                <div v-if="plan.patient_instructions" class="mt-4 rounded-xl border border-[#BFE3CC] bg-[#E2F3E8] px-4 py-3">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-[#187744]">Indicaciones para el paciente</p>
+                    <p class="mt-1 whitespace-pre-line text-sm text-[#1F4D33]">{{ plan.patient_instructions }}</p>
+                </div>
 
                 <template #footer>
                     <div class="flex flex-wrap gap-2">
@@ -448,6 +458,7 @@ defineOptions({
                             </p>
                             <p v-if="p.diagnosis" class="text-xs text-[#525960]">Diagnóstico: {{ p.diagnosis.diagnosis?.name ?? p.diagnosis.description }}</p>
                             <p v-if="p.notes" class="mt-1 whitespace-pre-line text-xs text-[#525960]">{{ p.notes }}</p>
+                            <p v-if="p.patient_instructions" class="mt-1 whitespace-pre-line text-xs text-[#187744]"><span class="font-semibold">Indicaciones:</span> {{ p.patient_instructions }}</p>
                             <p v-if="p.reviews[0]?.comments" class="mt-2 rounded-lg bg-[#F7F8FA] px-3 py-2 text-xs text-[#525960]">
                                 <span class="font-semibold">{{ label(p.reviews[0].decision) }}:</span> {{ p.reviews[0].comments }}
                             </p>
@@ -517,6 +528,9 @@ defineOptions({
             <div class="md:col-span-2">
                 <FormTextarea id="p_notes" v-model="planForm.notes" label="Notas" :rows="3" :error="planForm.errors.notes" />
             </div>
+            <div class="md:col-span-2">
+                <FormTextarea id="p_instructions" v-model="planForm.patient_instructions" label="Indicaciones generales para el paciente" placeholder="Ej. Cepillado 3 veces al día con técnica de Bass, hilo dental por la noche, enjuague con clorhexidina 15 días." :rows="3" :error="planForm.errors.patient_instructions" />
+            </div>
         </FormDialog>
 
         <FormDialog v-model:open="stageDialog" :title="editingStage ? 'Editar etapa' : 'Agregar etapa'" :loading="stageForm.processing" @submit="submitStage">
@@ -580,7 +594,10 @@ defineOptions({
             <FormSelect id="pr_student" v-model="procedureForm.student_profile_id" label="Alumno" placeholder="Sin especificar" :options="studentOptions" nullable />
             <FormSelect id="pr_teacher" v-model="procedureForm.teacher_profile_id" label="Docente que valida" placeholder="Cualquier docente" :options="teacherOptions" nullable />
             <div class="md:col-span-2">
-                <FormTextarea id="pr_notes" v-model="procedureForm.notes" label="Notas" :rows="2" :error="procedureForm.errors.notes" />
+                <FormTextarea id="pr_notes" v-model="procedureForm.notes" label="Notas clínicas" :rows="2" :error="procedureForm.errors.notes" />
+            </div>
+            <div class="md:col-span-2">
+                <FormTextarea id="pr_instructions" v-model="procedureForm.patient_instructions" label="Indicaciones para el paciente" placeholder="Ej. No comer en 2 horas, evitar alimentos duros 24 h, ibuprofeno 400 mg cada 8 h si hay dolor." :rows="2" :error="procedureForm.errors.patient_instructions" />
             </div>
         </FormDialog>
 

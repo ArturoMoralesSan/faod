@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -14,6 +15,8 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Collection;
+use Spatie\Permission\Contracts\Permission;
 use Spatie\Permission\Models\Role;
 
 #[Hidden([
@@ -24,7 +27,7 @@ use Spatie\Permission\Models\Role;
 ])]
 class User extends Authenticatable implements PasskeyUser
 {
-    use HasApiTokens,
+    use LogsActivity, HasApiTokens,
         HasFactory,
         HasRoles,
         Notifiable,
@@ -82,6 +85,28 @@ class User extends Authenticatable implements PasskeyUser
         $roles = $this->roles;
 
         return $roles->firstWhere('id', $this->active_role_id) ?? $roles->first();
+    }
+
+    /**
+     * Los permisos heredados de roles se toman solo del rol activo, para que el
+     * selector de rol restrinja también las rutas y no solo el menú.
+     * Los permisos asignados directamente al usuario siguen aplicando.
+     */
+    protected function hasPermissionViaRole(Permission $permission): bool
+    {
+        $role = $this->currentRole();
+
+        return $role !== null && $permission->roles->contains('id', $role->id);
+    }
+
+    public function getPermissionsViaRoles(): Collection
+    {
+        return $this->currentRole()?->permissions ?? collect();
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->currentRole()?->name === 'SuperAdmin';
     }
 
     public function switchRole(Role $role): void

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { formatDateTime, formatMoney, formatQty, label } from '@/lib/admin';
+import { formatDateTime, formatMoney, formatQty, fullName, label } from '@/lib/admin';
 import type { MovementRow } from '@/types/admin';
 
 /**
@@ -45,7 +45,7 @@ defineProps<{
                     </td>
                     <td class="whitespace-nowrap px-4 py-3 text-right text-[#292D32]">{{ formatQty(m.balance_after) }}</td>
                     <td class="px-4 py-3 text-xs text-[#525960]">
-                        {{ [m.reason, m.reference, m.supplier?.name, m.unit_cost !== null ? formatMoney(m.unit_cost) : null, m.user?.name].filter(Boolean).join(' · ') }}
+                        {{ [m.student ? `Alumno: ${m.student.registration_number} ${fullName(m.student.people)}` : null, m.reason, m.reference, m.supplier?.name, m.unit_cost !== null ? formatMoney(m.unit_cost) : null, m.user?.name].filter(Boolean).join(' · ') }}
                     </td>
                 </tr>
             </tbody>

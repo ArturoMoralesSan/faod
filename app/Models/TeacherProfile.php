@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use App\Models\Concerns\HasAttachments;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,15 +12,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TeacherProfile extends Model
 {
-    use HasAttachments, SoftDeletes;
+    use LogsActivity, HasAttachments, SoftDeletes;
 
     protected $fillable = [
         'people_id',
         'employee_number',
         'professional_license',
         'professional_title',
-        'highest_degree',
-        'specialty',
         'years_experience',
         'status',
         'professional_biography',

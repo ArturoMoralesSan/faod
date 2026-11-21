@@ -143,15 +143,26 @@ class ChargeController extends Controller
     public static function describePayer(Charge|\App\Models\Payment $record): void
     {
         $payer = $record->payer;
-        $type = Charge::payerAlias($record->payer_type) ?? 'patient';
+        $type = ($record->payer_type ? Charge::payerAlias($record->payer_type) : null) ?? 'patient';
 
-        $record->setAttribute('payer_info', $payer ? [
-            'type' => $type,
-            'id' => $payer->id,
-            'name' => $payer->people?->full_name,
-            'code' => $type === 'student' ? $payer->registration_number : $payer->record_number,
-            'url' => route('admin.finance.accounts.show', ['type' => $type, 'id' => $payer->id]),
-        ] : null);
+        $record->setAttribute('payer_info', match (true) {
+            (bool) $payer => [
+                'type' => $type,
+                'id' => $payer->id,
+                'name' => $payer->people?->full_name,
+                'code' => $type === 'student' ? $payer->registration_number : $payer->record_number,
+                'url' => route('admin.finance.accounts.show', ['type' => $type, 'id' => $payer->id]),
+            ],
+            // Ingreso sin alumno ni paciente: se muestra el nombre capturado.
+            $record instanceof \App\Models\Payment && $record->payer_type === null => [
+                'type' => 'externo',
+                'id' => null,
+                'name' => $record->payer_name ?? 'Sin nombre',
+                'code' => $record->concept ?? '',
+                'url' => null,
+            ],
+            default => null,
+        });
 
         $record->unsetRelation('payer');
     }

@@ -90,6 +90,7 @@ export interface InventoryItemData {
     code: string;
     name: string;
     category: string | null;
+    kind: string;
     unit: string;
     minimum_stock: number;
     tracks_expiration: boolean;
@@ -112,15 +113,17 @@ export interface MovementRow {
     lot: { lot_number: string | null; expires_at: string | null } | null;
     user: { name: string } | null;
     supplier: { name: string } | null;
+    student?: { registration_number: string; people: PersonName | null } | null;
 }
 
 /** Alumno o paciente al que se le cobra. */
 export interface PayerInfo {
-    type: 'student' | 'patient';
-    id: number;
+    /** externo: ingreso sin alumno ni paciente (curso, donativo…). */
+    type: 'student' | 'patient' | 'externo';
+    id: number | null;
     name: string | null;
     code: string;
-    url: string;
+    url: string | null;
 }
 
 export interface ChargeData {

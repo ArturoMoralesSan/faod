@@ -13,7 +13,7 @@ class AcademicProgram extends Model
 {
     use HasAttachments, SoftDeletes;
 
-    public const TYPES = ['especialidad', 'maestria', 'doctorado', 'diplomado'];
+    public const TYPES = ['licenciatura', 'especialidad', 'maestria', 'doctorado', 'diplomado'];
 
     public const DURATION_UNITS = ['semestres', 'cuatrimestres', 'anios', 'meses', 'semanas'];
 

@@ -18,21 +18,24 @@ import type { Option } from '@/types/admin';
 interface Warehouse {
     id: number;
     clinic_id: number | null;
+    space_id: number | null;
     code: string;
     name: string;
     is_active: boolean;
     items_count: number;
     clinic: Option | null;
+    space: (Option & { code: string }) | null;
 }
 
 defineProps<{
     warehouses: Warehouse[];
     clinics: Option[];
+    laboratories: (Option & { code: string })[];
 }>();
 
 const dialogOpen = ref(false);
 const editing = ref<Warehouse | null>(null);
-const form = useForm({ clinic_id: null as number | null, code: '', name: '', is_active: true });
+const form = useForm({ clinic_id: null as number | null, space_id: null as number | null, code: '', name: '', is_active: true });
 
 const open = (warehouse: Warehouse | null = null): void => {
     editing.value = warehouse;
@@ -40,7 +43,7 @@ const open = (warehouse: Warehouse | null = null): void => {
     form.clearErrors();
 
     if (warehouse) {
-        Object.assign(form, { clinic_id: warehouse.clinic_id, code: warehouse.code, name: warehouse.name, is_active: warehouse.is_active });
+        Object.assign(form, { clinic_id: warehouse.clinic_id, space_id: warehouse.space_id, code: warehouse.code, name: warehouse.name, is_active: warehouse.is_active });
     }
 
     dialogOpen.value = true;
@@ -70,14 +73,14 @@ defineOptions({
     <Head title="Almacenes" />
 
     <div class="flex h-full flex-1 flex-col gap-5 overflow-x-hidden bg-[#F7F8FA] p-4 sm:p-6">
-        <PageHeader title="Almacenes" description="Almacén general y almacenes de cada clínica." section="Inventario" :icon="Boxes" :action-icon="Plus" action-label="Nuevo almacén" @action="open()" />
+        <PageHeader title="Almacenes" description="Almacén general y almacenes de cada clínica y laboratorio." section="Inventario" :icon="Boxes" :action-icon="Plus" action-label="Nuevo almacén" @action="open()" />
 
         <AdminCard :padding="false">
             <ul v-if="warehouses.length" class="divide-y divide-[#E3E5E8]">
                 <li v-for="w in warehouses" :key="w.id" class="flex items-center justify-between gap-3 px-5 py-4 sm:px-6">
                     <div>
                         <p class="text-sm font-semibold text-[#292D32]">{{ w.name }}</p>
-                        <p class="text-xs text-[#858B93]">{{ w.code }}<template v-if="w.clinic"> · {{ w.clinic.name }}</template> · {{ w.items_count }} lote(s) con existencia</p>
+                        <p class="text-xs text-[#858B93]">{{ w.code }}<template v-if="w.clinic"> · {{ w.clinic.name }}</template><template v-if="w.space"> · Laboratorio {{ w.space.name }}</template> · {{ w.items_count }} lote(s) con existencia</p>
                     </div>
                     <div class="flex items-center gap-1">
                         <StatusBadge :value="w.is_active" />
@@ -95,6 +98,7 @@ defineOptions({
             <FormInput id="wh_name" v-model="form.name" label="Nombre" :error="form.errors.name" required />
             <div class="md:col-span-2">
                 <FormSelect id="wh_clinic" v-model="form.clinic_id" label="Clínica" placeholder="Almacén general" :options="recordOptions(clinics)" nullable />
+                <FormSelect id="wh_lab" v-model="form.space_id" label="Laboratorio" placeholder="No es de un laboratorio" help="Para asignar material a un laboratorio, haz un traspaso a su almacén." :options="recordOptions(laboratories, true)" nullable />
             </div>
             <div class="md:col-span-2">
                 <ActiveSwitch v-model="form.is_active" label="Almacén activo" />

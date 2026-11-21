@@ -225,6 +225,7 @@ export interface ActivityFormData {
     type: string;
     title: string;
     description: string;
+    objectives: string;
     modality: string;
     starts_at: string;
     ends_at: string;
@@ -238,6 +239,9 @@ export interface ActivityFormData {
     coordinator_id: number | null;
     issues_certificate: boolean;
     min_attendance: number | null;
+    evaluation_score: number | null;
+    evaluation_notes: string;
+    results: string;
 }
 
 export interface ActivityFormOptions {
@@ -298,7 +302,6 @@ export interface PeopleFormData {
         employee_number: string;
         professional_license: string;
         professional_title: string;
-        highest_degree: string;
         years_experience: number | null;
         status: string;
         professional_biography: string;

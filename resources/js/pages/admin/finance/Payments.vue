@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { Banknote } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 import DataTable from '@/components/admin/DataTable.vue';
 import EmptyState from '@/components/admin/EmptyState.vue';
 import FilterSelect from '@/components/admin/FilterSelect.vue';
+import IncomeDialog from '@/components/admin/IncomeDialog.vue';
 import PageHeader from '@/components/admin/PageHeader.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import { filterValue, useIndexFilters } from '@/composables/useIndexFilters';
@@ -30,7 +32,12 @@ const props = defineProps<{
     filters: { search?: string; method?: string; date_from?: string; date_to?: string; status?: string };
     methods: string[];
     total: number;
+    feeConcepts: { id: number; code: string; name: string; amount: number | null }[];
+    openSessions: { id: number; register: { name: string } | null }[];
+    canCreate: boolean;
 }>();
+
+const incomeOpen = ref(false);
 
 const { filters, hasFilters, submit, clear } = useIndexFilters(
     () => admin.finance.payments.index().url,
@@ -59,7 +66,14 @@ defineOptions({
     <Head title="Pagos" />
 
     <div class="flex h-full flex-1 flex-col gap-5 overflow-x-hidden bg-[#F7F8FA] p-4 sm:p-6">
-        <PageHeader title="Pagos recibidos" description="Recibos emitidos. Para cobrar, entra al estado de cuenta del alumno o paciente." section="Finanzas" :icon="Banknote" />
+        <PageHeader
+            title="Pagos recibidos"
+            description="Recibos emitidos. Para cobrar un adeudo, entra al estado de cuenta del alumno o paciente; para otros ingresos usa el botón."
+            section="Finanzas"
+            :icon="Banknote"
+            :action-label="canCreate ? 'Otro ingreso' : ''"
+            @action="incomeOpen = true"
+        />
 
         <div class="w-fit rounded-2xl border border-[#E3E5E8] bg-white px-5 py-3">
             <p class="text-xs text-[#737982]">Total cobrado (vigentes, con los filtros)</p>
@@ -100,8 +114,9 @@ defineOptions({
                         <p class="text-xs text-[#858B93]">{{ formatDateTime(p.paid_at) }}<template v-if="p.receiver"> · {{ p.receiver.name }}</template></p>
                     </td>
                     <td class="px-5 py-4 sm:px-6">
-                        <Link v-if="p.payer_info" :href="p.payer_info.url" class="font-semibold text-[#292D32] hover:text-[#941B2B]">{{ p.payer_info.name }}</Link>
-                        <p v-if="p.payer_info" class="text-xs text-[#858B93]">{{ label(p.payer_info.type) }} · {{ p.payer_info.code }}</p>
+                        <Link v-if="p.payer_info?.url" :href="p.payer_info.url" class="font-semibold text-[#292D32] hover:text-[#941B2B]">{{ p.payer_info.name }}</Link>
+                        <p v-else-if="p.payer_info" class="font-semibold text-[#292D32]">{{ p.payer_info.name }}</p>
+                        <p v-if="p.payer_info" class="text-xs text-[#858B93]">{{ [label(p.payer_info.type), p.payer_info.code].filter(Boolean).join(' · ') }}</p>
                     </td>
                     <td class="px-5 py-4 text-[#525960] sm:px-6">
                         {{ label(p.method) }}
@@ -116,5 +131,7 @@ defineOptions({
                 <EmptyState :icon="Banknote" title="Sin pagos" description="No hay pagos con esos filtros." />
             </template>
         </DataTable>
+
+        <IncomeDialog v-if="canCreate" v-model:open="incomeOpen" :methods="methods" :open-sessions="openSessions" :fee-concepts="feeConcepts" />
     </div>
 </template>

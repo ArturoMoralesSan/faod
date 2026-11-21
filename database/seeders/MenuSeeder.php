@@ -74,6 +74,7 @@ class MenuSeeder extends Seeder
         $this->link($configuration, 'Departamentos', 'Building2', 4, 'admin.departments.index', 'departments.view');
         $this->link($configuration, 'Catálogos', 'ListTree', 5, 'admin.catalogs.index', 'catalogs.view');
         $this->link($configuration, 'Parámetros', 'Settings', 6, 'admin.settings.index', 'settings.view');
+        $this->link($configuration, 'Historial de cambios', 'FileClock', 7, 'admin.activity-log.index', 'activity-log.view');
 
         /*
         |--------------------------------------------------------------------------
@@ -174,6 +175,10 @@ class MenuSeeder extends Seeder
         $this->link($clinics, 'Aulas y espacios', 'DoorOpen', 2, 'admin.spaces.index', 'spaces.view');
         $this->link($clinics, 'Sesiones clínicas', 'CalendarCheck', 3, 'admin.clinical-sessions.index', 'clinical-sessions.view');
         $this->link($clinics, 'Incidencias', 'TriangleAlert', 4, 'admin.clinic-incidents.index', 'clinic-incidents.view');
+
+        $reports = $this->menu('Reportes', 'FileChartColumn', 8);
+
+        $this->link($reports, 'Todos los reportes', 'FileChartColumn', 1, 'admin.reports.index', 'reports.view');
     }
 
     private function menu(string $name, string $icon, int $order): Menu

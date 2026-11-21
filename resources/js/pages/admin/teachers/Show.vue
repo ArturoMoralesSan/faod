@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import {
     Award,
     BookOpen,
@@ -7,6 +7,7 @@ import {
     CalendarClock,
     Clock,
     GraduationCap,
+    History,
     Info,
     Pencil,
     Save,
@@ -19,6 +20,7 @@ import AdminButton from '@/components/admin/AdminButton.vue';
 import AdminCard from '@/components/admin/AdminCard.vue';
 import AttachmentsCard from '@/components/admin/AttachmentsCard.vue';
 import DetailItem from '@/components/admin/DetailItem.vue';
+import FilterSelect from '@/components/admin/FilterSelect.vue';
 import FormDialog from '@/components/admin/FormDialog.vue';
 import FormInput from '@/components/admin/FormInput.vue';
 import FormSelect from '@/components/admin/FormSelect.vue';
@@ -27,7 +29,8 @@ import PageHeader from '@/components/admin/PageHeader.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import TeacherRecordList from '@/components/admin/TeacherRecordList.vue';
 import WeeklySchedule from '@/components/admin/WeeklySchedule.vue';
-import { confirmDelete, enumOptions, formatDate, formatTime, fullName, label, toDateInput } from '@/lib/admin';
+import { confirmDelete, enumOptions, formatDate, formatTime, fullName, label, recordOptions, toDateInput } from '@/lib/admin';
+import PrintLink from '@/components/admin/PrintLink.vue';
 import admin from '@/routes/admin';
 import type { Attachment, Days, Option, PersonName, ScheduleBlock } from '@/types/admin';
 
@@ -64,14 +67,32 @@ const props = defineProps<{
         attachments: Attachment[];
     };
     days: Days;
+    periods: Option[];
+    academicPeriodId: number | null;
     degreeLevels: string[];
     specialties: Option[];
     knowledgeAreas: Option[];
+    participation: {
+        activities: { id: number; title: string; type: string; starts_at: string | null; status: string; role: string }[];
+        clinics: { id: number; role: string; starts_at: string | null; ends_at: string | null; clinic: Option | null; area: Option | null }[];
+        recentSessions: { id: number; date: string; start_time: string; end_time: string; topic: string | null; status: string; students_count: number; clinic: Option | null; subject: Option | null }[];
+        stats: { sessions: number; sessions_done: number; appointments: number; procedures_validated: number; activities: number };
+    };
 }>();
 
 const dayOptions = computed(() =>
     Object.entries(props.days).map(([value, name]) => ({ value: Number(value), label: name })),
 );
+
+const period = ref(props.academicPeriodId ? String(props.academicPeriodId) : '');
+
+const changePeriod = (): void => {
+    router.get(
+        admin.teachers.show(props.teacher.id).url,
+        { academic_period_id: period.value || undefined },
+        { preserveState: true, preserveScroll: true, replace: true },
+    );
+};
 
 const classBlocks = computed<ScheduleBlock[]>(() =>
     props.teacher.class_sections.flatMap((section) =>
@@ -238,8 +259,71 @@ defineOptions({
                     </p>
                 </AdminCard>
 
-                <AdminCard title="Horario de clases" description="Materias que imparte en los grupos." :icon="CalendarClock">
+                <AdminCard title="Horario de clases" description="Materias que imparte en los grupos del periodo." :icon="CalendarClock">
+                    <div class="mb-4 max-w-xs">
+                        <FilterSelect v-model="period" placeholder="Selecciona un periodo" :options="recordOptions(periods)" @change="changePeriod" />
+                    </div>
+
                     <WeeklySchedule :blocks="classBlocks" :days="days" />
+
+                    <template v-if="classBlocks.length" #footer>
+                        <PrintLink :href="admin.teachers.schedulePdf(teacher.id, { query: { academic_period_id: academicPeriodId ?? undefined } }).url" />
+                    </template>
+                </AdminCard>
+
+                <AdminCard title="Participación académica" description="Actividades, supervisión clínica y validaciones." :icon="History">
+                    <dl class="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                        <div v-for="stat in [
+                            { label: 'Actividades', value: participation.stats.activities },
+                            { label: 'Sesiones supervisadas', value: participation.stats.sessions },
+                            { label: 'Sesiones concluidas', value: participation.stats.sessions_done },
+                            { label: 'Citas supervisadas', value: participation.stats.appointments },
+                            { label: 'Procedimientos validados', value: participation.stats.procedures_validated },
+                        ]" :key="stat.label" class="rounded-xl border border-[#E3E5E8] bg-[#F7F8FA] px-3 py-2">
+                            <dt class="text-[11px] font-semibold uppercase tracking-wide text-[#858B93]">{{ stat.label }}</dt>
+                            <dd class="text-xl font-bold text-[#292D32]">{{ stat.value }}</dd>
+                        </div>
+                    </dl>
+
+                    <div class="mt-5 grid gap-5 lg:grid-cols-2">
+                        <div>
+                            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-[#858B93]">Cursos, seminarios y actividades</p>
+                            <ul v-if="participation.activities.length" class="flex flex-col gap-2">
+                                <li v-for="a in participation.activities" :key="a.id">
+                                    <Link :href="admin.activities.show(a.id).url" class="group flex items-center justify-between gap-2">
+                                        <span class="min-w-0">
+                                            <span class="block truncate text-sm font-semibold text-[#292D32] group-hover:text-[#941B2B]">{{ a.title }}</span>
+                                            <span class="block text-xs text-[#858B93]">{{ [label(a.type), formatDate(a.starts_at), a.role].filter(Boolean).join(' · ') }}</span>
+                                        </span>
+                                        <StatusBadge :value="a.status" />
+                                    </Link>
+                                </li>
+                            </ul>
+                            <p v-else class="text-sm italic text-[#858B93]">No ha participado en actividades.</p>
+                        </div>
+
+                        <div>
+                            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-[#858B93]">Supervisión clínica</p>
+                            <ul v-if="participation.clinics.length" class="mb-3 flex flex-col gap-1">
+                                <li v-for="c in participation.clinics" :key="c.id" class="text-sm text-[#525960]">
+                                    <span class="font-semibold text-[#292D32]">{{ c.clinic?.name }}</span>
+                                    {{ [c.area?.name, label(c.role), c.ends_at ? `hasta ${formatDate(c.ends_at)}` : null].filter(Boolean).join(' · ') }}
+                                </li>
+                            </ul>
+                            <ul v-if="participation.recentSessions.length" class="flex flex-col gap-2">
+                                <li v-for="s in participation.recentSessions" :key="s.id">
+                                    <Link :href="admin.clinicalSessions.show(s.id).url" class="group flex items-center justify-between gap-2">
+                                        <span class="min-w-0">
+                                            <span class="block truncate text-sm font-semibold text-[#292D32] group-hover:text-[#941B2B]">{{ formatDate(s.date) }} · {{ formatTime(s.start_time) }}–{{ formatTime(s.end_time) }}</span>
+                                            <span class="block truncate text-xs text-[#858B93]">{{ [s.clinic?.name, s.subject?.name ?? s.topic, `${s.students_count} alumno(s)`].filter(Boolean).join(' · ') }}</span>
+                                        </span>
+                                        <StatusBadge :value="s.status" />
+                                    </Link>
+                                </li>
+                            </ul>
+                            <p v-else-if="!participation.clinics.length" class="text-sm italic text-[#858B93]">Sin supervisión clínica registrada.</p>
+                        </div>
+                    </div>
                 </AdminCard>
 
                 <div class="grid gap-5 lg:grid-cols-2">

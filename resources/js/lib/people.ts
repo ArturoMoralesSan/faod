@@ -51,7 +51,6 @@ export function peopleFormDefaults(person?: Record<string, any> | null): PeopleF
             employee_number: teacher?.employee_number ?? '',
             professional_license: teacher?.professional_license ?? '',
             professional_title: teacher?.professional_title ?? '',
-            highest_degree: teacher?.highest_degree ?? '',
             years_experience: teacher?.years_experience ?? null,
             status: teacher?.status ?? 'active',
             professional_biography: teacher?.professional_biography ?? '',

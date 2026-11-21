@@ -3,8 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcademicActivity;
+use App\Models\AcademicPeriod;
 use App\Models\AcademicProgram;
+use App\Models\Appointment;
 use App\Models\ClassSchedule;
+use App\Models\ClinicalSession;
+use App\Models\ClinicSupervisor;
+use App\Models\TreatmentProcedure;
 use App\Models\KnowledgeArea;
 use App\Models\Specialty;
 use App\Models\TeacherDegree;
@@ -56,9 +62,13 @@ class TeacherController extends Controller
      * Expediente del docente: formación, experiencia, disponibilidad
      * e historial de participación académica.
      */
-    public function show(TeacherProfile $teacher): Response
+    public function show(Request $request, TeacherProfile $teacher): Response
     {
+        // El horario de clases es del periodo elegido (por omisión, el vigente).
+        $periodId = $request->integer('academic_period_id') ?: AcademicPeriod::current()?->id;
+
         $teacher->load([
+            'classSections' => fn ($q) => $q->whereHas('group', fn ($q) => $q->where('academic_period_id', $periodId)),
             'people',
             'specialties:id,name',
             'knowledgeAreas:id,name',
@@ -77,10 +87,63 @@ class TeacherController extends Controller
         return Inertia::render('admin/teachers/Show', [
             'teacher' => $teacher,
             'days' => ClassSchedule::DAYS,
+            'periods' => AcademicPeriod::orderByDesc('starts_at')->get(['id', 'name']),
+            'academicPeriodId' => $periodId,
             'degreeLevels' => TeacherDegree::LEVELS,
             'specialties' => Specialty::where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'knowledgeAreas' => KnowledgeArea::where('is_active', true)->orderBy('name')->get(['id', 'name']),
+            'participation' => $this->participation($teacher),
         ]);
+    }
+
+    /**
+     * Historial de participación: actividades académicas (como coordinador o ponente),
+     * supervisión clínica y validaciones.
+     */
+    private function participation(TeacherProfile $teacher): array
+    {
+        $activities = AcademicActivity::query()
+            ->where('coordinator_id', $teacher->id)
+            ->orWhereHas('instructors', fn ($q) => $q->where('teacher_profile_id', $teacher->id))
+            ->with(['instructors' => fn ($q) => $q->where('teacher_profile_id', $teacher->id)])
+            ->latest('starts_at')
+            ->get(['id', 'title', 'type', 'starts_at', 'ends_at', 'status', 'coordinator_id'])
+            ->map(fn (AcademicActivity $activity) => [
+                'id' => $activity->id,
+                'title' => $activity->title,
+                'type' => $activity->type,
+                'starts_at' => $activity->starts_at?->toDateString(),
+                'status' => $activity->status,
+                'role' => collect([
+                    $activity->coordinator_id === $teacher->id ? 'Coordinador' : null,
+                    ...$activity->instructors->pluck('role'),
+                ])->filter()->unique()->implode(', '),
+            ]);
+
+        $sessions = ClinicalSession::query()->where('supervisor_id', $teacher->id);
+
+        return [
+            'activities' => $activities,
+            'clinics' => ClinicSupervisor::query()
+                ->where('teacher_profile_id', $teacher->id)
+                ->with(['clinic:id,name', 'area:id,name'])
+                ->latest('starts_at')
+                ->get(['id', 'clinic_id', 'clinic_area_id', 'role', 'starts_at', 'ends_at']),
+            'recentSessions' => (clone $sessions)
+                ->whereDate('date', '<=', today())
+                ->with(['clinic:id,name', 'subject:id,name'])
+                ->withCount('students')
+                ->latest('date')
+                ->limit(10)
+                ->get(['id', 'clinic_id', 'subject_id', 'date', 'start_time', 'end_time', 'topic', 'status']),
+            'stats' => [
+                'sessions' => (clone $sessions)->count(),
+                'sessions_done' => (clone $sessions)->where('status', 'concluida')->count(),
+                'appointments' => Appointment::where('teacher_profile_id', $teacher->id)->count(),
+                'procedures_validated' => TreatmentProcedure::where('teacher_profile_id', $teacher->id)->where('review_status', 'autorizado')->count(),
+                'activities' => $activities->count(),
+            ],
+        ];
     }
 
     /**

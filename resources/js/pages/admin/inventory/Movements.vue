@@ -10,11 +10,12 @@ import PageHeader from '@/components/admin/PageHeader.vue';
 import { filterValue, useIndexFilters } from '@/composables/useIndexFilters';
 import { enumOptions, recordOptions } from '@/lib/admin';
 import admin from '@/routes/admin';
-import type { MovementRow, Option, Paginated } from '@/types/admin';
+import type { MovementRow, Option, Paginated, SelectOption } from '@/types/admin';
 
 const props = defineProps<{
     movements: Paginated<MovementRow>;
-    filters: { inventory_item_id?: string; warehouse_id?: string; type?: string; date_from?: string; date_to?: string };
+    filters: { inventory_item_id?: string; warehouse_id?: string; type?: string; student_profile_id?: string; date_from?: string; date_to?: string };
+    students: SelectOption[];
     types: string[];
     items: Option[];
     warehouses: Option[];
@@ -26,6 +27,7 @@ const { filters, hasFilters, submit, clear } = useIndexFilters(
         inventory_item_id: filterValue(props.filters.inventory_item_id),
         warehouse_id: filterValue(props.filters.warehouse_id),
         type: filterValue(props.filters.type),
+        student_profile_id: filterValue(props.filters.student_profile_id),
         date_from: filterValue(props.filters.date_from),
         date_to: filterValue(props.filters.date_to),
     },
@@ -55,6 +57,7 @@ defineOptions({
                 <FilterSelect v-model="filters.inventory_item_id" placeholder="Todos los artículos" :options="recordOptions(items, true)" @change="submit" />
                 <FilterSelect v-model="filters.warehouse_id" placeholder="Todos los almacenes" :options="recordOptions(warehouses)" @change="submit" />
                 <FilterSelect v-model="filters.type" placeholder="Todos los tipos" :options="enumOptions(types)" @change="submit" />
+                <FilterSelect v-model="filters.student_profile_id" placeholder="Todos los alumnos" :options="students" @change="submit" />
                 <input v-model="filters.date_from" type="date" :class="dateClass" title="Desde" @change="submit" />
                 <input v-model="filters.date_to" type="date" :class="dateClass" title="Hasta" @change="submit" />
             </template>

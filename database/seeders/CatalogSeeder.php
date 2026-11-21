@@ -73,6 +73,27 @@ class CatalogSeeder extends Seeder
                 ],
             ],
 
+            'inventory_categories' => [
+                'name' => 'Categorías de inventario',
+                'description' => 'Para clasificar materiales, instrumental y equipo del almacén.',
+                'items' => [
+                    'anestesicos' => 'Anestésicos',
+                    'resinas' => 'Resinas y adhesivos',
+                    'cementos' => 'Cementos',
+                    'endodoncia' => 'Endodoncia',
+                    'impresion' => 'Materiales de impresión',
+                    'profilaxis' => 'Profilaxis y prevención',
+                    'ortodoncia' => 'Ortodoncia',
+                    'cirugia' => 'Cirugía',
+                    'desechables' => 'Desechables',
+                    'bioseguridad' => 'Bioseguridad y esterilización',
+                    'medicamentos' => 'Medicamentos',
+                    'instrumental' => 'Instrumental',
+                    'laboratorio' => 'Laboratorio dental',
+                    'otro' => 'Otro',
+                ],
+            ],
+
             'units' => [
                 'name' => 'Unidades de medida',
                 'description' => 'Para materiales e insumos del almacén.',

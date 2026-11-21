@@ -129,6 +129,7 @@ class StudentEnrollmentController extends Controller
             'enrollment' => $student,
             'universityStatuses' => UniversityRegistration::STATUSES,
             'periods' => AcademicPeriod::orderByDesc('starts_at')->get(['id', 'name']),
+            'canEdit' => (bool) auth()->user()?->can('students.edit'),
         ]);
     }
 

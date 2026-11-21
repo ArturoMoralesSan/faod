@@ -16,10 +16,14 @@ class ClinicEquipment extends Model
 
     public const STATUSES = ['operativo', 'mantenimiento', 'fuera_servicio', 'baja'];
 
+    /** Equipo (unidades, autoclaves, rayos X) o instrumental (pinzas, fórceps, kits). */
+    public const KINDS = ['equipo', 'instrumental'];
+
     protected $table = 'clinic_equipment';
 
     protected $fillable = [
         'clinic_id',
+        'kind',
         'space_id',
         'code',
         'name',

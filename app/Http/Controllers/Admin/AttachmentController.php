@@ -26,6 +26,7 @@ class AttachmentController extends Controller
         ]);
 
         $modelClass = Attachment::ATTACHABLE_TYPES[$data['attachable_type']];
+        $this->authorizeModule($request, $modelClass, ['create', 'edit']);
         $attachable = $modelClass::findOrFail($data['attachable_id']);
 
         $file = $request->file('file');
@@ -45,16 +46,35 @@ class AttachmentController extends Controller
         return back()->with('success', 'Archivo adjuntado correctamente.');
     }
 
-    public function download(Attachment $attachment): StreamedResponse
+    public function download(Request $request, Attachment $attachment): StreamedResponse
     {
+        $this->authorizeModule($request, $attachment->attachable_type, ['view']);
+
         return Storage::disk($attachment->disk)
             ->download($attachment->path, $attachment->original_name);
     }
 
-    public function destroy(Attachment $attachment): RedirectResponse
+    public function destroy(Request $request, Attachment $attachment): RedirectResponse
     {
+        $this->authorizeModule($request, $attachment->attachable_type, ['edit', 'delete']);
+
         $attachment->delete();
 
         return back()->with('success', 'Archivo eliminado correctamente.');
+    }
+
+    /**
+     * Exige alguno de los permisos del módulo al que pertenece el registro.
+     *
+     * @param  array<int, string>  $actions
+     */
+    private function authorizeModule(Request $request, string $modelClass, array $actions): void
+    {
+        $module = Attachment::MODULES[$modelClass] ?? null;
+
+        abort_unless(
+            $module && $request->user()->canAny(array_map(fn ($action) => "{$module}.{$action}", $actions)),
+            403
+        );
     }
 }

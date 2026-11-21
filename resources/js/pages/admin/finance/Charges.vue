@@ -183,7 +183,7 @@ defineOptions({
                         </p>
                     </td>
                     <td class="px-5 py-4 sm:px-6">
-                        <Link v-if="c.payer_info" :href="c.payer_info.url" class="font-semibold text-[#941B2B] hover:underline">{{ c.payer_info.name }}</Link>
+                        <Link v-if="c.payer_info?.url" :href="c.payer_info.url" class="font-semibold text-[#941B2B] hover:underline">{{ c.payer_info.name }}</Link>
                         <p v-if="c.payer_info" class="text-xs text-[#858B93]">{{ label(c.payer_info.type) }} · {{ c.payer_info.code }}</p>
                     </td>
                     <td class="px-5 py-4 text-right text-[#525960] sm:px-6">

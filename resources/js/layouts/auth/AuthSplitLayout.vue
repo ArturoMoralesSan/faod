@@ -1,153 +1,89 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
-import { home } from '@/routes';
+import { Link } from '@inertiajs/vue3';
+import { Mail, MapPin, Phone, ShieldCheck } from 'lucide-vue-next';
 
-const page = usePage();
-const name = page.props.name;
+import { IMAGES, INSTITUTION } from '@/lib/institution';
+import { home } from '@/routes';
 
 defineProps<{
     title?: string;
     description?: string;
 }>();
+
+const year = new Date().getFullYear();
 </script>
 
 <template>
-    <div class="relative grid min-h-svh bg-[#f9f8f6] lg:grid-cols-2">
-        <!-- PANEL VISUAL -->
-        <aside
-            class="relative hidden min-h-svh flex-col justify-between overflow-hidden bg-[#223A2D] p-10 text-white lg:flex xl:p-14"
-        >
-            <!-- Imagen de fondo -->
-            <div
-                class="absolute inset-0 bg-cover bg-center"
-                style="
-                    background-image: url('/images/husky-instalaciones.jpg');
-                "
+    <div class="relative grid min-h-svh bg-[#F7F8FA] font-['DM_Sans',sans-serif] lg:grid-cols-[1.1fr_1fr]">
+        <!-- Fachada -->
+        <aside class="relative hidden min-h-svh flex-col justify-between overflow-hidden bg-[#5E0F1B] p-10 text-white lg:flex xl:p-14">
+            <img
+                :src="IMAGES.facade"
+                alt="Fachada de la Facultad de Odontología de la UJED"
+                class="absolute inset-0 h-full w-full object-cover"
+                :style="{ objectPosition: IMAGES.facadePosition }"
             />
+            <!-- Guinda institucional sobre la fotografía: más intensa arriba y abajo para leer el texto. -->
+            <div class="absolute inset-0 bg-gradient-to-b from-[#5E0F1B]/90 via-[#941B2B]/45 to-[#3D0912]/95" />
 
-            <!-- Capa verde sobre la fotografía -->
-            <div
-                class="absolute inset-0 bg-gradient-to-b from-[#223A2D]/85 via-[#223A2D]/65 to-[#223A2D]/95"
-            />
-
-            <!-- Decoración -->
-            <div
-                class="pointer-events-none absolute -right-36 -top-32 size-[440px] rounded-full border border-white/[0.08]"
-            />
-
-            <div
-                class="pointer-events-none absolute -right-20 -top-16 size-[300px] rounded-full border border-white/[0.08]"
-            />
-
-            <!-- Logo de Husky -->
-            <Link
-                :href="home()"
-                class="relative z-10 inline-flex w-fit items-center"
-            >
-                <img
-                    src="/images/husky_blanco.webp"
-                    :alt="name"
-                    class="h-auto w-48 object-contain sm:w-56"
-                />
+            <Link :href="home()" class="relative z-10 flex w-fit items-center gap-4">
+                <img :src="IMAGES.logoUjedWhite" :alt="INSTITUTION.university" class="h-16 w-auto" />
+                <span class="border-l border-white/30 pl-4">
+                    <span class="block text-[11px] font-semibold uppercase tracking-[0.18em] text-white/75">{{ INSTITUTION.university }}</span>
+                    <span class="block font-['Manrope',sans-serif] text-lg font-bold leading-tight">{{ INSTITUTION.name }}</span>
+                </span>
             </Link>
 
-            <!-- Mensaje principal -->
-            <div class="relative z-10 max-w-xl py-12">
-                <div
-                    class="mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2"
-                >
-                    <span class="size-2 rounded-full bg-[#D8DFD0]" />
-
-                    <span
-                        class="text-xs font-medium tracking-[0.12em] text-[#E7E9DF]"
-                    >
-                        CALIDAD Y COMPROMISO
-                    </span>
-                </div>
-
-                <h2
-                    class="max-w-lg text-4xl font-medium leading-[1.15] tracking-tight xl:text-5xl"
-                >
-                    Calidad que nace
-                    <span class="block text-[#D8DFD0]">
-                        de la madera.
-                    </span>
+            <div class="relative z-10 max-w-lg">
+                <span class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] backdrop-blur-sm">
+                    <span class="size-1.5 rounded-full bg-[#F2C14E]" /> {{ INSTITUTION.system }}
+                </span>
+                <h2 class="mt-6 font-['Manrope',sans-serif] text-4xl font-extrabold leading-[1.1] tracking-tight xl:text-5xl">
+                    Academia, clínica y administración
+                    <span class="block text-[#F6D6DB]">en un solo lugar.</span>
                 </h2>
-
-                <p class="mt-6 max-w-md text-base leading-7 text-white/75">
-                    Experiencia, trabajo y compromiso en cada corte,
-                    transformando la madera en soluciones para cada proyecto.
+                <p class="mt-5 max-w-md text-[15px] leading-7 text-white/80">
+                    Alumnos, docentes, pacientes, agenda, inventario y finanzas de la facultad, con acceso según tu rol.
                 </p>
-
-                <div
-                    class="mt-9 h-[3px] w-14 rounded-full bg-[#D8DFD0]"
-                />
             </div>
 
-            <!-- Pie del panel -->
-            <div
-                class="relative z-10 flex items-center justify-between gap-4 border-t border-white/10 pt-5 text-xs text-white/60"
-            >
-                <span>{{ name }}</span>
-                <span>Acceso seguro a tu cuenta</span>
+            <div class="relative z-10 grid gap-2 border-t border-white/15 pt-5 text-xs text-white/75">
+                <span class="inline-flex items-center gap-2"><MapPin class="size-3.5 shrink-0" /> {{ INSTITUTION.address }}</span>
+                <span class="flex flex-wrap gap-x-5 gap-y-2">
+                    <a :href="INSTITUTION.phoneHref" class="inline-flex items-center gap-2 hover:text-white"><Phone class="size-3.5" /> {{ INSTITUTION.phone }}</a>
+                    <a :href="`mailto:${INSTITUTION.email}`" class="inline-flex items-center gap-2 hover:text-white"><Mail class="size-3.5" /> {{ INSTITUTION.email }}</a>
+                </span>
             </div>
         </aside>
 
-        <!-- PANEL DEL FORMULARIO -->
-        <main
-            class="flex min-h-svh flex-col items-center justify-center px-5 py-10 sm:px-8 lg:px-10 xl:px-14"
-        >
-            <div class="w-full max-w-[440px]">
-                <!-- Logo en móvil -->
-                <Link
-                    :href="home()"
-                    class="mb-8 flex items-center justify-center lg:hidden"
-                >
-                    <img
-                        src="/images/industriashusky.webp"
-                        :alt="name"
-                        class="h-auto w-48 object-contain"
-                    />
+        <!-- Formulario -->
+        <main class="flex min-h-svh flex-col items-center justify-center px-5 py-10 sm:px-8 lg:px-12">
+            <div class="w-full max-w-[420px]">
+                <!-- Identidad en móvil (la fachada se oculta) -->
+                <Link :href="home()" class="mb-8 flex items-center gap-3 lg:hidden">
+                    <span class="flex size-12 items-center justify-center rounded-xl bg-[#941B2B] p-1.5">
+                        <img :src="IMAGES.logoUjedWhite" :alt="INSTITUTION.university" class="h-full w-auto" />
+                    </span>
+                    <span>
+                        <span class="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#941B2B]">{{ INSTITUTION.university }}</span>
+                        <span class="block font-['Manrope',sans-serif] text-base font-bold text-[#292D32]">{{ INSTITUTION.name }}</span>
+                    </span>
                 </Link>
 
-                <!-- CARD DEL FORMULARIO -->
-                <section
-                    class="overflow-hidden rounded-2xl border border-[#005A25]/[0.12] bg-white shadow-[0_12px_45px_rgba(34,58,45,0.06)]"
-                >
-                    <!-- Encabezado -->
-                    <div
-                        class="border-b border-[#005A25]/[0.08] px-6 pb-6 pt-8 sm:px-9 sm:pt-9"
-                    >
+                <p class="text-xs font-bold uppercase tracking-[0.16em] text-[#941B2B]">{{ INSTITUTION.short }} · {{ INSTITUTION.universityShort }}</p>
+                <h1 v-if="title" class="mt-2 font-['Manrope',sans-serif] text-[28px] font-extrabold leading-tight tracking-tight text-[#1F2226]">{{ title }}</h1>
+                <p v-if="description" class="mt-2 text-sm leading-6 text-[#737982]">{{ description }}</p>
 
-                        <h1
-                            v-if="title"
-                            class="text-2xl font-semibold tracking-tight text-[#34463A] sm:text-[28px]"
-                        >
-                            {{ title }}
-                        </h1>
+                <div class="auth-form mt-8">
+                    <slot />
+                </div>
 
-                        <p
-                            v-if="description"
-                            class="mt-2 text-sm leading-6 text-[#69766B]"
-                        >
-                            {{ description }}
-                        </p>
-                    </div>
-
-                    <!-- Formulario original -->
-                    <div
-                        class="auth-form px-6 py-7 sm:px-9 sm:py-8"
-                    >
-                        <slot />
-                    </div>
-                </section>
-
-                <!-- Pie -->
-                <p
-                    class="mt-7 px-3 text-center text-xs leading-5 text-[#69766B]"
-                >
-                    © {{ new Date().getFullYear() }} {{ name }}.
-                    Todos los derechos reservados.
+                <p class="mt-8 flex items-center gap-2 text-xs text-[#858B93]">
+                    <ShieldCheck class="size-4 shrink-0 text-[#941B2B]" />
+                    Acceso exclusivo para personal, docentes y alumnos de la facultad.
+                </p>
+                <p class="mt-6 border-t border-[#E3E5E8] pt-5 text-xs text-[#858B93]">
+                    © {{ year }} {{ INSTITUTION.name }} · {{ INSTITUTION.university }}
                 </p>
             </div>
         </main>
@@ -155,34 +91,51 @@ defineProps<{
 </template>
 
 <style>
-/* Botones verdes dentro del formulario */
+/* Formularios de acceso con los colores de la facultad. */
+.auth-form label {
+    color: #383d43;
+    font-weight: 600;
+}
+
+.auth-form input[type='email'],
+.auth-form input[type='password'],
+.auth-form input[type='text'] {
+    height: 2.75rem;
+    border-radius: 0.75rem;
+    border-color: #e3e5e8;
+    background: #ffffff;
+}
+
+.auth-form input:focus-visible {
+    border-color: #941b2b;
+    box-shadow: 0 0 0 3px rgb(148 27 43 / 0.12);
+}
+
 .auth-form [type='submit'] {
-    background-color: #3b6850;
-    border-color: #3b6850;
+    height: 2.75rem;
+    border-radius: 9999px;
+    background-color: #941b2b;
+    border-color: #941b2b;
     color: #ffffff;
-    transition:
-        background-color 180ms ease,
-        border-color 180ms ease;
+    font-weight: 600;
+    transition: background-color 180ms ease;
 }
 
 .auth-form [type='submit']:hover {
-    background-color: #00451c;
-    border-color: #00451c;
+    background-color: #721421;
 }
 
 .auth-form [type='submit']:focus-visible {
-    outline: 2px solid #3b6850;
-    outline-offset: 3px;
-}
-/* Títulos del formulario */
-.auth-form h1,
-.auth-form h2,
-.auth-form h3 {
-    color: #223a2d;
+    outline: 3px solid #e8c7cc;
+    outline-offset: 2px;
 }
 
-/* Labels de los campos */
-.auth-form label {
-    color: #223a2d;
+.auth-form a {
+    color: #941b2b;
+}
+
+.auth-form button[role='checkbox'][data-state='checked'] {
+    background-color: #941b2b;
+    border-color: #941b2b;
 }
 </style>

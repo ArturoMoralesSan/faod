@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityParticipant;
 use App\Models\CashRegisterSession;
 use App\Models\Charge;
 use App\Models\FeeConcept;
@@ -32,17 +33,7 @@ class FinanceService
         }
 
         return DB::transaction(function () use ($payer, $data, $user, $amount) {
-            $session = null;
-
-            if ($data['method'] === 'efectivo') {
-                $session = CashRegisterSession::lockForUpdate()->find($data['cash_register_session_id'] ?? null);
-
-                if (! $session || $session->status !== 'abierta') {
-                    throw ValidationException::withMessages(['cash_register_session_id' => 'Los pagos en efectivo requieren una caja abierta.']);
-                }
-            } elseif (! empty($data['cash_register_session_id'])) {
-                $session = CashRegisterSession::where('status', 'abierta')->find($data['cash_register_session_id']);
-            }
+            $session = $this->cashSession($data);
 
             $charges = Charge::query()
                 ->forPayer($payer)
@@ -79,6 +70,72 @@ class FinanceService
 
             return $payment;
         });
+    }
+
+    /**
+     * Ingreso que no salda un adeudo: inscripción a un curso, cobro a un externo,
+     * donativo, etc. Lo registra a mano quien cobra; sale con folio y entra a la caja.
+     * Si es el pago de un participante, lo marca como pagado.
+     */
+    public function registerIncome(array $data, User $user): Payment
+    {
+        $amount = round((float) $data['amount'], 2);
+
+        if ($amount <= 0) {
+            throw ValidationException::withMessages(['amount' => 'El monto debe ser mayor que cero.']);
+        }
+
+        return DB::transaction(function () use ($data, $user, $amount) {
+            $session = $this->cashSession($data);
+            $participant = ! empty($data['activity_participant_id'])
+                ? ActivityParticipant::with(['activity:id,title', 'people'])->lockForUpdate()->findOrFail($data['activity_participant_id'])
+                : null;
+
+            if ($participant && $participant->payment_status === 'pagado') {
+                throw ValidationException::withMessages(['activity_participant_id' => 'El participante ya tiene registrado su pago.']);
+            }
+
+            $payment = Payment::create([
+                'folio' => 'TMP-'.uniqid(),
+                'payer_name' => $data['payer_name'] ?? $participant?->people?->full_name,
+                'concept' => $data['concept'] ?? ($participant ? "Inscripción: {$participant->activity?->title}" : null),
+                'fee_concept_id' => $data['fee_concept_id'] ?? null,
+                'activity_participant_id' => $participant?->id,
+                'cash_register_session_id' => $session?->id,
+                'method' => $data['method'],
+                'amount' => $amount,
+                'reference' => $data['reference'] ?? null,
+                'paid_at' => $data['paid_at'] ?? now(),
+                'notes' => $data['notes'] ?? null,
+                'received_by' => $user->id,
+            ]);
+
+            $payment->update(['folio' => sprintf('R-%06d', $payment->id)]);
+
+            $participant?->update(['payment_status' => 'pagado']);
+
+            return $payment;
+        });
+    }
+
+    /**
+     * Caja del cobro: obligatoria y abierta si es en efectivo.
+     */
+    private function cashSession(array $data): ?CashRegisterSession
+    {
+        if ($data['method'] === 'efectivo') {
+            $session = CashRegisterSession::lockForUpdate()->find($data['cash_register_session_id'] ?? null);
+
+            if (! $session || $session->status !== 'abierta') {
+                throw ValidationException::withMessages(['cash_register_session_id' => 'Los pagos en efectivo requieren una caja abierta.']);
+            }
+
+            return $session;
+        }
+
+        return empty($data['cash_register_session_id'])
+            ? null
+            : CashRegisterSession::where('status', 'abierta')->find($data['cash_register_session_id']);
     }
 
     /**
@@ -160,6 +217,11 @@ class FinanceService
             ]);
 
             $payment->allocations()->with('charge')->get()->each(fn ($allocation) => $allocation->charge->refreshPaidStatus());
+
+            // Si era el pago de un participante, vuelve a quedar pendiente.
+            if ($payment->participant && $payment->participant->payment_status === 'pagado') {
+                $payment->participant->update(['payment_status' => 'pendiente']);
+            }
         });
     }
 

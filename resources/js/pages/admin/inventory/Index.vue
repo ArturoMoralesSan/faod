@@ -11,7 +11,7 @@ import InventoryItemDialog from '@/components/admin/InventoryItemDialog.vue';
 import PageHeader from '@/components/admin/PageHeader.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import { filterValue, useIndexFilters } from '@/composables/useIndexFilters';
-import { formatQty, recordOptions } from '@/lib/admin';
+import { enumOptions, formatQty, label, recordOptions } from '@/lib/admin';
 import admin from '@/routes/admin';
 import type { InventoryItemData, Option, Paginated } from '@/types/admin';
 
@@ -23,11 +23,12 @@ interface Item extends InventoryItemData {
 
 const props = defineProps<{
     items: Paginated<Item>;
-    filters: { search?: string; category?: string; warehouse_id?: string; alert?: string };
+    filters: { search?: string; category?: string; kind?: string; warehouse_id?: string; alert?: string };
     alerts: { low: number; expiring: number; expired: number };
     warehouses: Option[];
     suppliers: Option[];
     categories: string[];
+    kinds: string[];
 }>();
 
 const { filters, hasFilters, submit, clear } = useIndexFilters(
@@ -35,6 +36,7 @@ const { filters, hasFilters, submit, clear } = useIndexFilters(
     {
         search: filterValue(props.filters.search),
         category: filterValue(props.filters.category),
+        kind: filterValue(props.filters.kind),
         warehouse_id: filterValue(props.filters.warehouse_id),
         alert: filterValue(props.filters.alert),
     },
@@ -119,6 +121,7 @@ defineOptions({
             <template #filters>
                 <FilterSelect v-model="filters.warehouse_id" placeholder="Todos los almacenes" :options="recordOptions(warehouses)" @change="submit" />
                 <FilterSelect v-model="filters.category" placeholder="Todas las categorías" :options="categories.map((c) => ({ value: c, label: c }))" @change="submit" />
+                <FilterSelect v-model="filters.kind" placeholder="Material, instrumental y equipo" :options="enumOptions(kinds)" @change="submit" />
             </template>
 
             <template #active-filters>
@@ -126,6 +129,7 @@ defineOptions({
                 <FilterChip v-if="filters.alert === 'low'">Bajo el mínimo</FilterChip>
                 <FilterChip v-if="filters.alert === 'expiring'">Por caducar</FilterChip>
                 <FilterChip v-if="filters.category">Categoría: {{ filters.category }}</FilterChip>
+                <FilterChip v-if="filters.kind">Tipo: {{ label(filters.kind) }}</FilterChip>
             </template>
 
             <template #table-head>
@@ -161,6 +165,6 @@ defineOptions({
             </template>
         </DataTable>
 
-        <InventoryItemDialog v-model:open="dialogOpen" :item="null" :suppliers="suppliers" :categories="categories" />
+        <InventoryItemDialog v-model:open="dialogOpen" :item="null" :suppliers="suppliers" :categories="categories" :kinds="kinds" />
     </div>
 </template>

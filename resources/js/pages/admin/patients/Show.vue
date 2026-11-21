@@ -61,6 +61,9 @@ interface Consultation {
     teacher_profile_id: number | null;
     attended_at: string;
     reason: string;
+    current_illness: string | null;
+    symptoms: string[] | null;
+    pain_intensity: number | null;
     blood_pressure: string | null;
     heart_rate: number | null;
     respiratory_rate: number | null;
@@ -172,6 +175,7 @@ const props = defineProps<{
     can: { diagnose: boolean; review: boolean; treat: boolean; schedule: boolean; billing: boolean };
     conditionCategories: string[];
     allergySeverities: string[];
+    symptomGroups: Record<string, string[]>;
     clinics: Option[];
     sessions: { id: number; clinic_id: number; date: string; start_time: string; topic: string | null }[];
     students: StudentOption[];
@@ -218,6 +222,22 @@ const vitals = (c: Consultation) =>
         .filter(Boolean)
         .join(' · ');
 
+const SYMPTOM_GROUP_TITLES: Record<string, string> = {
+    dolor: 'Dolor',
+    sensibilidad: 'Sensibilidad',
+    periodontal: 'Encías y tejidos',
+    otros: 'Otros',
+};
+
+const toggleSymptom = (symptom: string): void => {
+    const current = recordForm.symptoms ?? [];
+    recordForm.symptoms = current.includes(symptom) ? current.filter((s) => s !== symptom) : [...current, symptom];
+};
+
+/** Color de la escala de dolor: verde (leve), ámbar (moderado), rojo (intenso). */
+const painTone = (value: number | null): string =>
+    value === null ? '' : value >= 7 ? 'bg-[#941B2B] text-white' : value >= 4 ? 'bg-[#D99A1E] text-white' : 'bg-[#187744] text-white';
+
 /* --------------------------- Registros del expediente --------------------------- */
 
 const dialogOpen = ref(false);
@@ -231,7 +251,7 @@ const emptyRecord = {
     dose: '', frequency: '', started_at: '', ended_at: '',
     clinic_id: null as number | null, clinical_session_id: null as number | null,
     student_profile_id: null as number | null, teacher_profile_id: null as number | null,
-    attended_at: '', reason: '', blood_pressure: '',
+    attended_at: '', reason: '', current_illness: '', symptoms: [] as string[], pain_intensity: null as number | null, blood_pressure: '',
     heart_rate: null as number | null, respiratory_rate: null as number | null,
     temperature: null as number | null, weight: null as number | null, height: null as number | null,
     findings: '',
@@ -249,7 +269,7 @@ const FIELDS: Record<RecordType, Field[]> = {
     medications: ['name', 'dose', 'frequency', 'started_at', 'ended_at', 'notes'],
     consultations: [
         'clinic_id', 'clinical_session_id', 'student_profile_id', 'teacher_profile_id', 'attended_at', 'reason',
-        'blood_pressure', 'heart_rate', 'respiratory_rate', 'temperature', 'weight', 'height', 'findings', 'notes',
+        'current_illness', 'symptoms', 'pain_intensity', 'blood_pressure', 'heart_rate', 'respiratory_rate', 'temperature', 'weight', 'height', 'findings', 'notes',
     ],
     notes: ['patient_consultation_id', 'student_profile_id', 'teacher_profile_id', 'noted_at', 'note'],
 };
@@ -299,7 +319,9 @@ const openRecord = (type: RecordType, id: number | null = null): void => {
                 ? toDateTimeInput(value as string | null)
                 : DATE_FIELDS.includes(field)
                   ? toDateInput(value as string | null)
-                  : (value ?? (typeof emptyRecord[field] === 'string' ? '' : null));
+                  : field === 'symptoms'
+                    ? [...((value as string[] | null) ?? [])]
+                    : (value ?? (typeof emptyRecord[field] === 'string' ? '' : null));
         });
     } else if (type === 'consultations') {
         recordForm.attended_at = toDateTimeInput(new Date().toISOString());
@@ -652,13 +674,18 @@ defineOptions({
                 </AdminCard>
 
                 <!-- Consultas -->
-                <AdminCard title="Consultas" description="Motivo, signos vitales y exploración de cada visita." :icon="HeartPulse">
+                <AdminCard title="Consultas" description="Motivo, padecimiento actual, síntomas, signos vitales y exploración de cada visita." :icon="HeartPulse">
                     <ul v-if="patient.consultations.length" class="flex flex-col gap-3">
                         <li v-for="c in patient.consultations" :key="c.id" class="rounded-xl border border-[#E3E5E8] p-4">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
                                     <p class="text-sm font-semibold text-[#292D32]">{{ formatDateTime(c.attended_at) }}<template v-if="c.clinic"> · {{ c.clinic.name }}</template></p>
                                     <p class="mt-1 text-sm text-[#383D43]">{{ c.reason }}</p>
+                                    <p v-if="c.current_illness" class="mt-1 whitespace-pre-line text-xs text-[#525960]"><span class="font-semibold">Padecimiento actual:</span> {{ c.current_illness }}</p>
+                                    <div v-if="c.symptoms?.length || c.pain_intensity !== null" class="mt-2 flex flex-wrap items-center gap-1">
+                                        <span v-if="c.pain_intensity !== null" class="rounded-full px-2 py-0.5 text-[11px] font-semibold" :class="painTone(c.pain_intensity)">Dolor {{ c.pain_intensity }}/10</span>
+                                        <span v-for="s in c.symptoms ?? []" :key="s" class="rounded-full border border-[#E3E5E8] bg-[#F7F8FA] px-2 py-0.5 text-[11px] text-[#525960]">{{ label(s) }}</span>
+                                    </div>
                                     <p v-if="vitals(c)" class="mt-1 text-xs font-medium text-[#525960]">{{ vitals(c) }}</p>
                                     <p v-if="c.findings" class="mt-2 whitespace-pre-line text-xs text-[#525960]">{{ c.findings }}</p>
                                     <p class="mt-2 text-xs text-[#858B93]">
@@ -962,8 +989,59 @@ defineOptions({
                     <FormSelect id="co_session" v-model="recordForm.clinical_session_id" label="Sesión clínica" placeholder="Fuera de una sesión" :options="sessionOptions" :error="recordForm.errors.clinical_session_id" nullable />
                 </div>
                 <div class="md:col-span-2">
-                    <FormTextarea id="co_reason" v-model="recordForm.reason" label="Motivo de consulta" :rows="2" :error="recordForm.errors.reason" required />
+                    <FormTextarea id="co_reason" v-model="recordForm.reason" label="Motivo de consulta" placeholder="En palabras del paciente. Ej. Me duele una muela" :rows="2" :error="recordForm.errors.reason" required />
                 </div>
+                <div class="md:col-span-2">
+                    <FormTextarea
+                        id="co_illness"
+                        v-model="recordForm.current_illness"
+                        label="Padecimiento actual"
+                        placeholder="Inicio, evolución, qué lo provoca o lo alivia, tratamientos previos. Ej. Dolor en 36 desde hace 3 días, al masticar y con frío; cede con ibuprofeno."
+                        :rows="3"
+                        :error="recordForm.errors.current_illness"
+                    />
+                </div>
+
+                <fieldset class="md:col-span-2">
+                    <legend class="mb-2 text-xs font-semibold uppercase tracking-wide text-[#858B93]">Síntomas que refiere</legend>
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <div v-for="(symptoms, group) in symptomGroups" :key="group">
+                            <p class="mb-1.5 text-xs font-semibold text-[#525960]">{{ SYMPTOM_GROUP_TITLES[group] ?? group }}</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <button
+                                    v-for="symptom in symptoms"
+                                    :key="symptom"
+                                    type="button"
+                                    class="rounded-full border px-2.5 py-1 text-xs font-medium transition-colors"
+                                    :class="recordForm.symptoms?.includes(symptom) ? 'border-[#941B2B] bg-[#941B2B] text-white' : 'border-[#E3E5E8] bg-white text-[#525960] hover:border-[#E8C7CC] hover:text-[#941B2B]'"
+                                    :aria-pressed="recordForm.symptoms?.includes(symptom)"
+                                    @click="toggleSymptom(symptom)"
+                                >
+                                    {{ label(symptom) }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <p v-if="recordForm.errors.symptoms" class="mt-1 text-xs text-[#941B2B]">{{ recordForm.errors.symptoms }}</p>
+                </fieldset>
+
+                <fieldset class="md:col-span-2">
+                    <legend class="mb-2 text-xs font-semibold uppercase tracking-wide text-[#858B93]">Intensidad del dolor (0 = sin dolor, 10 = el peor)</legend>
+                    <div class="flex flex-wrap items-center gap-1">
+                        <button
+                            v-for="n in 11"
+                            :key="n"
+                            type="button"
+                            class="h-8 w-8 rounded-lg border text-xs font-semibold transition-colors"
+                            :class="recordForm.pain_intensity === n - 1 ? `border-transparent ${painTone(n - 1)}` : 'border-[#E3E5E8] bg-white text-[#525960] hover:border-[#E8C7CC]'"
+                            :aria-pressed="recordForm.pain_intensity === n - 1"
+                            @click="recordForm.pain_intensity = recordForm.pain_intensity === n - 1 ? null : n - 1"
+                        >
+                            {{ n - 1 }}
+                        </button>
+                    </div>
+                    <p v-if="recordForm.errors.pain_intensity" class="mt-1 text-xs text-[#941B2B]">{{ recordForm.errors.pain_intensity }}</p>
+                </fieldset>
 
                 <div class="md:col-span-2">
                     <p class="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[#858B93]">

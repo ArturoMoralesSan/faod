@@ -25,22 +25,24 @@ class ExpenseController extends Controller
         $query = Expense::query()
             ->when($request->category, fn ($q, $category) => $q->where('category', $category))
             ->when($request->clinic_id, fn ($q, $id) => $q->where('clinic_id', $id))
+            ->when($request->space_id, fn ($q, $id) => $q->where('space_id', $id))
             ->when($request->date_from, fn ($q, $date) => $q->whereDate('paid_at', '>=', $date))
             ->when($request->date_to, fn ($q, $date) => $q->whereDate('paid_at', '<=', $date))
             ->when($request->search, fn ($q, $search) => $q->where('description', 'like', "%{$search}%"));
 
         return Inertia::render('admin/finance/Expenses', [
             'expenses' => (clone $query)
-                ->with(['supplier:id,name', 'clinic:id,name', 'creator:id,name', 'attachments', 'session.register:id,name'])
+                ->with(['supplier:id,name', 'clinic:id,name', 'space:id,code,name', 'creator:id,name', 'attachments', 'session.register:id,name'])
                 ->latest('paid_at')
                 ->paginate(25)
                 ->withQueryString(),
             'total' => (float) $query->sum('amount'),
-            'filters' => $request->only('category', 'clinic_id', 'date_from', 'date_to', 'search'),
+            'filters' => $request->only('category', 'clinic_id', 'space_id', 'date_from', 'date_to', 'search'),
             'categories' => Expense::CATEGORIES,
             'methods' => Payment::METHODS,
             'suppliers' => Supplier::where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'clinics' => Clinic::where('is_active', true)->orderBy('name')->get(['id', 'name']),
+            'laboratories' => \App\Models\Space::where('type', 'laboratorio')->where('is_active', true)->orderBy('name')->get(['id', 'code', 'name']),
             'openSessions' => CashRegisterSession::where('status', 'abierta')->with('register:id,name')->get(['id', 'cash_register_id']),
         ]);
     }
@@ -85,6 +87,7 @@ class ExpenseController extends Controller
             'paid_at' => ['required', 'date', 'before_or_equal:now'],
             'supplier_id' => ['nullable', Rule::exists('suppliers', 'id')->whereNull('deleted_at')],
             'clinic_id' => ['nullable', Rule::exists('clinics', 'id')->whereNull('deleted_at')],
+            'space_id' => ['nullable', Rule::exists('spaces', 'id')->where('type', 'laboratorio')->whereNull('deleted_at')],
             'cash_register_session_id' => [
                 Rule::requiredIf($request->input('method') === 'efectivo'),
                 'nullable',

@@ -10,6 +10,7 @@ import FormDialog from '@/components/admin/FormDialog.vue';
 import FormInput from '@/components/admin/FormInput.vue';
 import FormSelect from '@/components/admin/FormSelect.vue';
 import PageHeader from '@/components/admin/PageHeader.vue';
+import PrintLink from '@/components/admin/PrintLink.vue';
 import WeeklySchedule from '@/components/admin/WeeklySchedule.vue';
 import { confirmDelete, formatTime, fullName, label } from '@/lib/admin';
 import admin from '@/routes/admin';
@@ -231,9 +232,12 @@ defineOptions({
             <WeeklySchedule :blocks="blocks" :days="days" clickable @select="onBlockSelected" />
 
             <template #footer>
-                <AdminButton :icon="Plus" :disabled="!group.class_sections.length" @click="openSchedule()">
-                    Agregar horario
-                </AdminButton>
+                <div class="flex flex-wrap gap-3">
+                    <AdminButton :icon="Plus" :disabled="!group.class_sections.length" @click="openSchedule()">
+                        Agregar horario
+                    </AdminButton>
+                    <PrintLink v-if="blocks.length" :href="admin.groups.schedulePdf(group.id).url" />
+                </div>
             </template>
         </AdminCard>
 

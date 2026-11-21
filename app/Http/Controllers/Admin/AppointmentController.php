@@ -27,7 +27,7 @@ class AppointmentController extends Controller
 {
     public function index(Request $request): Response
     {
-        $view = $request->input('view', 'week');
+        $view = in_array($request->input('view'), ['day', 'week', 'month', 'list'], true) ? $request->input('view') : 'week';
         $people = ':id,first_name,middle_name,paternal_surname,maternal_surname,phone,personal_email';
 
         $query = Appointment::query()
@@ -41,16 +41,32 @@ class AppointmentController extends Controller
             ->when($request->clinic_id, fn ($q, $id) => $q->where('clinic_id', $id))
             ->when($request->space_id, fn ($q, $id) => $q->where('space_id', $id))
             ->when($request->student_profile_id, fn ($q, $id) => $q->where('student_profile_id', $id))
+            ->when($request->teacher_profile_id, fn ($q, $id) => $q->where('teacher_profile_id', $id))
             ->when($request->status, fn ($q, $status) => $q->where('status', $status))
             ->when($request->search, fn ($q, $search) => $q->whereHas('patient', fn ($q) => $q
                 ->where('record_number', 'like', "%{$search}%")
                 ->orWhereHas('people', fn ($q) => $q->search($search))));
 
-        $weekStart = Carbon::parse($request->input('date', today()->toDateString()))->startOfWeek();
+        try {
+            $date = Carbon::parse($request->input('date', today()->toDateString()))->startOfDay();
+        } catch (\Throwable) {
+            $date = today();
+        }
 
-        if ($view === 'week') {
+        $weekStart = $date->copy()->startOfWeek();
+
+        // Día, semana o mes: todas las citas del rango, en orden cronológico.
+        $range = match ($view) {
+            'day' => [$date, $date],
+            'week' => [$weekStart, $weekStart->copy()->addDays(6)],
+            'month' => [$date->copy()->startOfMonth(), $date->copy()->endOfMonth()],
+            default => null,
+        };
+
+        if ($range) {
             $appointments = $query
-                ->whereBetween('date', [$weekStart->toDateString(), $weekStart->copy()->addDays(6)->toDateString()])
+                ->whereDate('date', '>=', $range[0]->toDateString())
+                ->whereDate('date', '<=', $range[1]->toDateString())
                 ->orderBy('date')
                 ->orderBy('start_time')
                 ->get();
@@ -67,12 +83,14 @@ class AppointmentController extends Controller
         return Inertia::render('admin/appointments/Index', [
             'view' => $view,
             'appointments' => $appointments,
+            'date' => $date->toDateString(),
             'weekStart' => $weekStart->toDateString(),
-            'filters' => $request->only('clinic_id', 'space_id', 'student_profile_id', 'status', 'search', 'date_from', 'date_to'),
+            'filters' => $request->only('clinic_id', 'space_id', 'student_profile_id', 'teacher_profile_id', 'status', 'search', 'date_from', 'date_to'),
             'statuses' => Appointment::STATUSES,
             'clinics' => Clinic::where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'spaces' => Space::whereNotNull('clinic_id')->where('is_active', true)->orderBy('name')->get(['id', 'clinic_id', 'code', 'name']),
             'students' => $this->students(),
+            'teachers' => $this->teachers(),
             'can' => [
                 'create' => $request->user()->can('appointments.create'),
                 'edit' => $request->user()->can('appointments.edit'),
@@ -234,15 +252,20 @@ class AppointmentController extends Controller
             ->get(['id', 'people_id', 'registration_number']);
     }
 
+    private function teachers()
+    {
+        return TeacherProfile::where('status', 'active')
+            ->with('people:id,first_name,paternal_surname,maternal_surname')
+            ->get(['id', 'people_id']);
+    }
+
     private function formData(?int $patientId): array
     {
         return [
             'clinics' => Clinic::where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'spaces' => Space::whereNotNull('clinic_id')->where('is_active', true)->orderBy('name')->get(['id', 'clinic_id', 'code', 'name']),
             'students' => $this->students(),
-            'teachers' => TeacherProfile::where('status', 'active')
-                ->with('people:id,first_name,paternal_surname,maternal_surname')
-                ->get(['id', 'people_id']),
+            'teachers' => $this->teachers(),
             'treatmentPlans' => $patientId
                 ? \App\Models\TreatmentPlan::where('patient_id', $patientId)
                     ->whereIn('status', ['en_proceso'])

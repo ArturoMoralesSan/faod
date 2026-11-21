@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Laravel SEO Configuration
  *
- * Industrias Husky
+ * Facultad de Odontología · UJED (FAOD)
  *
  * @see https://github.com/rankbeam/laravel-seo
  */
@@ -20,17 +20,17 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'site_name' => env('APP_NAME', 'Industrias Husky'),
+    'site_name' => env('APP_NAME', 'FAOD'),
 
-    'title_suffix' => ' | ' . env('APP_NAME', 'Industrias Husky'),
+    'title_suffix' => ' | ' . env('APP_NAME', 'FAOD'),
 
     'title_suffix_skip_when_contains' => [
-        'Industrias Husky',
+        'FAOD',
     ],
 
     'default_og_image' => env(
         'SEO_DEFAULT_OG_IMAGE',
-        '/images/og-default.jpg'
+        '/images/faod/og-faod.jpg'
     ),
 
     /*
@@ -262,34 +262,14 @@ return [
         'models' => [],
 
         /*
-         * Main public pages of Industrias Husky.
+         * Única página pública: el resto del sistema requiere iniciar sesión.
          */
 
         'static_urls' => [
             [
                 'url' => '/',
                 'priority' => 1.0,
-                'changefreq' => 'weekly',
-            ],
-            [
-                'url' => '/nosotros',
-                'priority' => 0.8,
                 'changefreq' => 'monthly',
-            ],
-            [
-                'url' => '/productos',
-                'priority' => 0.9,
-                'changefreq' => 'weekly',
-            ],
-            [
-                'url' => '/servicios',
-                'priority' => 0.8,
-                'changefreq' => 'monthly',
-            ],
-            [
-                'url' => '/proyectos',
-                'priority' => 0.8,
-                'changefreq' => 'weekly',
             ],
         ],
 
@@ -325,12 +305,12 @@ return [
 
         'title' => env(
             'SEO_LLMS_TXT_TITLE',
-            'Industrias Husky'
+            'Facultad de Odontología · UJED'
         ),
 
         'description' => env(
             'SEO_LLMS_TXT_DESCRIPTION',
-            'Soluciones en madera de pino impregnada y maderas tropicales para proyectos de construcción, infraestructura e industria.'
+            'Sistema integral de gestión interna de la Facultad de Odontología de la Universidad Juárez del Estado de Durango.'
         ),
 
         'sources' => [],
@@ -421,7 +401,7 @@ return [
         'in_language' => true,
 
         'organization' => [
-            'name' => env('APP_NAME', 'Industrias Husky'),
+            'name' => env('APP_NAME', 'FAOD'),
 
             'url' => env('APP_URL'),
 
@@ -429,13 +409,13 @@ return [
         ],
 
         'publisher' => [
-            'name' => env('APP_NAME', 'Industrias Husky'),
+            'name' => env('APP_NAME', 'FAOD'),
 
             'logo' => env('SEO_PUBLISHER_LOGO'),
         ],
 
         'website' => [
-            'name' => env('APP_NAME', 'Industrias Husky'),
+            'name' => env('APP_NAME', 'FAOD'),
 
             'url' => env('APP_URL'),
         ],

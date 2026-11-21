@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use App\Models\Concerns\HasAttachments;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class ClinicIncident extends Model
 {
-    use HasAttachments, SoftDeletes;
+    use LogsActivity, HasAttachments, SoftDeletes;
 
     public const TYPES = ['equipo', 'instalaciones', 'bioseguridad', 'seguridad', 'paciente', 'otro'];
 

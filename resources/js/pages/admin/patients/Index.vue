@@ -12,7 +12,7 @@ import TableActions from '@/components/admin/TableActions.vue';
 import { filterValue, useIndexFilters } from '@/composables/useIndexFilters';
 import { age, confirmDelete, enumOptions, fullName, label, recordOptions } from '@/lib/admin';
 import admin from '@/routes/admin';
-import type { Option, Paginated, PersonName } from '@/types/admin';
+import type { Option, Paginated, PersonName, SelectOption } from '@/types/admin';
 
 interface Patient {
     id: number;
@@ -25,9 +25,11 @@ interface Patient {
 
 const props = defineProps<{
     patients: Paginated<Patient>;
-    filters: { search?: string; status?: string; clinic_id?: string };
+    filters: { search?: string; status?: string; clinic_id?: string; student_profile_id?: string; specialty_id?: string };
     statuses: string[];
     clinics: Option[];
+    students: SelectOption[];
+    specialties: Option[];
 }>();
 
 const { filters, hasFilters, submit, clear } = useIndexFilters(
@@ -36,10 +38,14 @@ const { filters, hasFilters, submit, clear } = useIndexFilters(
         search: filterValue(props.filters.search),
         status: filterValue(props.filters.status),
         clinic_id: filterValue(props.filters.clinic_id),
+        student_profile_id: filterValue(props.filters.student_profile_id),
+        specialty_id: filterValue(props.filters.specialty_id),
     },
 );
 
 const clinicName = (id: string) => props.clinics.find((c) => String(c.id) === id)?.name;
+const studentName = (id: string) => props.students.find((s) => String(s.value) === id)?.label;
+const specialtyName = (id: string) => props.specialties.find((s) => String(s.id) === id)?.name;
 
 const destroy = (patient: Patient): void => {
     confirmDelete(
@@ -86,12 +92,16 @@ defineOptions({
             <template #filters>
                 <FilterSelect v-model="filters.status" placeholder="Todos los estados" :options="enumOptions(statuses)" @change="submit" />
                 <FilterSelect v-model="filters.clinic_id" placeholder="Todas las clínicas" :options="recordOptions(clinics)" @change="submit" />
+                <FilterSelect v-model="filters.student_profile_id" placeholder="Atendidos por cualquier alumno" :options="students" @change="submit" />
+                <FilterSelect v-model="filters.specialty_id" placeholder="Todas las especialidades" :options="recordOptions(specialties)" @change="submit" />
             </template>
 
             <template #active-filters>
                 <FilterChip v-if="filters.search">Búsqueda: {{ filters.search }}</FilterChip>
                 <FilterChip v-if="filters.status">Estado: {{ label(filters.status) }}</FilterChip>
                 <FilterChip v-if="filters.clinic_id">Clínica: {{ clinicName(filters.clinic_id) }}</FilterChip>
+                <FilterChip v-if="filters.student_profile_id">Alumno: {{ studentName(filters.student_profile_id) }}</FilterChip>
+                <FilterChip v-if="filters.specialty_id">Especialidad: {{ specialtyName(filters.specialty_id) }}</FilterChip>
             </template>
 
             <template #table-head>
