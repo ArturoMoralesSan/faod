@@ -121,11 +121,11 @@ const FACTS = computed(() =>
                 </p>
                 <a
                     :href="`mailto:${INSTITUTION.email}?subject=${encodeURIComponent(`Inscripción: ${activity.title}`)}`"
-                    class="mt-5 flex h-11 items-center justify-center gap-2 rounded-full bg-white text-sm font-bold text-[#941B2B] hover:bg-[#F9ECEE]"
+                    class="mt-5 flex h-11 items-center justify-center gap-2 rounded-full bg-white text-sm font-bold text-[#941B2B] hover:bg-[#F1F2F4]"
                 >
                     <Mail class="size-4" /> Escribir a la facultad
                 </a>
-                <a :href="INSTITUTION.phoneHref" class="mt-2 flex h-11 items-center justify-center gap-2 rounded-full border border-white/40 text-sm font-semibold hover:bg-white/10">
+                <a :href="INSTITUTION.phoneHref" class="mt-2 flex h-11 items-center justify-center gap-2 rounded-full border border-white/40 text-sm font-semibold hover:bg-white hover:text-[#292D32]">
                     <Phone class="size-4" /> {{ INSTITUTION.phone }}
                 </a>
             </div>

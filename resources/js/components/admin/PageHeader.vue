@@ -3,7 +3,9 @@ import { Link } from '@inertiajs/vue3';
 import { Plus } from 'lucide-vue-next';
 import type { Component } from 'vue';
 
-withDefaults(
+import { can } from '@/lib/permissions';
+
+const props = withDefaults(
     defineProps<{
         title: string;
         description?: string;
@@ -12,6 +14,8 @@ withDefaults(
         actionIcon?: Component;
         actionLabel?: string;
         actionHref?: string;
+        /** Permiso del botón de acción (p. ej. "patients.create"): sin él no se muestra. */
+        actionPermission?: string;
     }>(),
     {
         description: '',
@@ -19,8 +23,11 @@ withDefaults(
         actionIcon: () => Plus,
         actionLabel: '',
         actionHref: '',
+        actionPermission: '',
     },
 );
+
+const showAction = (): boolean => !props.actionPermission || can(props.actionPermission);
 
 const emit = defineEmits<{
     action: [];
@@ -68,15 +75,15 @@ const emit = defineEmits<{
 
             <!-- Acciones -->
             <div
-                v-if="actionHref || actionLabel || $slots.actions"
+                v-if="(showAction() && (actionHref || actionLabel)) || $slots.actions"
                 class="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end"
             >
                 <slot name="actions" />
 
                 <Link
-                    v-if="actionHref && actionLabel"
+                    v-if="showAction() && actionHref && actionLabel"
                     :href="actionHref"
-                    class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#941B2B] bg-[#941B2B] px-[23px] py-0 text-[13px] font-semibold text-white transition-[transform,background-color,border-color] duration-[250ms] ease-in-out hover:-translate-y-0.5 hover:border-[#721421] hover:bg-[#721421] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-[#E8C7CC] focus-visible:outline-offset-2 motion-reduce:transition-none"
+                    class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#941B2B] bg-[#941B2B] px-[23px] py-0 text-[13px] font-semibold text-white transition-[transform,background-color,border-color] duration-[250ms] ease-in-out hover:-translate-y-0.5 hover:border-[#941B2B] hover:bg-white hover:text-[#292D32] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-[#E8C7CC] focus-visible:outline-offset-2 motion-reduce:transition-none"
                 >
                     <component
                         :is="actionIcon"
@@ -88,9 +95,9 @@ const emit = defineEmits<{
                 </Link>
 
                 <button
-                    v-else-if="actionLabel"
+                    v-else-if="showAction() && actionLabel"
                     type="button"
-                    class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#941B2B] bg-[#941B2B] px-[23px] py-0 text-[13px] font-semibold text-white transition-[transform,background-color,border-color] duration-[250ms] ease-in-out hover:-translate-y-0.5 hover:border-[#721421] hover:bg-[#721421] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-[#E8C7CC] focus-visible:outline-offset-2 motion-reduce:transition-none"
+                    class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#941B2B] bg-[#941B2B] px-[23px] py-0 text-[13px] font-semibold text-white transition-[transform,background-color,border-color] duration-[250ms] ease-in-out hover:-translate-y-0.5 hover:border-[#941B2B] hover:bg-white hover:text-[#292D32] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-[#E8C7CC] focus-visible:outline-offset-2 motion-reduce:transition-none"
                     @click="emit('action')"
                 >
                     <component

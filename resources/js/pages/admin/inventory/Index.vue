@@ -79,7 +79,7 @@ defineOptions({
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <button
                 type="button"
-                :class="['flex items-center gap-3 rounded-2xl border bg-white p-4 text-left transition', filters.alert === 'low' ? 'border-[#941B2B]' : 'border-[#E3E5E8] hover:border-[#E8C7CC]']"
+                :class="['flex items-center gap-3 rounded-2xl border bg-white p-4 text-left transition', filters.alert === 'low' ? 'border-[#941B2B]' : 'border-[#E3E5E8] hover:border-[#B8BEC6]']"
                 @click="setAlert('low')"
             >
                 <PackageMinus :class="['h-6 w-6', alerts.low ? 'text-[#941B2B]' : 'text-[#858B93]']" />
@@ -90,7 +90,7 @@ defineOptions({
             </button>
             <button
                 type="button"
-                :class="['flex items-center gap-3 rounded-2xl border bg-white p-4 text-left transition', filters.alert === 'expiring' ? 'border-[#941B2B]' : 'border-[#E3E5E8] hover:border-[#E8C7CC]']"
+                :class="['flex items-center gap-3 rounded-2xl border bg-white p-4 text-left transition', filters.alert === 'expiring' ? 'border-[#941B2B]' : 'border-[#E3E5E8] hover:border-[#B8BEC6]']"
                 @click="setAlert('expiring')"
             >
                 <TriangleAlert :class="['h-6 w-6', alerts.expiring ? 'text-[#A64B00]' : 'text-[#858B93]']" />
@@ -143,9 +143,9 @@ defineOptions({
             </template>
 
             <template #table-body>
-                <tr v-for="item in items.data" :key="item.id" class="transition-colors hover:bg-[#FAF3F4]">
+                <tr v-for="item in items.data" :key="item.id" class="transition-colors hover:bg-[#F4F5F6]">
                     <td class="px-5 py-4 sm:px-6">
-                        <Link :href="admin.inventory.show(item.id).url" class="font-semibold text-[#292D32] hover:text-[#941B2B]">{{ item.name }}</Link>
+                        <Link :href="admin.inventory.show(item.id).url" class="font-semibold text-[#292D32] hover:text-[#292D32]">{{ item.name }}</Link>
                         <p class="mt-0.5 text-xs text-[#858B93]">
                             {{ item.code }}<template v-if="item.tracks_expiration"> · con caducidad</template>
                             <span v-if="item.expiring_lots_count" class="font-semibold text-[#A64B00]"> · {{ item.expiring_lots_count }} lote(s) por caducar</span>

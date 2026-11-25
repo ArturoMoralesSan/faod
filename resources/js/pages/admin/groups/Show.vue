@@ -13,6 +13,7 @@ import PageHeader from '@/components/admin/PageHeader.vue';
 import PrintLink from '@/components/admin/PrintLink.vue';
 import WeeklySchedule from '@/components/admin/WeeklySchedule.vue';
 import { confirmDelete, formatTime, fullName, label } from '@/lib/admin';
+import { can } from '@/lib/permissions';
 import admin from '@/routes/admin';
 import type { Days, Option, PersonName, ScheduleBlock, StudentOption, TeacherOption } from '@/types/admin';
 
@@ -34,6 +35,9 @@ interface Section {
     teacher: { id: number; people: PersonName | null } | null;
     schedules: Schedule[];
 }
+
+/** Docentes y alumnos solo consultan el horario. */
+const canSchedule = can('schedules.edit');
 
 const props = defineProps<{
     group: {
@@ -221,19 +225,20 @@ defineOptions({
             :action-icon="Pencil"
             action-label="Editar grupo"
             :action-href="admin.groups.edit(group.id).url"
+            action-permission="groups.edit"
         />
 
         <!-- Horario semanal -->
         <AdminCard
             title="Horario semanal"
-            description="Haz clic en un bloque para editarlo. Se validan choques de aula, docente y grupo."
+            :description="canSchedule ? 'Haz clic en un bloque para editarlo. Se validan choques de aula, docente y grupo.' : 'Clases de la semana.'"
             :icon="Clock"
         >
-            <WeeklySchedule :blocks="blocks" :days="days" clickable @select="onBlockSelected" />
+            <WeeklySchedule :blocks="blocks" :days="days" :clickable="canSchedule" @select="onBlockSelected" />
 
             <template #footer>
                 <div class="flex flex-wrap gap-3">
-                    <AdminButton :icon="Plus" :disabled="!group.class_sections.length" @click="openSchedule()">
+                    <AdminButton v-if="canSchedule" :icon="Plus" :disabled="!group.class_sections.length" @click="openSchedule()">
                         Agregar horario
                     </AdminButton>
                     <PrintLink v-if="blocks.length" :href="admin.groups.schedulePdf(group.id).url" />
@@ -256,12 +261,12 @@ defineOptions({
                             <th class="px-5 py-3 sm:px-6">Materia</th>
                             <th class="px-5 py-3 sm:px-6">Docente</th>
                             <th class="px-5 py-3 sm:px-6">Horas / semana</th>
-                            <th class="px-5 py-3 text-right sm:px-6">Acciones</th>
+                            <th v-if="canSchedule" class="px-5 py-3 text-right sm:px-6">Acciones</th>
                         </tr>
                     </thead>
 
                     <tbody class="divide-y divide-[#E3E5E8]">
-                        <tr v-for="section in group.class_sections" :key="section.id" class="hover:bg-[#FAF3F4]">
+                        <tr v-for="section in group.class_sections" :key="section.id" class="hover:bg-[#F4F5F6]">
                             <td class="px-5 py-3 sm:px-6">
                                 <p class="font-semibold text-[#292D32]">{{ section.subject.name }}</p>
                                 <p class="text-xs text-[#858B93]">{{ section.subject.code }}</p>
@@ -274,15 +279,15 @@ defineOptions({
 
                             <td class="px-5 py-3 text-[#525960] sm:px-6">{{ weeklyHours(section) }}</td>
 
-                            <td class="px-5 py-3 sm:px-6">
+                            <td v-if="canSchedule" class="px-5 py-3 sm:px-6">
                                 <div class="flex justify-end gap-1.5">
-                                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Agregar horario" @click="openSchedule(null, section.id)">
+                                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Agregar horario" @click="openSchedule(null, section.id)">
                                         <Clock class="h-4 w-4" />
                                     </button>
-                                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE] hover:text-[#941B2B]" title="Cambiar docente" @click="openSection(section)">
+                                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4] hover:text-[#292D32]" title="Cambiar docente" @click="openSection(section)">
                                         <Pencil class="h-4 w-4" />
                                     </button>
-                                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Quitar" @click="destroySection(section)">
+                                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Quitar" @click="destroySection(section)">
                                         <Trash2 class="h-4 w-4" />
                                     </button>
                                 </div>
@@ -298,7 +303,7 @@ defineOptions({
                     description="Asigna las materias del plan que cursará este grupo."
                 />
 
-                <template #footer>
+                <template v-if="canSchedule" #footer>
                     <AdminButton variant="secondary" :icon="Plus" :disabled="!availableSubjects.length" @click="openSection()">
                         Asignar materia
                     </AdminButton>
@@ -325,7 +330,7 @@ defineOptions({
 
                 <EmptyState v-else :icon="Users" title="Sin alumnos" description="Agrega alumnos editando el grupo." />
 
-                <template #footer>
+                <template v-if="can('groups.edit')" #footer>
                     <Link :href="admin.groups.edit(group.id).url" class="text-sm font-semibold text-[#941B2B] hover:underline">
                         Administrar alumnos
                     </Link>

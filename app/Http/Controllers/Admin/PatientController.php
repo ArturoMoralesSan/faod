@@ -9,14 +9,15 @@ use App\Models\ClinicalSession;
 use App\Models\Diagnosis;
 use App\Models\OdontogramEntry;
 use App\Models\Patient;
-use App\Models\PatientDiagnosis;
 use App\Models\PatientAllergy;
 use App\Models\PatientCondition;
 use App\Models\PatientConsultation;
+use App\Models\PatientDiagnosis;
 use App\Models\People;
 use App\Models\Specialty;
 use App\Models\StudentProfile;
 use App\Models\TeacherProfile;
+use App\Support\TeacherScope;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,6 +34,7 @@ class PatientController extends Controller
     public function index(Request $request): Response
     {
         $patients = Patient::query()
+            ->tap(fn ($q) => TeacherScope::apply($q, TeacherScope::teacherId($request->user())))
             ->with([
                 'people:id,first_name,middle_name,paternal_surname,maternal_surname,phone,birth_date,curp',
                 'clinic:id,name',
@@ -136,6 +138,8 @@ class PatientController extends Controller
 
     public function show(Patient $patient): Response
     {
+        TeacherScope::ensureVisible($patient, request()->user());
+
         $teacherPeople = 'teacher.people:id,first_name,paternal_surname,maternal_surname';
         $studentPeople = 'student.people:id,first_name,paternal_surname,maternal_surname';
 

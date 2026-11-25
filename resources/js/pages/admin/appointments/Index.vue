@@ -350,16 +350,16 @@ defineOptions({
                 </div>
 
                 <div v-if="view !== 'list'" class="flex items-center gap-1">
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#E3E5E8] hover:bg-[#F9ECEE]" title="Anterior" @click="shift(-1)">
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#E3E5E8] hover:bg-[#F1F2F4]" title="Anterior" @click="shift(-1)">
                         <ChevronLeft class="h-4 w-4" />
                     </button>
-                    <button type="button" class="h-9 rounded-lg border border-[#E3E5E8] px-3 text-xs font-semibold hover:bg-[#F9ECEE]" @click="visit({ date: today })">Hoy</button>
-                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#E3E5E8] hover:bg-[#F9ECEE]" title="Siguiente" @click="shift(1)">
+                    <button type="button" class="h-9 rounded-lg border border-[#E3E5E8] px-3 text-xs font-semibold hover:bg-[#F1F2F4]" @click="visit({ date: today })">Hoy</button>
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#E3E5E8] hover:bg-[#F1F2F4]" title="Siguiente" @click="shift(1)">
                         <ChevronRight class="h-4 w-4" />
                     </button>
                     <span class="ml-2 text-sm font-semibold capitalize text-[#292D32]">{{ navLabel }}</span>
                 </div>
-                <button v-else type="button" class="h-9 rounded-lg border border-[#E3E5E8] px-3 text-xs font-semibold hover:bg-[#F9ECEE]" @click="visit({ view: 'day', date: today })">
+                <button v-else type="button" class="h-9 rounded-lg border border-[#E3E5E8] px-3 text-xs font-semibold hover:bg-[#F1F2F4]" @click="visit({ view: 'day', date: today })">
                     Citas de hoy
                 </button>
             </div>
@@ -386,7 +386,7 @@ defineOptions({
                 <li v-for="a in weekList" :key="a.id">
                     <button
                         type="button"
-                        :class="['flex w-full flex-wrap items-center gap-4 border-l-4 px-5 py-4 text-left transition-colors hover:bg-[#FAF3F4] sm:px-6', BORDERS[a.status], ['cancelada', 'reprogramada'].includes(a.status) ? 'opacity-60' : '']"
+                        :class="['flex w-full flex-wrap items-center gap-4 border-l-4 px-5 py-4 text-left transition-colors hover:bg-[#F4F5F6] sm:px-6', BORDERS[a.status], ['cancelada', 'reprogramada'].includes(a.status) ? 'opacity-60' : '']"
                         @click="openDetail(a)"
                     >
                         <span class="w-24 shrink-0">
@@ -430,7 +430,7 @@ defineOptions({
                         v-for="cell in monthCells"
                         :key="cell.iso"
                         type="button"
-                        :class="['flex min-h-[104px] flex-col gap-1 border-b border-r border-[#E3E5E8] p-1.5 text-left transition-colors hover:bg-[#FAF3F4]', cell.inMonth ? '' : 'bg-[#FAFAFB] text-[#B5BAC1]']"
+                        :class="['flex min-h-[104px] flex-col gap-1 border-b border-r border-[#E3E5E8] p-1.5 text-left transition-colors hover:bg-[#F4F5F6]', cell.inMonth ? '' : 'bg-[#FAFAFB] text-[#B5BAC1]']"
                         :title="`Ver el ${formatDate(cell.iso)}`"
                         @click="visit({ view: 'day', date: cell.iso })"
                     >
@@ -477,7 +477,7 @@ defineOptions({
                     <Link
                         v-if="can.create && day.iso >= today"
                         :href="admin.appointments.create({ query: { date: day.iso, clinic_id: filters.clinic_id || undefined, space_id: filters.space_id || undefined } }).url"
-                        class="rounded-xl border border-dashed border-[#E3E5E8] py-2 text-center text-xs font-semibold text-[#858B93] hover:border-[#941B2B] hover:text-[#941B2B]"
+                        class="rounded-xl border border-dashed border-[#E3E5E8] py-2 text-center text-xs font-semibold text-[#858B93] hover:border-[#B8BEC6] hover:bg-[#F4F5F6] hover:text-[#292D32]"
                     >
                         + Agendar
                     </Link>
@@ -503,7 +503,7 @@ defineOptions({
                 </tr>
             </template>
             <template #table-body>
-                <tr v-for="a in paginated.data" :key="a.id" class="cursor-pointer transition-colors hover:bg-[#FAF3F4]" @click="openDetail(a)">
+                <tr v-for="a in paginated.data" :key="a.id" class="cursor-pointer transition-colors hover:bg-[#F4F5F6]" @click="openDetail(a)">
                     <td class="px-5 py-4 sm:px-6">
                         <p class="font-semibold text-[#292D32]">{{ formatDate(a.date) }}</p>
                         <p class="text-xs text-[#858B93]">{{ formatTime(a.start_time) }}–{{ formatTime(a.end_time) }}</p>

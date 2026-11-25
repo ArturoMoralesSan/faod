@@ -4,6 +4,7 @@ import { Download, FileText, Paperclip, Trash2, Upload } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 import AdminButton from '@/components/admin/AdminButton.vue';
+import { can } from '@/lib/permissions';
 import AdminCard from '@/components/admin/AdminCard.vue';
 import { confirmDelete, formatDate, formatSize } from '@/lib/admin';
 import admin from '@/routes/admin';
@@ -26,6 +27,25 @@ const props = withDefaults(
         description: 'Archivos PDF, imágenes u hojas de cálculo (máx. 20 MB).',
     },
 );
+
+/** Módulo de permisos de cada tipo (igual que Attachment::MODULES). */
+const MODULES: Record<string, string> = {
+    people: 'people',
+    student_profile: 'students',
+    teacher_profile: 'teachers',
+    student_enrollment: 'students',
+    university_registration: 'students',
+    academic_program: 'academic-programs',
+    study_plan: 'study-plans',
+    clinic_incident: 'clinic-incidents',
+    patient: 'patients',
+    expense: 'expenses',
+    academic_activity: 'activities',
+};
+
+const permissionModule = MODULES[props.attachableType] ?? '';
+const canUpload = can(`${permissionModule}.create`) || can(`${permissionModule}.edit`);
+const canRemove = can(`${permissionModule}.edit`) || can(`${permissionModule}.delete`);
 
 const fileInput = ref<HTMLInputElement | null>(null);
 
@@ -93,15 +113,16 @@ const remove = (attachment: Attachment): void => {
 
                 <a
                     :href="admin.attachments.download(attachment.id).url"
-                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#941B2B] transition-colors hover:bg-[#F9ECEE]"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#941B2B] transition-colors hover:bg-[#F1F2F4]"
                     title="Descargar"
                 >
                     <Download class="h-4 w-4" />
                 </a>
 
                 <button
+                    v-if="canRemove"
                     type="button"
-                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#941B2B] transition-colors hover:bg-[#F9ECEE]"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#941B2B] transition-colors hover:bg-[#F1F2F4]"
                     title="Eliminar"
                     @click="remove(attachment)"
                 >
@@ -123,6 +144,7 @@ const remove = (attachment: Attachment): void => {
         />
 
         <AdminButton
+            v-if="canUpload"
             variant="secondary"
             :icon="Upload"
             :loading="form.processing"

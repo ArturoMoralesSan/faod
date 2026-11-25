@@ -64,7 +64,7 @@ defineOptions({
         <AdminCard :padding="false">
             <ul v-if="counts.data.length" class="divide-y divide-[#E3E5E8]">
                 <li v-for="count in counts.data" :key="count.id">
-                    <Link :href="admin.inventoryCounts.show(count.id).url" class="flex items-center justify-between gap-3 px-5 py-4 hover:bg-[#FAF3F4] sm:px-6">
+                    <Link :href="admin.inventoryCounts.show(count.id).url" class="flex items-center justify-between gap-3 px-5 py-4 hover:bg-[#F4F5F6] sm:px-6">
                         <div>
                             <p class="text-sm font-semibold text-[#292D32]">Conteo #{{ count.id }} · {{ count.warehouse.name }}</p>
                             <p class="text-xs text-[#858B93]">

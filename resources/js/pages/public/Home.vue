@@ -75,11 +75,11 @@ const STEPS = [
                 <div class="mt-9 flex flex-wrap gap-3">
                     <Link
                         :href="site.programs().url"
-                        class="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-bold text-[#941B2B] transition-colors hover:bg-[#F9ECEE] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-white"
+                        class="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-bold text-[#941B2B] transition-colors hover:bg-[#F1F2F4] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-white"
                     >
                         Oferta académica <ArrowRight class="size-4" />
                     </Link>
-                    <Link :href="site.clinical().url" class="inline-flex h-12 items-center gap-2 rounded-full border border-white/40 px-6 text-sm font-semibold text-white transition-colors hover:bg-white/10">
+                    <Link :href="site.clinical().url" class="inline-flex h-12 items-center gap-2 rounded-full border border-white/40 px-6 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-[#292D32]">
                         <Stethoscope class="size-4" /> Atención clínica
                     </Link>
                 </div>
@@ -131,7 +131,7 @@ const STEPS = [
                     type="button"
                     role="tab"
                     :aria-selected="activeLevel === group.level"
-                    :class="['rounded-full border px-4 py-2 text-sm font-semibold transition-colors', activeLevel === group.level ? 'border-[#941B2B] bg-[#941B2B] text-white' : 'border-[#E3E5E8] bg-white text-[#525960] hover:border-[#E8C7CC] hover:text-[#941B2B]']"
+                    :class="['rounded-full border px-4 py-2 text-sm font-semibold transition-colors', activeLevel === group.level ? 'border-[#941B2B] bg-[#941B2B] text-white' : 'border-[#E3E5E8] bg-white text-[#525960] hover:border-[#B8BEC6] hover:text-[#292D32]']"
                     @click="activeLevel = group.level"
                 >
                     {{ LEVEL_TITLES[group.level]?.title ?? group.level }}
@@ -194,13 +194,13 @@ const STEPS = [
                 v-for="specialty in specialties"
                 :key="specialty.code"
                 :href="specialty.program_code ? site.programs.show(specialty.program_code).url : undefined"
-                :class="['flex items-start gap-4 rounded-2xl border border-[#E3E5E8] bg-white p-5', specialty.program_code ? 'group transition-colors hover:border-[#E8C7CC]' : '']"
+                :class="['flex items-start gap-4 rounded-2xl border border-[#E3E5E8] bg-white p-5', specialty.program_code ? 'group transition-colors hover:border-[#B8BEC6]' : '']"
             >
                 <span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#941B2B] font-['Manrope',sans-serif] text-sm font-extrabold text-white">
                     {{ specialty.name.charAt(0) }}
                 </span>
                 <span class="min-w-0">
-                    <span class="block font-['Manrope',sans-serif] font-bold text-[#1F2226] group-hover:text-[#941B2B]">{{ specialty.name }}</span>
+                    <span class="block font-['Manrope',sans-serif] font-bold text-[#1F2226] group-hover:text-[#292D32]">{{ specialty.name }}</span>
                     <span v-if="specialty.description" class="mt-1 block line-clamp-2 text-sm text-[#737982]">{{ specialty.description }}</span>
                     <span v-if="specialty.programs" class="mt-1.5 inline-block text-xs font-semibold text-[#941B2B]">{{ specialty.programs }} programa{{ specialty.programs === 1 ? '' : 's' }} de posgrado</span>
                 </span>
@@ -258,12 +258,12 @@ const STEPS = [
 
                 <ul class="mt-8 space-y-3 text-sm">
                     <li>
-                        <a :href="INSTITUTION.map" target="_blank" rel="noopener" class="flex items-start gap-3 text-[#383D43] hover:text-[#941B2B]">
+                        <a :href="INSTITUTION.map" target="_blank" rel="noopener" class="flex items-start gap-3 text-[#383D43] hover:text-[#292D32]">
                             <MapPin class="mt-0.5 size-5 shrink-0 text-[#941B2B]" /> {{ INSTITUTION.address }}
                         </a>
                     </li>
-                    <li><a :href="INSTITUTION.phoneHref" class="flex items-center gap-3 text-[#383D43] hover:text-[#941B2B]"><Phone class="size-5 text-[#941B2B]" /> {{ INSTITUTION.phone }}</a></li>
-                    <li><a :href="`mailto:${INSTITUTION.email}`" class="flex items-center gap-3 text-[#383D43] hover:text-[#941B2B]"><Mail class="size-5 text-[#941B2B]" /> {{ INSTITUTION.email }}</a></li>
+                    <li><a :href="INSTITUTION.phoneHref" class="flex items-center gap-3 text-[#383D43] hover:text-[#292D32]"><Phone class="size-5 text-[#941B2B]" /> {{ INSTITUTION.phone }}</a></li>
+                    <li><a :href="`mailto:${INSTITUTION.email}`" class="flex items-center gap-3 text-[#383D43] hover:text-[#292D32]"><Mail class="size-5 text-[#941B2B]" /> {{ INSTITUTION.email }}</a></li>
                 </ul>
                 <a :href="INSTITUTION.website" target="_blank" rel="noopener" class="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-[#941B2B] hover:underline">
                     Página de la facultad en ujed.mx <ExternalLink class="size-3.5" />

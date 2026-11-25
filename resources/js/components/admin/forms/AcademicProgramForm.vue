@@ -179,7 +179,7 @@ const addTeacher = (): void => {
 
                 <button
                     type="button"
-                    class="mt-7 inline-flex h-10 w-10 items-center justify-center self-start rounded-lg text-[#941B2B] transition-colors hover:bg-[#F9ECEE]"
+                    class="mt-7 inline-flex h-10 w-10 items-center justify-center self-start rounded-lg text-[#941B2B] transition-colors hover:bg-[#F1F2F4]"
                     title="Quitar"
                     @click="form.objectives.splice(index, 1)"
                 >
@@ -247,7 +247,7 @@ const addTeacher = (): void => {
 
                 <button
                     type="button"
-                    class="mt-7 inline-flex h-10 w-10 items-center justify-center self-start rounded-lg text-[#941B2B] transition-colors hover:bg-[#F9ECEE]"
+                    class="mt-7 inline-flex h-10 w-10 items-center justify-center self-start rounded-lg text-[#941B2B] transition-colors hover:bg-[#F1F2F4]"
                     title="Quitar"
                     @click="form.teachers.splice(index, 1)"
                 >

@@ -195,7 +195,7 @@ defineOptions({
         <AdminCard title="Pagos del turno" :padding="false">
             <ul v-if="payments.length" class="divide-y divide-[#E3E5E8]">
                 <li v-for="p in payments" :key="p.id">
-                    <Link :href="admin.finance.payments.show(p.id).url" :class="['flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#FAF3F4] sm:px-6', p.cancelled_at ? 'opacity-50 line-through' : '']">
+                    <Link :href="admin.finance.payments.show(p.id).url" :class="['flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#F4F5F6] sm:px-6', p.cancelled_at ? 'opacity-50 line-through' : '']">
                         <span class="text-sm"><span class="font-semibold">{{ p.folio }}</span> · {{ p.payer_info?.name }} · {{ label(p.method) }}</span>
                         <span class="text-sm font-semibold">{{ formatMoney(p.amount) }}</span>
                     </Link>

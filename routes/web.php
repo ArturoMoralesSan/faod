@@ -2,13 +2,12 @@
 
 use App\Http\Controllers\Admin\AcademicActivityController;
 use App\Http\Controllers\Admin\AcademicGroupController;
-use App\Http\Controllers\Admin\ActivityParticipantController;
 use App\Http\Controllers\Admin\AcademicPeriodController;
 use App\Http\Controllers\Admin\AcademicProgramController;
 use App\Http\Controllers\Admin\ActiveRoleController;
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\ActivityParticipantController;
 use App\Http\Controllers\Admin\AppointmentController;
-use App\Http\Controllers\Admin\Finance;
 use App\Http\Controllers\Admin\AttachmentController;
 use App\Http\Controllers\Admin\CatalogItemController;
 use App\Http\Controllers\Admin\CatalogTypeController;
@@ -22,39 +21,42 @@ use App\Http\Controllers\Admin\CohortController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\DiagnosisController;
-use App\Http\Controllers\Admin\OdontogramController;
-use App\Http\Controllers\Admin\PatientDiagnosisController;
-use App\Http\Controllers\Admin\ProcedureController;
-use App\Http\Controllers\Admin\ReviewController;
-use App\Http\Controllers\Admin\TreatmentItemController;
-use App\Http\Controllers\Admin\TreatmentPlanController;
+use App\Http\Controllers\Admin\Finance;
 use App\Http\Controllers\Admin\InventoryCountController;
 use App\Http\Controllers\Admin\InventoryItemController;
 use App\Http\Controllers\Admin\InventoryMovementController;
 use App\Http\Controllers\Admin\KnowledgeAreaController;
-use App\Http\Controllers\Admin\SupplierController;
-use App\Http\Controllers\Admin\WarehouseController;
+use App\Http\Controllers\Admin\MyScheduleController;
+use App\Http\Controllers\Admin\OdontogramController;
 use App\Http\Controllers\Admin\PatientController;
+use App\Http\Controllers\Admin\PatientDiagnosisController;
 use App\Http\Controllers\Admin\PatientRecordController;
 use App\Http\Controllers\Admin\PeopleController;
-use App\Http\Controllers\Admin\PermissionController;
-use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PeoplePhotoController;
+use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\ProcedureController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SchedulePrintController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SpaceAvailabilityController;
-use App\Http\Controllers\Admin\SchedulePrintController;
 use App\Http\Controllers\Admin\SpaceController;
 use App\Http\Controllers\Admin\SpecialtyController;
 use App\Http\Controllers\Admin\StudentEnrollmentController;
 use App\Http\Controllers\Admin\StudyPlanController;
 use App\Http\Controllers\Admin\StudyPlanItemController;
 use App\Http\Controllers\Admin\SubjectController;
+use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\TeacherRecordController;
+use App\Http\Controllers\Admin\TreatmentItemController;
+use App\Http\Controllers\Admin\TreatmentPlanController;
 use App\Http\Controllers\Admin\UniversityRegistrationController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\WarehouseController;
 use App\Http\Controllers\HomeController;
+use App\Models\Charge;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -166,7 +168,7 @@ Route::middleware(['auth', 'verified'])
                 'update' => 'permission:permissions.edit',
                 'destroy' => 'permission:permissions.delete',
             ]);
-        
+
         // Fotografía (los permisos se validan en el controlador según el perfil).
         Route::get('people/{people}/photo', [PeoplePhotoController::class, 'show'])->name('people.photo.show');
         Route::post('people/{people}/photo', [PeoplePhotoController::class, 'update'])->name('people.photo.update');
@@ -504,7 +506,7 @@ Route::middleware(['auth', 'verified'])
                 ->name('payers.search')
                 ->middleware('permission:charges.view');
             Route::get('accounts/{type}/{id}', [Finance\AccountController::class, 'show'])
-                ->whereIn('type', array_keys(\App\Models\Charge::PAYER_TYPES))
+                ->whereIn('type', array_keys(Charge::PAYER_TYPES))
                 ->whereNumber('id')
                 ->name('accounts.show')
                 ->middleware('permission:charges.view');
@@ -520,7 +522,7 @@ Route::middleware(['auth', 'verified'])
 
             Route::get('payments', [Finance\PaymentController::class, 'index'])->name('payments.index')->middleware('permission:payments.view');
             Route::post('accounts/{type}/{id}/payments', [Finance\PaymentController::class, 'store'])
-                ->whereIn('type', array_keys(\App\Models\Charge::PAYER_TYPES))
+                ->whereIn('type', array_keys(Charge::PAYER_TYPES))
                 ->whereNumber('id')
                 ->name('payments.store')
                 ->middleware('permission:payments.create');
@@ -586,6 +588,14 @@ Route::middleware(['auth', 'verified'])
             ->name('groups.schedule-pdf')
             ->middleware('permission:groups.view');
 
+        // Horario propio del alumno (sin acceso a la gestión de grupos).
+        Route::middleware('permission:my-schedule.view')->group(function () {
+            Route::get('my-schedule', [MyScheduleController::class, 'index'])
+                ->name('my-schedule.index');
+            Route::get('my-schedule/{group}/pdf', [MyScheduleController::class, 'pdf'])
+                ->name('my-schedule.pdf');
+        });
+
         Route::middleware('permission:schedules.edit')->group(function () {
             Route::post('groups/{group}/sections', [ClassSectionController::class, 'store'])
                 ->name('groups.sections.store');
@@ -627,6 +637,14 @@ Route::middleware(['auth', 'verified'])
             ->only(['index', 'store', 'update', 'destroy'])
             ->permissions($crud('knowledge-areas'));
 
+        // Expediente propio del docente (sin acceso a los demás docentes).
+        Route::get('my-record', [TeacherController::class, 'mine'])
+            ->name('my-record')
+            ->middleware('permission:my-record.view');
+        Route::get('my-record/schedule-pdf', [TeacherController::class, 'minePdf'])
+            ->name('my-record.schedule-pdf')
+            ->middleware('permission:my-record.view');
+
         Route::get('teachers', [TeacherController::class, 'index'])
             ->name('teachers.index')
             ->middleware('permission:teachers.view');
@@ -656,7 +674,5 @@ Route::middleware(['auth', 'verified'])
                 ->name('teachers.records.destroy');
         });
     });
-
-
 
 require __DIR__.'/settings.php';

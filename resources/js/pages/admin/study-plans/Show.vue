@@ -14,6 +14,7 @@ import FormTextarea from '@/components/admin/FormTextarea.vue';
 import PageHeader from '@/components/admin/PageHeader.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import { confirmDelete, formatDate } from '@/lib/admin';
+import { can as hasPermission } from '@/lib/permissions';
 import admin from '@/routes/admin';
 import type { Attachment, Option } from '@/types/admin';
 
@@ -39,6 +40,9 @@ interface PlanSubject {
         sort: number;
     };
 }
+
+/** Sin permiso de edición la página es de solo consulta. */
+const canEdit = hasPermission('study-plans.edit');
 
 const props = defineProps<{
     plan: {
@@ -186,6 +190,7 @@ defineOptions({
             :action-icon="Pencil"
             action-label="Editar plan"
             :action-href="admin.studyPlans.edit(plan.id).url"
+            action-permission="study-plans.edit"
         >
             <template #details>
                 <div class="mt-2"><StatusBadge :value="plan.is_active" :label="plan.is_active ? 'Vigente' : 'No vigente'" /></div>
@@ -214,7 +219,7 @@ defineOptions({
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[#E3E5E8]">
-                            <tr v-for="subject in subjectsByPeriod[period]" :key="subject.id" class="hover:bg-[#FAF3F4]">
+                            <tr v-for="subject in subjectsByPeriod[period]" :key="subject.id" class="hover:bg-[#F4F5F6]">
                                 <td class="px-5 py-3 sm:px-6">
                                     <p class="font-semibold text-[#292D32]">{{ subject.name }}</p>
                                     <p class="text-xs text-[#858B93]">{{ subject.code }} · {{ subject.theory_hours }}T / {{ subject.practice_hours }}P</p>
@@ -229,10 +234,10 @@ defineOptions({
                                 </td>
                                 <td class="px-5 py-3 sm:px-6">
                                     <div class="flex justify-end gap-1.5">
-                                        <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE] hover:text-[#941B2B]" title="Editar" @click="openSubject(subject)">
+                                        <button v-if="canEdit" type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4] hover:text-[#292D32]" title="Editar" @click="openSubject(subject)">
                                             <Pencil class="h-4 w-4" />
                                         </button>
-                                        <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Quitar" @click="removeSubject(subject)">
+                                        <button v-if="canEdit" type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Quitar" @click="removeSubject(subject)">
                                             <Trash2 class="h-4 w-4" />
                                         </button>
                                     </div>
@@ -243,8 +248,8 @@ defineOptions({
 
                     <p v-else class="px-5 py-4 text-sm italic text-[#858B93] sm:px-6">Sin asignaturas en este semestre.</p>
 
-                    <template #footer>
-                        <AdminButton variant="secondary" :icon="Plus" :disabled="!availableSubjects.length" @click="openSubject(null, period)">
+                    <template v-if="canEdit" #footer>
+                        <AdminButton v-if="canEdit" variant="secondary" :icon="Plus" :disabled="!availableSubjects.length" @click="openSubject(null, period)">
                             Agregar asignatura
                         </AdminButton>
                     </template>
@@ -263,10 +268,10 @@ defineOptions({
                                 </p>
                             </div>
                             <div class="flex shrink-0 gap-1">
-                                <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE] hover:text-[#941B2B]" title="Editar" @click="openModule(module)">
+                                <button v-if="canEdit" type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4] hover:text-[#292D32]" title="Editar" @click="openModule(module)">
                                     <Pencil class="h-4 w-4" />
                                 </button>
-                                <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Eliminar" @click="destroyModule(module)">
+                                <button v-if="canEdit" type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Eliminar" @click="destroyModule(module)">
                                     <Trash2 class="h-4 w-4" />
                                 </button>
                             </div>
@@ -274,8 +279,8 @@ defineOptions({
                     </ul>
                     <EmptyState v-else :icon="Layers" title="Sin módulos" description="Los módulos son opcionales." />
 
-                    <template #footer>
-                        <AdminButton variant="secondary" :icon="Plus" @click="openModule()">Agregar módulo</AdminButton>
+                    <template v-if="canEdit" #footer>
+                        <AdminButton v-if="canEdit" variant="secondary" :icon="Plus" @click="openModule()">Agregar módulo</AdminButton>
                     </template>
                 </AdminCard>
 

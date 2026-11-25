@@ -10,11 +10,11 @@ use App\Models\Appointment;
 use App\Models\ClassSchedule;
 use App\Models\ClinicalSession;
 use App\Models\ClinicSupervisor;
-use App\Models\TreatmentProcedure;
 use App\Models\KnowledgeArea;
 use App\Models\Specialty;
 use App\Models\TeacherDegree;
 use App\Models\TeacherProfile;
+use App\Models\TreatmentProcedure;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -93,7 +93,29 @@ class TeacherController extends Controller
             'specialties' => Specialty::where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'knowledgeAreas' => KnowledgeArea::where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'participation' => $this->participation($teacher),
+            'canEdit' => $request->user()->can('teachers.edit'),
+            'ownRecord' => $request->routeIs('admin.my-record'),
         ]);
+    }
+
+    /** Expediente del docente que inició sesión (solo lectura). */
+    public function mine(Request $request): Response
+    {
+        $teacher = $request->user()->people?->teacherProfile;
+
+        abort_unless($teacher, 404, 'Tu cuenta no está ligada a un expediente docente.');
+
+        return $this->show($request, $teacher);
+    }
+
+    /** PDF del horario del docente que inició sesión. */
+    public function minePdf(Request $request): \Illuminate\Http\Response
+    {
+        $teacher = $request->user()->people?->teacherProfile;
+
+        abort_unless($teacher, 404);
+
+        return app(SchedulePrintController::class)->teacher($request, $teacher);
     }
 
     /**

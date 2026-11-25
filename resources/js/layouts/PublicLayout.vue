@@ -60,7 +60,7 @@ const year = new Date().getFullYear();
                         v-for="item in NAV"
                         :key="item.href"
                         :href="item.href"
-                        :class="['rounded-full px-3.5 py-2 text-sm font-semibold transition-colors', item.match(current) ? 'bg-[#F9ECEE] text-[#941B2B]' : 'text-[#525960] hover:text-[#941B2B]']"
+                        :class="['rounded-full px-3.5 py-2 text-sm font-semibold transition-colors', item.match(current) ? 'bg-[#F9ECEE] text-[#941B2B]' : 'text-[#525960] hover:text-[#292D32]']"
                         :aria-current="item.match(current) ? 'page' : undefined"
                     >
                         {{ item.label }}
@@ -70,7 +70,7 @@ const year = new Date().getFullYear();
                 <div class="flex items-center gap-2">
                     <Link
                         :href="entry.href"
-                        class="hidden h-10 items-center gap-2 rounded-full bg-[#941B2B] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#721421] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#E8C7CC] sm:inline-flex"
+                        class="hidden h-10 items-center gap-2 rounded-full bg-[#941B2B] px-5 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-[#292D32] hover:ring-1 hover:ring-inset hover:ring-[#941B2B] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[#E8C7CC] sm:inline-flex"
                     >
                         {{ entry.label }} <ArrowRight class="size-4" />
                     </Link>
@@ -108,7 +108,7 @@ const year = new Date().getFullYear();
         </main>
 
         <!-- Pie -->
-        <footer class="bg-[#2A060C] text-white/70">
+        <footer class="bg-[#941B2B] text-white/85">
             <div class="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr]">
                 <div>
                     <div class="flex items-center gap-4">
@@ -125,9 +125,9 @@ const year = new Date().getFullYear();
                     <p class="text-xs font-bold uppercase tracking-[0.16em] text-white">Explora</p>
                     <ul class="mt-4 space-y-2.5 text-sm">
                         <li v-for="item in NAV" :key="item.href">
-                            <Link :href="item.href" class="hover:text-white">{{ item.label }}</Link>
+                            <Link :href="item.href" class="underline-offset-4 hover:text-white hover:underline">{{ item.label }}</Link>
                         </li>
-                        <li><Link :href="entry.href" class="hover:text-white">{{ entry.label }}</Link></li>
+                        <li><Link :href="entry.href" class="underline-offset-4 hover:text-white hover:underline">{{ entry.label }}</Link></li>
                     </ul>
                 </div>
 
@@ -135,17 +135,17 @@ const year = new Date().getFullYear();
                     <p class="text-xs font-bold uppercase tracking-[0.16em] text-white">Contacto</p>
                     <ul class="mt-4 space-y-3 text-sm">
                         <li>
-                            <a :href="INSTITUTION.map" target="_blank" rel="noopener" class="flex gap-2 hover:text-white"><MapPin class="mt-0.5 size-4 shrink-0" /> {{ INSTITUTION.address }}</a>
+                            <a :href="INSTITUTION.map" target="_blank" rel="noopener" class="flex gap-2 underline-offset-4 hover:text-white hover:underline"><MapPin class="mt-0.5 size-4 shrink-0" /> {{ INSTITUTION.address }}</a>
                         </li>
-                        <li><a :href="INSTITUTION.phoneHref" class="flex items-center gap-2 hover:text-white"><Phone class="size-4" /> {{ INSTITUTION.phone }}</a></li>
-                        <li><a :href="`mailto:${INSTITUTION.email}`" class="flex items-center gap-2 hover:text-white"><Mail class="size-4" /> {{ INSTITUTION.email }}</a></li>
+                        <li><a :href="INSTITUTION.phoneHref" class="flex items-center gap-2 underline-offset-4 hover:text-white hover:underline"><Phone class="size-4" /> {{ INSTITUTION.phone }}</a></li>
+                        <li><a :href="`mailto:${INSTITUTION.email}`" class="flex items-center gap-2 underline-offset-4 hover:text-white hover:underline"><Mail class="size-4" /> {{ INSTITUTION.email }}</a></li>
                         <li>
-                            <a :href="INSTITUTION.website" target="_blank" rel="noopener" class="flex items-center gap-2 hover:text-white"><ExternalLink class="size-4" /> Página en ujed.mx</a>
+                            <a :href="INSTITUTION.website" target="_blank" rel="noopener" class="flex items-center gap-2 underline-offset-4 hover:text-white hover:underline"><ExternalLink class="size-4" /> Página en ujed.mx</a>
                         </li>
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-white/10">
+            <div class="border-t border-white/20">
                 <p class="mx-auto max-w-6xl px-4 py-5 text-xs sm:px-6">© {{ year }} {{ INSTITUTION.name }} · {{ INSTITUTION.universityShort }}. {{ INSTITUTION.system }}.</p>
             </div>
         </footer>

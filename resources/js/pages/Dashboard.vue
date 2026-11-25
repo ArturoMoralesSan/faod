@@ -179,7 +179,7 @@ const hasLists = [props.todayAppointments, props.todaySessions, props.openIncide
                 </div>
                 <ul v-if="todayAppointments.length" class="divide-y divide-[#E3E5E8]">
                     <li v-for="a in todayAppointments" :key="a.id">
-                        <Link :href="admin.appointments.index().url" class="flex items-center justify-between gap-2 py-2.5 hover:text-[#941B2B]">
+                        <Link :href="admin.appointments.index().url" class="flex items-center justify-between gap-2 py-2.5 hover:text-[#292D32]">
                             <div class="min-w-0">
                                 <p class="text-sm font-semibold">{{ formatTime(a.start_time) }} · {{ fullName(a.patient.people) }}</p>
                                 <p class="truncate text-xs text-[#858B93]">{{ [a.clinic.name, a.space?.code, a.reason].filter(Boolean).join(' · ') }}</p>
@@ -198,7 +198,7 @@ const hasLists = [props.todayAppointments, props.todaySessions, props.openIncide
                 </div>
                 <ul v-if="todaySessions.length" class="divide-y divide-[#E3E5E8]">
                     <li v-for="session in todaySessions" :key="session.id">
-                        <Link :href="admin.clinicalSessions.show(session.id).url" class="flex items-center justify-between gap-2 py-2.5 hover:text-[#941B2B]">
+                        <Link :href="admin.clinicalSessions.show(session.id).url" class="flex items-center justify-between gap-2 py-2.5 hover:text-[#292D32]">
                             <div class="min-w-0">
                                 <p class="text-sm font-semibold">{{ formatTime(session.start_time) }}–{{ formatTime(session.end_time) }} · {{ session.clinic.name }}</p>
                                 <p class="truncate text-xs text-[#858B93]">
@@ -219,7 +219,7 @@ const hasLists = [props.todayAppointments, props.todaySessions, props.openIncide
                 </div>
                 <ul v-if="openIncidents.length" class="divide-y divide-[#E3E5E8]">
                     <li v-for="incident in openIncidents" :key="incident.id">
-                        <Link :href="admin.clinicIncidents.show(incident.id).url" class="flex items-center justify-between gap-2 py-2.5 hover:text-[#941B2B]">
+                        <Link :href="admin.clinicIncidents.show(incident.id).url" class="flex items-center justify-between gap-2 py-2.5 hover:text-[#292D32]">
                             <div class="min-w-0">
                                 <p class="truncate text-sm font-semibold">{{ incident.title }}</p>
                                 <p class="text-xs text-[#858B93]">{{ incident.clinic.name }} · {{ formatDateTime(incident.occurred_at) }}</p>
@@ -238,7 +238,7 @@ const hasLists = [props.todayAppointments, props.todaySessions, props.openIncide
                 </div>
                 <ul v-if="maintenanceDue.length" class="divide-y divide-[#E3E5E8]">
                     <li v-for="item in maintenanceDue" :key="item.id">
-                        <Link :href="admin.clinics.show(item.clinic.id).url" class="flex items-center justify-between gap-2 py-2.5 hover:text-[#941B2B]">
+                        <Link :href="admin.clinics.show(item.clinic.id).url" class="flex items-center justify-between gap-2 py-2.5 hover:text-[#292D32]">
                             <div class="min-w-0">
                                 <p class="truncate text-sm font-semibold">{{ item.name }}</p>
                                 <p class="text-xs text-[#858B93]">{{ item.code }} · {{ item.clinic.name }}</p>

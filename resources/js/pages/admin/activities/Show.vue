@@ -15,6 +15,7 @@ import PageHeader from '@/components/admin/PageHeader.vue';
 import SearchSelect from '@/components/admin/SearchSelect.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import { confirmDelete, enumOptions, formatDate, formatMoney, fullName, label } from '@/lib/admin';
+import { can as hasPermission } from '@/lib/permissions';
 import admin from '@/routes/admin';
 import type { Attachment, PersonName, SelectOption, TeacherOption } from '@/types/admin';
 
@@ -32,6 +33,9 @@ interface Participant {
         teacher_profile: { id: number } | null;
     };
 }
+
+/** Sin permiso de edición la página es de solo consulta. */
+const canEdit = hasPermission('activities.edit');
 
 const props = defineProps<{
     activity: {
@@ -179,6 +183,7 @@ defineOptions({
             :action-icon="Pencil"
             action-label="Editar actividad"
             :action-href="admin.activities.edit(activity.id).url"
+            action-permission="activities.edit"
         >
             <template #details>
                 <div class="mt-2"><StatusBadge :value="activity.status" /></div>
@@ -219,14 +224,14 @@ defineOptions({
                             <p class="text-sm font-semibold text-[#292D32]">{{ i.teacher ? fullName(i.teacher.people) : i.name }}</p>
                             <p class="text-xs text-[#858B93]">{{ i.role }}{{ i.teacher ? ' · docente de la facultad' : ' · externo' }}</p>
                         </div>
-                        <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Quitar" @click="removeInstructor(i.id)">
+                        <button v-if="canEdit" type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Quitar" @click="removeInstructor(i.id)">
                             <Trash2 class="h-4 w-4" />
                         </button>
                     </li>
                 </ul>
                 <p v-else class="text-sm italic text-[#858B93]">Sin ponentes registrados.</p>
-                <template #footer>
-                    <button type="button" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#941B2B] hover:underline" @click="instructorOpen = true">
+                <template v-if="canEdit" #footer>
+                    <button v-if="canEdit" type="button" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#941B2B] hover:underline" @click="instructorOpen = true">
                         <Plus class="h-4 w-4" /> Agregar ponente
                     </button>
                 </template>
@@ -235,10 +240,10 @@ defineOptions({
 
         <AdminCard title="Participantes" :description="`${active} inscrito(s)`" :icon="Users" :padding="false">
             <div class="flex flex-wrap items-center gap-2 border-b border-[#E3E5E8] px-5 py-3 sm:px-6">
-                <AdminButton :icon="UserPlus" @click="openEnroll">Inscribir</AdminButton>
-                <button v-if="form.participants.length" type="button" class="text-xs font-semibold text-[#941B2B] hover:underline" @click="markAll('acreditado')">Marcar todos como acreditados</button>
+                <AdminButton v-if="canEdit" :icon="UserPlus" @click="openEnroll">Inscribir</AdminButton>
+                <button v-if="canEdit && (form.participants.length)" type="button" class="text-xs font-semibold text-[#941B2B] hover:underline" @click="markAll('acreditado')">Marcar todos como acreditados</button>
                 <span class="flex-1" />
-                <AdminButton v-if="activity.issues_certificate && form.participants.length" variant="secondary" :icon="Award" @click="issue">Emitir constancias</AdminButton>
+                <AdminButton v-if="canEdit && (activity.issues_certificate && form.participants.length)" variant="secondary" :icon="Award" @click="issue">Emitir constancias</AdminButton>
             </div>
 
             <div v-if="form.participants.length" class="overflow-x-auto">
@@ -274,8 +279,8 @@ defineOptions({
                                     <select v-model="row.payment_status" class="form-select h-9 min-w-32 py-1 text-sm">
                                         <option v-for="s in paymentStatuses" :key="s" :value="s">{{ label(s) }}</option>
                                     </select>
-                                    <button
-                                        v-if="canCharge && byId(row.id).payment_status === 'pendiente'"
+                                    <button v-if="canEdit && (canCharge && byId(row.id).payment_status === 'pendiente')"
+                                       
                                         type="button"
                                         class="inline-flex h-9 items-center gap-1 rounded-lg border border-[#BFE3CC] bg-[#E2F3E8] px-2 text-xs font-semibold text-[#187744] hover:border-[#187744]"
                                         title="Registrar el pago y emitir recibo"
@@ -296,7 +301,7 @@ defineOptions({
                                 <span v-else class="text-xs text-[#858B93]">—</span>
                             </td>
                             <td class="px-4 py-2 text-right">
-                                <button v-if="!byId(row.id).certificate_folio" type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Quitar" @click="remove(row.id)">
+                                <button v-if="canEdit && (!byId(row.id).certificate_folio)" type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Quitar" @click="remove(row.id)">
                                     <Trash2 class="h-4 w-4" />
                                 </button>
                             </td>
@@ -307,7 +312,7 @@ defineOptions({
             <p v-else class="px-5 py-4 text-sm italic text-[#858B93]">Sin participantes inscritos.</p>
 
             <template v-if="form.participants.length" #footer>
-                <AdminButton :icon="Save" :loading="form.processing" loading-text="Guardando..." @click="save">Guardar cambios</AdminButton>
+                <AdminButton v-if="canEdit" :icon="Save" :loading="form.processing" loading-text="Guardando..." @click="save">Guardar cambios</AdminButton>
             </template>
         </AdminCard>
 

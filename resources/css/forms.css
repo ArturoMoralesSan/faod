@@ -254,20 +254,20 @@
 
     .form-button-primary {
         @apply border-[#941B2B] bg-[#941B2B] text-white
-               hover:border-[#721421] hover:bg-[#721421]
+               hover:border-[#941B2B] hover:bg-white hover:text-[#292D32]
                active:translate-y-0;
     }
 
     .form-button-secondary {
         @apply border-[#E3E5E8] bg-white
                text-[#383D43]
-               hover:border-[#941B2B] hover:bg-[#F9ECEE]
-               hover:text-[#941B2B] active:translate-y-0;
+               hover:border-[#B8BEC6] hover:bg-[#F1F2F4]
+               hover:text-[#292D32] active:translate-y-0;
     }
 
     .form-button-danger {
         @apply border-[#941B2B] bg-[#941B2B] text-white
-               hover:border-[#721421] hover:bg-[#721421]
+               hover:border-[#941B2B] hover:bg-white hover:text-[#292D32]
                active:translate-y-0;
     }
 

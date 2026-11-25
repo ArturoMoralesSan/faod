@@ -115,7 +115,7 @@ const hours = (s: Subject) => [s.theory_hours ? `${s.theory_hours} h teoría` : 
                     <div v-for="period in plan.periods" :key="period.period" class="overflow-hidden rounded-2xl border border-[#E3E5E8] bg-white">
                         <button
                             type="button"
-                            class="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition-colors hover:bg-[#FAF3F4]"
+                            class="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition-colors hover:bg-[#F4F5F6]"
                             :aria-expanded="openPeriod === period.period"
                             @click="openPeriod = openPeriod === period.period ? null : period.period"
                         >
@@ -159,11 +159,11 @@ const hours = (s: Subject) => [s.theory_hours ? `${s.theory_hours} h teoría` : 
                 <p class="mt-2 text-sm leading-6 text-white/80">Solicita informes sobre la convocatoria, los requisitos de ingreso y las fechas de inscripción.</p>
                 <a
                     :href="`mailto:${INSTITUTION.email}?subject=${encodeURIComponent(`Informes: ${program.name}`)}`"
-                    class="mt-5 flex h-11 items-center justify-center gap-2 rounded-full bg-white text-sm font-bold text-[#941B2B] hover:bg-[#F9ECEE]"
+                    class="mt-5 flex h-11 items-center justify-center gap-2 rounded-full bg-white text-sm font-bold text-[#941B2B] hover:bg-[#F1F2F4]"
                 >
                     <Mail class="size-4" /> Solicitar informes
                 </a>
-                <a :href="INSTITUTION.phoneHref" class="mt-2 flex h-11 items-center justify-center gap-2 rounded-full border border-white/40 text-sm font-semibold hover:bg-white/10">
+                <a :href="INSTITUTION.phoneHref" class="mt-2 flex h-11 items-center justify-center gap-2 rounded-full border border-white/40 text-sm font-semibold hover:bg-white hover:text-[#292D32]">
                     <Phone class="size-4" /> {{ INSTITUTION.phone }}
                 </a>
             </div>

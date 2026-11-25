@@ -78,6 +78,10 @@ const props = defineProps<{
         recentSessions: { id: number; date: string; start_time: string; end_time: string; topic: string | null; status: string; students_count: number; clinic: Option | null; subject: Option | null }[];
         stats: { sessions: number; sessions_done: number; appointments: number; procedures_validated: number; activities: number };
     };
+    /** Sin permiso de edición (p. ej. el docente viendo su expediente) es de solo consulta. */
+    canEdit: boolean;
+    /** Se abrió desde "Mi expediente". */
+    ownRecord: boolean;
 }>();
 
 const dayOptions = computed(() =>
@@ -86,9 +90,15 @@ const dayOptions = computed(() =>
 
 const period = ref(props.academicPeriodId ? String(props.academicPeriodId) : '');
 
+const schedulePdfUrl = computed(() => {
+    const query = { query: { academic_period_id: props.academicPeriodId ?? undefined } };
+
+    return props.ownRecord ? admin.myRecord.schedulePdf(query).url : admin.teachers.schedulePdf(props.teacher.id, query).url;
+});
+
 const changePeriod = (): void => {
     router.get(
-        admin.teachers.show(props.teacher.id).url,
+        props.ownRecord ? admin.myRecord().url : admin.teachers.show(props.teacher.id).url,
         { academic_period_id: period.value || undefined },
         { preserveState: true, preserveScroll: true, replace: true },
     );
@@ -236,8 +246,8 @@ defineOptions({
             section="Docentes"
             :icon="UserRoundCheck"
             :action-icon="Pencil"
-            action-label="Editar datos personales"
-            :action-href="admin.people.edit(teacher.people.id).url"
+            :action-label="canEdit ? 'Editar datos personales' : ''"
+            :action-href="canEdit ? admin.people.edit(teacher.people.id).url : ''"
         >
             <template #details>
                 <div class="mt-2"><StatusBadge :value="teacher.status" /></div>
@@ -267,7 +277,7 @@ defineOptions({
                     <WeeklySchedule :blocks="classBlocks" :days="days" />
 
                     <template v-if="classBlocks.length" #footer>
-                        <PrintLink :href="admin.teachers.schedulePdf(teacher.id, { query: { academic_period_id: academicPeriodId ?? undefined } }).url" />
+                        <PrintLink :href="schedulePdfUrl" />
                     </template>
                 </AdminCard>
 
@@ -292,7 +302,7 @@ defineOptions({
                                 <li v-for="a in participation.activities" :key="a.id">
                                     <Link :href="admin.activities.show(a.id).url" class="group flex items-center justify-between gap-2">
                                         <span class="min-w-0">
-                                            <span class="block truncate text-sm font-semibold text-[#292D32] group-hover:text-[#941B2B]">{{ a.title }}</span>
+                                            <span class="block truncate text-sm font-semibold text-[#292D32] group-hover:text-[#292D32]">{{ a.title }}</span>
                                             <span class="block text-xs text-[#858B93]">{{ [label(a.type), formatDate(a.starts_at), a.role].filter(Boolean).join(' · ') }}</span>
                                         </span>
                                         <StatusBadge :value="a.status" />
@@ -314,7 +324,7 @@ defineOptions({
                                 <li v-for="s in participation.recentSessions" :key="s.id">
                                     <Link :href="admin.clinicalSessions.show(s.id).url" class="group flex items-center justify-between gap-2">
                                         <span class="min-w-0">
-                                            <span class="block truncate text-sm font-semibold text-[#292D32] group-hover:text-[#941B2B]">{{ formatDate(s.date) }} · {{ formatTime(s.start_time) }}–{{ formatTime(s.end_time) }}</span>
+                                            <span class="block truncate text-sm font-semibold text-[#292D32] group-hover:text-[#292D32]">{{ formatDate(s.date) }} · {{ formatTime(s.start_time) }}–{{ formatTime(s.end_time) }}</span>
                                             <span class="block truncate text-xs text-[#858B93]">{{ [s.clinic?.name, s.subject?.name ?? s.topic, `${s.students_count} alumno(s)`].filter(Boolean).join(' · ') }}</span>
                                         </span>
                                         <StatusBadge :value="s.status" />
@@ -336,6 +346,7 @@ defineOptions({
                             subtitle: `${label(d.level)} · ${d.institution}`,
                             meta: [d.license_number ? `Cédula ${d.license_number}` : null, d.obtained_at ? formatDate(d.obtained_at) : null].filter(Boolean).join(' · '),
                         }))"
+                        :readonly="!canEdit"
                         empty-text="Sin grados registrados."
                         add-label="Agregar grado"
                         @add="openRecord('degrees')"
@@ -352,6 +363,7 @@ defineOptions({
                             subtitle: c.issuer ?? undefined,
                             meta: range(c.issued_at, c.expires_at),
                         }))"
+                        :readonly="!canEdit"
                         empty-text="Sin certificaciones registradas."
                         add-label="Agregar certificación"
                         @add="openRecord('certifications')"
@@ -368,6 +380,7 @@ defineOptions({
                             subtitle: e.institution,
                             meta: range(e.started_at, e.ended_at),
                         }))"
+                        :readonly="!canEdit"
                         empty-text="Sin experiencia registrada."
                         add-label="Agregar experiencia"
                         @add="openRecord('experiences')"
@@ -383,6 +396,7 @@ defineOptions({
                             title: `${days[a.day_of_week]} ${formatTime(a.start_time)} – ${formatTime(a.end_time)}`,
                             subtitle: a.academic_period?.name ?? 'Todos los periodos',
                         }))"
+                        :readonly="!canEdit"
                         empty-text="Sin horarios de disponibilidad."
                         add-label="Agregar horario"
                         @add="openRecord('availabilities')"
@@ -404,8 +418,9 @@ defineOptions({
                                 'rounded-full border px-3 py-1.5 text-xs font-semibold transition',
                                 areasForm.specialty_ids.includes(specialty.id)
                                     ? 'border-[#941B2B] bg-[#941B2B] text-white'
-                                    : 'border-[#E3E5E8] bg-white text-[#383D43] hover:border-[#E8C7CC]',
+                                    : 'border-[#E3E5E8] bg-white text-[#383D43] hover:border-[#B8BEC6]',
                             ]"
+                                                        :disabled="!canEdit"
                             @click="toggle(areasForm.specialty_ids, specialty.id)"
                         >
                             {{ specialty.name }}
@@ -422,8 +437,9 @@ defineOptions({
                                 'rounded-full border px-3 py-1.5 text-xs font-semibold transition',
                                 areasForm.knowledge_area_ids.includes(area.id)
                                     ? 'border-[#941B2B] bg-[#941B2B] text-white'
-                                    : 'border-[#E3E5E8] bg-white text-[#383D43] hover:border-[#E8C7CC]',
+                                    : 'border-[#E3E5E8] bg-white text-[#383D43] hover:border-[#B8BEC6]',
                             ]"
+                                                        :disabled="!canEdit"
                             @click="toggle(areasForm.knowledge_area_ids, area.id)"
                         >
                             {{ area.name }}
@@ -433,7 +449,7 @@ defineOptions({
                         </Link>
                     </div>
 
-                    <template #footer>
+                    <template v-if="canEdit" #footer>
                         <AdminButton :icon="Save" :loading="areasForm.processing" loading-text="Guardando..." @click="saveAreas">
                             Guardar
                         </AdminButton>
@@ -444,7 +460,7 @@ defineOptions({
                     <ul v-if="teacher.academic_programs.length" class="flex flex-col gap-3">
                         <li v-for="program in teacher.academic_programs" :key="`${program.id}-${program.pivot.role}`">
                             <Link :href="admin.academicPrograms.show(program.id).url" class="group block">
-                                <p class="text-sm font-semibold text-[#292D32] group-hover:text-[#941B2B]">{{ program.name }}</p>
+                                <p class="text-sm font-semibold text-[#292D32] group-hover:text-[#292D32]">{{ program.name }}</p>
                                 <p class="text-xs text-[#858B93]">{{ label(program.pivot.role) }}</p>
                             </Link>
                         </li>

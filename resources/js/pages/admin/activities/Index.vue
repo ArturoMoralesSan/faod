@@ -65,6 +65,7 @@ defineOptions({
             :action-icon="Plus"
             action-label="Nueva actividad"
             :action-href="admin.activities.create().url"
+            action-permission="activities.create"
         />
 
         <DataTable
@@ -92,9 +93,9 @@ defineOptions({
             </template>
 
             <template #table-body>
-                <tr v-for="a in activities.data" :key="a.id" class="transition-colors hover:bg-[#FAF3F4]">
+                <tr v-for="a in activities.data" :key="a.id" class="transition-colors hover:bg-[#F4F5F6]">
                     <td class="px-5 py-4 sm:px-6">
-                        <Link :href="admin.activities.show(a.id).url" class="font-semibold text-[#292D32] hover:text-[#941B2B]">{{ a.title }}</Link>
+                        <Link :href="admin.activities.show(a.id).url" class="font-semibold text-[#292D32] hover:text-[#292D32]">{{ a.title }}</Link>
                         <p class="text-xs text-[#858B93]">
                             {{ [label(a.type), label(a.modality), a.coordinator ? fullName(a.coordinator.people) : null, a.cost ? formatMoney(a.cost) : null].filter(Boolean).join(' · ') }}
                         </p>

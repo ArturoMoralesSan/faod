@@ -174,7 +174,7 @@ defineOptions({
             </template>
 
             <template #table-body>
-                <tr v-for="c in charges.data" :key="c.id" class="transition-colors hover:bg-[#FAF3F4]">
+                <tr v-for="c in charges.data" :key="c.id" class="transition-colors hover:bg-[#F4F5F6]">
                     <td class="px-5 py-4 sm:px-6">
                         <p class="font-semibold text-[#292D32]">{{ c.description }}</p>
                         <p class="text-xs text-[#858B93]">
@@ -194,10 +194,10 @@ defineOptions({
                     <td class="px-5 py-4 sm:px-6"><StatusBadge :value="c.status" /></td>
                     <td class="px-5 py-4 sm:px-6">
                         <div v-if="isOpenCharge(c)" class="flex justify-end gap-1">
-                            <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE]" title="Descuento" @click="openAction(c, 'discount')">
+                            <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4]" title="Descuento" @click="openAction(c, 'discount')">
                                 <BadgePercent class="h-4 w-4" />
                             </button>
-                            <button v-if="!c.paid_amount" type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Cancelar" @click="openAction(c, 'cancel')">
+                            <button v-if="!c.paid_amount" type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Cancelar" @click="openAction(c, 'cancel')">
                                 <Ban class="h-4 w-4" />
                             </button>
                         </div>

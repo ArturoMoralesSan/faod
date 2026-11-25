@@ -150,7 +150,7 @@ defineOptions({
 
             <template #table-body>
                 <template v-for="log in logs.data" :key="log.id">
-                    <tr class="transition-colors hover:bg-[#FAF3F4]">
+                    <tr class="transition-colors hover:bg-[#F4F5F6]">
                         <td class="whitespace-nowrap px-5 py-4 text-[#525960] sm:px-6">{{ formatDateTime(log.created_at) }}</td>
                         <td class="px-5 py-4 sm:px-6">
                             <p class="text-[#292D32]">{{ log.user?.name ?? 'Sistema' }}</p>
@@ -163,7 +163,7 @@ defineOptions({
                         </td>
                         <td class="px-5 py-4 sm:px-6">
                             <p class="font-semibold text-[#292D32]">{{ log.subject_label ?? `#${log.subject_id}` }}</p>
-                            <button type="button" class="text-xs text-[#858B93] hover:text-[#941B2B] hover:underline" title="Ver todo el historial de este registro" @click="showRecord(log)">
+                            <button type="button" class="text-xs text-[#858B93] hover:text-[#292D32] hover:underline" title="Ver todo el historial de este registro" @click="showRecord(log)">
                                 {{ log.subject_name }} #{{ log.subject_id }}
                             </button>
                         </td>
@@ -171,7 +171,7 @@ defineOptions({
                             <button
                                 v-if="log.changes"
                                 type="button"
-                                class="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-[#941B2B] hover:bg-[#F9ECEE]"
+                                class="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-[#941B2B] hover:bg-[#F1F2F4]"
                                 :aria-expanded="expanded.has(log.id)"
                                 @click="toggle(log.id)"
                             >

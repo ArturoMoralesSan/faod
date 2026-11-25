@@ -234,7 +234,7 @@ defineOptions({
                 <tr
                     v-for="user in users.data"
                     :key="user.id"
-                    class="transition-colors hover:bg-[#FAF3F4]"
+                    class="transition-colors hover:bg-[#F4F5F6]"
                 >
                     <td class="px-5 py-4 sm:px-6">
                         <div class="flex items-center gap-3">
@@ -297,7 +297,7 @@ defineOptions({
                         <button
                             type="button"
                             title="Enviar enlace para restablecer contraseña"
-                            class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#737982] transition-colors hover:bg-[#F9ECEE] hover:text-[#941B2B]"
+                            class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#737982] transition-colors hover:bg-[#F1F2F4] hover:text-[#292D32]"
                             @click="sendReset(user)"
                         >
                             <KeyRound :size="16" :stroke-width="1.8" />
@@ -307,7 +307,7 @@ defineOptions({
                             type="button"
                             :title="user.is_active ? 'Desactivar cuenta' : 'Activar cuenta'"
                             :class="[
-                                'inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-[#F9ECEE]',
+                                'inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-[#F1F2F4]',
                                 user.is_active ? 'text-[#187744]' : 'text-[#941B2B]',
                             ]"
                             @click="toggleActive(user)"

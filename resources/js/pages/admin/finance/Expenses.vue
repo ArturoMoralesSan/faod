@@ -208,7 +208,7 @@ defineOptions({
             </template>
 
             <template #table-body>
-                <tr v-for="e in expenses.data" :key="e.id" class="transition-colors hover:bg-[#FAF3F4]">
+                <tr v-for="e in expenses.data" :key="e.id" class="transition-colors hover:bg-[#F4F5F6]">
                     <td class="px-5 py-4 sm:px-6">
                         <p class="font-semibold text-[#292D32]">{{ e.description }}</p>
                         <p class="text-xs text-[#858B93]">{{ [categoryLabel(e.category), formatDateTime(e.paid_at), e.clinic?.name, e.space ? `Lab. ${e.space.name}` : null].filter(Boolean).join(' · ') }}</p>
@@ -224,13 +224,13 @@ defineOptions({
                     <td class="px-5 py-4 text-right font-semibold text-[#292D32] sm:px-6">{{ formatMoney(e.amount) }}</td>
                     <td class="px-5 py-4 sm:px-6">
                         <div class="flex justify-end gap-1">
-                            <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE]" title="Adjuntar comprobante" @click="pickFile(e)">
+                            <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4]" title="Adjuntar comprobante" @click="pickFile(e)">
                                 <Paperclip class="h-4 w-4" />
                             </button>
-                            <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE]" title="Editar" @click="open(e)">
+                            <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4]" title="Editar" @click="open(e)">
                                 <Pencil class="h-4 w-4" />
                             </button>
-                            <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Eliminar" @click="destroy(e)">
+                            <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Eliminar" @click="destroy(e)">
                                 <Trash2 class="h-4 w-4" />
                             </button>
                         </div>

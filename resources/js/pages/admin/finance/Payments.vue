@@ -108,13 +108,13 @@ defineOptions({
             </template>
 
             <template #table-body>
-                <tr v-for="p in payments.data" :key="p.id" class="transition-colors hover:bg-[#FAF3F4]">
+                <tr v-for="p in payments.data" :key="p.id" class="transition-colors hover:bg-[#F4F5F6]">
                     <td class="px-5 py-4 sm:px-6">
                         <Link :href="admin.finance.payments.show(p.id).url" class="font-semibold text-[#941B2B] hover:underline">{{ p.folio }}</Link>
                         <p class="text-xs text-[#858B93]">{{ formatDateTime(p.paid_at) }}<template v-if="p.receiver"> · {{ p.receiver.name }}</template></p>
                     </td>
                     <td class="px-5 py-4 sm:px-6">
-                        <Link v-if="p.payer_info?.url" :href="p.payer_info.url" class="font-semibold text-[#292D32] hover:text-[#941B2B]">{{ p.payer_info.name }}</Link>
+                        <Link v-if="p.payer_info?.url" :href="p.payer_info.url" class="font-semibold text-[#292D32] hover:text-[#292D32]">{{ p.payer_info.name }}</Link>
                         <p v-else-if="p.payer_info" class="font-semibold text-[#292D32]">{{ p.payer_info.name }}</p>
                         <p v-if="p.payer_info" class="text-xs text-[#858B93]">{{ [label(p.payer_info.type), p.payer_info.code].filter(Boolean).join(' · ') }}</p>
                     </td>

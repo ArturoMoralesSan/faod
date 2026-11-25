@@ -76,7 +76,7 @@ defineOptions({
                     <li v-for="enrollment in cohort.enrollments" :key="enrollment.id">
                         <Link
                             :href="admin.students.show(enrollment.id).url"
-                            class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#FAF3F4] sm:px-6"
+                            class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#F4F5F6] sm:px-6"
                         >
                             <div>
                                 <p class="text-sm font-semibold text-[#292D32]">{{ fullName(enrollment.student.people) }}</p>
@@ -94,7 +94,7 @@ defineOptions({
                     <li v-for="group in cohort.groups" :key="group.id">
                         <Link
                             :href="admin.groups.show(group.id).url"
-                            class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#FAF3F4] sm:px-6"
+                            class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#F4F5F6] sm:px-6"
                         >
                             <div>
                                 <p class="text-sm font-semibold text-[#292D32]">Grupo {{ group.code }}</p>

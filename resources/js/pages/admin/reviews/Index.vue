@@ -51,7 +51,7 @@ const openReview = (item: Item): void => {
 
 const tabClass = (active: boolean) => [
     'rounded-lg px-3 py-1.5 text-xs font-semibold transition',
-    active ? 'bg-[#941B2B] text-white' : 'text-[#525960] hover:bg-[#F9ECEE]',
+    active ? 'bg-[#941B2B] text-white' : 'text-[#525960] hover:bg-[#F1F2F4]',
 ];
 
 defineOptions({
@@ -99,7 +99,7 @@ defineOptions({
 
                     <div class="flex items-center gap-2">
                         <StatusBadge :value="item.status" />
-                        <Link :href="item.url" class="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-[#525960] hover:bg-[#F9ECEE] hover:text-[#941B2B]">
+                        <Link :href="item.url" class="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-[#525960] hover:bg-[#F1F2F4] hover:text-[#292D32]">
                             <ExternalLink class="h-4 w-4" /> Ver expediente
                         </Link>
                         <button

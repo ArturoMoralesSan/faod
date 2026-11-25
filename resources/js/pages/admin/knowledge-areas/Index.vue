@@ -108,7 +108,7 @@ defineOptions({
                 </thead>
 
                 <tbody class="divide-y divide-[#E3E5E8]">
-                    <tr v-for="area in areas" :key="area.id" class="hover:bg-[#FAF3F4]">
+                    <tr v-for="area in areas" :key="area.id" class="hover:bg-[#F4F5F6]">
                         <td class="px-5 py-4 font-semibold text-[#292D32] sm:px-6">{{ area.name }}</td>
                         <td class="px-5 py-4 text-[#525960] sm:px-6">{{ area.teachers_count }}</td>
                         <td class="px-5 py-4 sm:px-6"><StatusBadge :value="area.is_active" /></td>
@@ -120,7 +120,7 @@ defineOptions({
 
                                 <button
                                     type="button"
-                                    class="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#E8C7CC] text-[#941B2B] transition-colors hover:bg-[#721421] hover:text-white"
+                                    class="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#E8C7CC] text-[#941B2B] transition-colors hover:bg-[#F1F2F4] hover:text-[#292D32]"
                                     title="Eliminar"
                                     @click="destroy(area)"
                                 >

@@ -230,7 +230,7 @@ const removeEntry = (id: number): void => {
                             :key="tooth"
                             type="button"
                             :disabled="!canEdit && !entries.some((e) => e.tooth === String(tooth))"
-                            :class="['flex flex-col items-center gap-1 rounded-lg p-1 transition', rowIndex === 1 ? 'flex-col-reverse' : '', 'hover:bg-[#F9ECEE]']"
+                            :class="['flex flex-col items-center gap-1 rounded-lg p-1 transition', rowIndex === 1 ? 'flex-col-reverse' : '', 'hover:bg-[#F1F2F4]']"
                             :title="`Diente ${tooth}`"
                             @click="openTooth(tooth)"
                         >
@@ -328,7 +328,7 @@ const removeEntry = (id: number): void => {
                         <button
                             v-if="canEdit"
                             type="button"
-                            class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]"
+                            class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]"
                             title="Eliminar registro"
                             @click="removeEntry(entry.id)"
                         >

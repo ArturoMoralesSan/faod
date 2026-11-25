@@ -72,11 +72,12 @@ defineOptions({
             :action-icon="Pencil"
             action-label="Editar programa"
             :action-href="admin.academicPrograms.edit(program.id).url"
+            action-permission="academic-programs.edit"
         >
             <template #actions>
                 <Link
                     :href="admin.academicPrograms.index().url"
-                    class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#E3E5E8] bg-white px-[23px] text-[13px] font-semibold text-[#383D43] transition-colors hover:border-[#941B2B] hover:bg-[#F9ECEE] hover:text-[#941B2B]"
+                    class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#E3E5E8] bg-white px-[23px] text-[13px] font-semibold text-[#383D43] transition-colors hover:border-[#B8BEC6] hover:bg-[#F1F2F4] hover:text-[#292D32]"
                 >
                     <ArrowLeft class="h-4 w-4" />
                     Volver
@@ -131,7 +132,7 @@ defineOptions({
                         <li v-for="cohort in program.cohorts" :key="cohort.id">
                             <Link
                                 :href="admin.cohorts.show(cohort.id).url"
-                                class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#FAF3F4] sm:px-6"
+                                class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#F4F5F6] sm:px-6"
                             >
                                 <div>
                                     <p class="font-semibold text-[#292D32]">{{ cohort.name }}</p>
@@ -152,7 +153,7 @@ defineOptions({
                     <ul v-if="program.teachers.length" class="flex flex-col gap-3">
                         <li v-for="teacher in program.teachers" :key="`${teacher.id}-${teacher.pivot.role}`">
                             <Link :href="admin.teachers.show(teacher.id).url" class="group block">
-                                <p class="text-sm font-semibold text-[#292D32] group-hover:text-[#941B2B]">
+                                <p class="text-sm font-semibold text-[#292D32] group-hover:text-[#292D32]">
                                     {{ fullName(teacher.people) }}
                                 </p>
                                 <p class="text-xs text-[#858B93]">{{ label(teacher.pivot.role) }}</p>
@@ -167,7 +168,7 @@ defineOptions({
                         <li v-for="plan in program.study_plans" :key="plan.id">
                             <Link :href="admin.studyPlans.show(plan.id).url" class="group flex items-center justify-between gap-2">
                                 <span>
-                                    <span class="block text-sm font-semibold text-[#292D32] group-hover:text-[#941B2B]">
+                                    <span class="block text-sm font-semibold text-[#292D32] group-hover:text-[#292D32]">
                                         {{ plan.name }}
                                     </span>
                                     <span class="text-xs text-[#858B93]">

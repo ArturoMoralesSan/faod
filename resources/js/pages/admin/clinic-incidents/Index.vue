@@ -119,7 +119,7 @@ defineOptions({
             </template>
 
             <template #table-body>
-                <tr v-for="incident in incidents.data" :key="incident.id" class="transition-colors hover:bg-[#FAF3F4]">
+                <tr v-for="incident in incidents.data" :key="incident.id" class="transition-colors hover:bg-[#F4F5F6]">
                     <td class="px-5 py-4 sm:px-6">
                         <p class="font-semibold text-[#292D32]">{{ incident.title }}</p>
                         <p class="mt-0.5 text-xs text-[#858B93]">

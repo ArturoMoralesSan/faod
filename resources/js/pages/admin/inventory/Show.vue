@@ -254,7 +254,7 @@ defineOptions({
                         :key="type"
                         type="button"
                         class="flex-1 rounded-xl border px-3 py-2 text-sm font-semibold transition-colors"
-                        :class="operation === type ? 'border-[#941B2B] bg-[#F9ECEE] text-[#941B2B]' : 'border-[#E3E5E8] text-[#525960] hover:border-[#E8C7CC]'"
+                        :class="operation === type ? 'border-[#941B2B] bg-[#F9ECEE] text-[#941B2B]' : 'border-[#E3E5E8] text-[#525960] hover:border-[#B8BEC6]'"
                         @click="operation = type; form.operation = type"
                     >
                         {{ type === 'merma' ? 'Merma o pérdida' : 'Producto dañado' }}

@@ -10,6 +10,7 @@ use App\Models\Setting;
 use App\Models\Space;
 use App\Models\TeacherProfile;
 use App\Support\PdfRenderer;
+use App\Support\TeacherScope;
 use App\Support\WeeklyScheduleGrid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -31,6 +32,11 @@ class SchedulePrintController extends Controller
 
     public function group(Request $request, AcademicGroup $group): Response
     {
+        // El alumno llega desde "Mi horario", que ya valida que sea su grupo.
+        if (! $request->routeIs('admin.my-schedule.*')) {
+            TeacherScope::ensureVisible($group, $request->user());
+        }
+
         $group->load(['cohort.academicProgram:id,name', 'academicPeriod:id,name']);
 
         $schedules = $this->schedules(

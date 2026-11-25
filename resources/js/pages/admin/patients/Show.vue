@@ -47,6 +47,7 @@ import {
     toDateInput,
     toDateTimeInput,
 } from '@/lib/admin';
+import { can as hasPermission } from '@/lib/permissions';
 import admin from '@/routes/admin';
 import type { Attachment, OdontogramEntryData, Option, PersonName, ReviewData, SelectOption, StudentOption, TeacherOption } from '@/types/admin';
 
@@ -107,6 +108,9 @@ interface Diagnosis {
     teacher: Person;
     reviews: ReviewData[];
 }
+
+/** Sin permiso de edición la página es de solo consulta. */
+const canEdit = hasPermission('patients.edit');
 
 const props = defineProps<{
     patient: {
@@ -528,6 +532,7 @@ defineOptions({
             :action-icon="Pencil"
             action-label="Editar datos"
             :action-href="admin.patients.edit(patient.id).url"
+            action-permission="patients.edit"
         >
             <template #details>
                 <div class="mt-2 flex flex-wrap items-center gap-3">
@@ -619,10 +624,10 @@ defineOptions({
                                         <ClipboardCheck class="h-4 w-4" /> Revisar
                                     </button>
                                     <template v-if="can.diagnose">
-                                        <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE] hover:text-[#941B2B]" title="Editar" @click="openDiagnosis(d.id)">
+                                        <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4] hover:text-[#292D32]" title="Editar" @click="openDiagnosis(d.id)">
                                             <Pencil class="h-4 w-4" />
                                         </button>
-                                        <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Eliminar" @click="removeDiagnosis(d.id)">
+                                        <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Eliminar" @click="removeDiagnosis(d.id)">
                                             <Trash2 class="h-4 w-4" />
                                         </button>
                                     </template>
@@ -645,7 +650,7 @@ defineOptions({
                         <li v-for="plan in patient.treatment_plans" :key="plan.id">
                             <Link
                                 :href="admin.treatmentPlans.show(plan.id).url"
-                                class="flex items-center justify-between gap-3 rounded-xl border border-[#E3E5E8] p-4 transition hover:border-[#E8C7CC] hover:bg-[#FAF3F4]"
+                                class="flex items-center justify-between gap-3 rounded-xl border border-[#E3E5E8] p-4 transition hover:border-[#B8BEC6] hover:bg-[#F4F5F6]"
                             >
                                 <div class="min-w-0">
                                     <p class="text-sm font-semibold text-[#292D32]">{{ plan.title }}</p>
@@ -693,10 +698,10 @@ defineOptions({
                                     </p>
                                 </div>
                                 <div class="flex shrink-0 gap-1">
-                                    <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE] hover:text-[#941B2B]" title="Editar" @click="openRecord('consultations', c.id)">
+                                    <button v-if="canEdit" type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4] hover:text-[#292D32]" title="Editar" @click="openRecord('consultations', c.id)">
                                         <Pencil class="h-4 w-4" />
                                     </button>
-                                    <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Eliminar" @click="removeRecord('consultations', c.id)">
+                                    <button v-if="canEdit" type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Eliminar" @click="removeRecord('consultations', c.id)">
                                         <Trash2 class="h-4 w-4" />
                                     </button>
                                 </div>
@@ -705,8 +710,8 @@ defineOptions({
                     </ul>
                     <p v-else class="text-sm italic text-[#858B93]">Sin consultas registradas.</p>
 
-                    <template #footer>
-                        <button type="button" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#941B2B] hover:underline" @click="openRecord('consultations')">
+                    <template v-if="canEdit" #footer>
+                        <button v-if="canEdit" type="button" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#941B2B] hover:underline" @click="openRecord('consultations')">
                             <Plus class="h-4 w-4" /> Registrar consulta
                         </button>
                     </template>
@@ -726,10 +731,10 @@ defineOptions({
                                     </p>
                                 </div>
                                 <div class="flex shrink-0 gap-1">
-                                    <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE] hover:text-[#941B2B]" title="Editar" @click="openRecord('notes', n.id)">
+                                    <button v-if="canEdit" type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4] hover:text-[#292D32]" title="Editar" @click="openRecord('notes', n.id)">
                                         <Pencil class="h-4 w-4" />
                                     </button>
-                                    <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Eliminar" @click="removeRecord('notes', n.id)">
+                                    <button v-if="canEdit" type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Eliminar" @click="removeRecord('notes', n.id)">
                                         <Trash2 class="h-4 w-4" />
                                     </button>
                                 </div>
@@ -738,8 +743,8 @@ defineOptions({
                     </ol>
                     <p v-else class="text-sm italic text-[#858B93]">Sin notas de evolución.</p>
 
-                    <template #footer>
-                        <button type="button" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#941B2B] hover:underline" @click="openRecord('notes')">
+                    <template v-if="canEdit" #footer>
+                        <button v-if="canEdit" type="button" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#941B2B] hover:underline" @click="openRecord('notes')">
                             <Plus class="h-4 w-4" /> Agregar nota
                         </button>
                     </template>
@@ -777,10 +782,10 @@ defineOptions({
                             </div>
                             <div class="flex shrink-0 items-center gap-1">
                                 <span :class="['rounded-full border px-2 py-0.5 text-xs font-semibold', ALLERGY_TONES[a.severity]]">{{ label(a.severity) }}</span>
-                                <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE]" title="Editar" @click="openRecord('allergies', a.id)">
+                                <button v-if="canEdit" type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4]" title="Editar" @click="openRecord('allergies', a.id)">
                                     <Pencil class="h-4 w-4" />
                                 </button>
-                                <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Eliminar" @click="removeRecord('allergies', a.id)">
+                                <button v-if="canEdit" type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Eliminar" @click="removeRecord('allergies', a.id)">
                                     <Trash2 class="h-4 w-4" />
                                 </button>
                             </div>
@@ -788,8 +793,8 @@ defineOptions({
                     </ul>
                     <p v-else class="text-sm italic text-[#858B93]">Sin alergias conocidas.</p>
 
-                    <template #footer>
-                        <button type="button" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#941B2B] hover:underline" @click="openRecord('allergies')">
+                    <template v-if="canEdit" #footer>
+                        <button v-if="canEdit" type="button" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#941B2B] hover:underline" @click="openRecord('allergies')">
                             <Plus class="h-4 w-4" /> Agregar alergia
                         </button>
                     </template>
@@ -807,10 +812,10 @@ defineOptions({
                                         <p v-if="c.notes" class="text-xs text-[#858B93]">{{ c.notes }}</p>
                                     </div>
                                     <div class="flex shrink-0 gap-1">
-                                        <button type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE]" title="Editar" @click="openRecord('conditions', c.id)">
+                                        <button v-if="canEdit" type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4]" title="Editar" @click="openRecord('conditions', c.id)">
                                             <Pencil class="h-3.5 w-3.5" />
                                         </button>
-                                        <button type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Eliminar" @click="removeRecord('conditions', c.id)">
+                                        <button v-if="canEdit" type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Eliminar" @click="removeRecord('conditions', c.id)">
                                             <Trash2 class="h-3.5 w-3.5" />
                                         </button>
                                     </div>
@@ -820,8 +825,8 @@ defineOptions({
                     </div>
                     <p v-else class="text-sm italic text-[#858B93]">Sin antecedentes registrados.</p>
 
-                    <template #footer>
-                        <button type="button" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#941B2B] hover:underline" @click="openRecord('conditions')">
+                    <template v-if="canEdit" #footer>
+                        <button v-if="canEdit" type="button" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#941B2B] hover:underline" @click="openRecord('conditions')">
                             <Plus class="h-4 w-4" /> Agregar antecedente
                         </button>
                     </template>
@@ -1013,7 +1018,7 @@ defineOptions({
                                     :key="symptom"
                                     type="button"
                                     class="rounded-full border px-2.5 py-1 text-xs font-medium transition-colors"
-                                    :class="recordForm.symptoms?.includes(symptom) ? 'border-[#941B2B] bg-[#941B2B] text-white' : 'border-[#E3E5E8] bg-white text-[#525960] hover:border-[#E8C7CC] hover:text-[#941B2B]'"
+                                    :class="recordForm.symptoms?.includes(symptom) ? 'border-[#941B2B] bg-[#941B2B] text-white' : 'border-[#E3E5E8] bg-white text-[#525960] hover:border-[#B8BEC6] hover:text-[#292D32]'"
                                     :aria-pressed="recordForm.symptoms?.includes(symptom)"
                                     @click="toggleSymptom(symptom)"
                                 >
@@ -1033,7 +1038,7 @@ defineOptions({
                             :key="n"
                             type="button"
                             class="h-8 w-8 rounded-lg border text-xs font-semibold transition-colors"
-                            :class="recordForm.pain_intensity === n - 1 ? `border-transparent ${painTone(n - 1)}` : 'border-[#E3E5E8] bg-white text-[#525960] hover:border-[#E8C7CC]'"
+                            :class="recordForm.pain_intensity === n - 1 ? `border-transparent ${painTone(n - 1)}` : 'border-[#E3E5E8] bg-white text-[#525960] hover:border-[#B8BEC6]'"
                             :aria-pressed="recordForm.pain_intensity === n - 1"
                             @click="recordForm.pain_intensity = recordForm.pain_intensity === n - 1 ? null : n - 1"
                         >

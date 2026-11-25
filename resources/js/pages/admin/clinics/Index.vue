@@ -63,6 +63,7 @@ defineOptions({
             :action-icon="Plus"
             action-label="Nueva clínica"
             :action-href="admin.clinics.create().url"
+            action-permission="clinics.create"
         />
 
         <DataTable
@@ -93,7 +94,7 @@ defineOptions({
                 <tr
                     v-for="clinic in clinics.data"
                     :key="clinic.id"
-                    class="transition-colors hover:bg-[#FAF3F4]"
+                    class="transition-colors hover:bg-[#F4F5F6]"
                 >
                     <td class="px-5 py-4 sm:px-6">
                         <div class="flex items-center gap-3">
@@ -115,6 +116,7 @@ defineOptions({
                     <td class="px-5 py-4 sm:px-6"><StatusBadge :value="clinic.is_active" /></td>
 
                     <TableActions
+                        permission="clinics"
                         :view-url="admin.clinics.show(clinic.id).url"
                         :edit-url="admin.clinics.edit(clinic.id).url"
                         item-name="clínica"

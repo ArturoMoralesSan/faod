@@ -82,13 +82,13 @@ const remove = (): void => {
         <div v-if="editable" class="flex items-center gap-1">
             <button
                 type="button"
-                class="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-[#941B2B] hover:bg-[#F9ECEE]"
+                class="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-[#941B2B] hover:bg-[#F1F2F4]"
                 :disabled="uploading"
                 @click="input?.click()"
             >
                 <Camera class="h-3.5 w-3.5" /> {{ photoPath ? 'Cambiar' : 'Subir foto' }}
             </button>
-            <button v-if="photoPath" type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#858B93] hover:bg-[#F9ECEE] hover:text-[#941B2B]" title="Quitar fotografía" @click="remove">
+            <button v-if="photoPath" type="button" class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#858B93] hover:bg-[#F1F2F4] hover:text-[#292D32]" title="Quitar fotografía" @click="remove">
                 <Trash2 class="h-3.5 w-3.5" />
             </button>
             <input ref="input" type="file" accept="image/jpeg,image/png,image/webp" class="hidden" @change="upload" />

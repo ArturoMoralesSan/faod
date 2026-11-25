@@ -123,7 +123,7 @@ defineOptions({
             </template>
 
             <template #table-body>
-                <tr v-for="log in logs.data" :key="log.id" class="transition-colors hover:bg-[#FAF3F4]">
+                <tr v-for="log in logs.data" :key="log.id" class="transition-colors hover:bg-[#F4F5F6]">
                     <td class="whitespace-nowrap px-5 py-4 text-[#525960] sm:px-6">{{ formatDateTime(log.created_at) }}</td>
                     <td class="px-5 py-4 sm:px-6">
                         <p class="text-[#292D32]">{{ log.user?.name ?? 'Usuario desconocido' }}</p>

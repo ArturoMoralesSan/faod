@@ -7,6 +7,7 @@ use App\Models\CashRegisterSession;
 use App\Models\Clinic;
 use App\Models\Expense;
 use App\Models\Payment;
+use App\Models\Space;
 use App\Models\Supplier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -42,7 +43,7 @@ class ExpenseController extends Controller
             'methods' => Payment::METHODS,
             'suppliers' => Supplier::where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'clinics' => Clinic::where('is_active', true)->orderBy('name')->get(['id', 'name']),
-            'laboratories' => \App\Models\Space::where('type', 'laboratorio')->where('is_active', true)->orderBy('name')->get(['id', 'code', 'name']),
+            'laboratories' => Space::where('type', 'laboratorio')->where('is_active', true)->orderBy('name')->get(['id', 'code', 'name']),
             'openSessions' => CashRegisterSession::where('status', 'abierta')->with('register:id,name')->get(['id', 'cash_register_id']),
         ]);
     }

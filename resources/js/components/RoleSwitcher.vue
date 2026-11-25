@@ -47,7 +47,7 @@ const switchRole = (role: RoleSummary): void => {
                 <DropdownMenuTrigger as-child>
                     <SidebarMenuButton
                         size="lg"
-                        class="border border-[#E8C7CC] bg-[#F9ECEE]/60 data-[state=open]:bg-[#F9ECEE]"
+                        class="border border-[#E8C7CC] bg-[#F9ECEE]/60 data-[state=open]:bg-[#F1F2F4]"
                         tooltip="Cambiar rol"
                     >
                         <div

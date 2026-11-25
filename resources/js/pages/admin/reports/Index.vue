@@ -71,16 +71,16 @@ defineOptions({
                     v-for="report in section.reports"
                     :key="report.key"
                     :href="admin.reports.show(report.key).url"
-                    class="group flex items-start gap-4 rounded-2xl border border-[#E3E5E8] bg-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#E8C7CC] hover:shadow-[0_8px_24px_-12px_rgba(148,27,43,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#941B2B] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                    class="group flex items-start gap-4 rounded-2xl border border-[#E3E5E8] bg-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#B8BEC6] hover:shadow-[0_8px_24px_-12px_rgba(41,45,50,0.22)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#941B2B] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                 >
-                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F9ECEE] text-[#941B2B] transition-colors group-hover:bg-[#941B2B] group-hover:text-white">
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F9ECEE] text-[#941B2B] transition-colors group-hover:bg-[#34383D] group-hover:text-white">
                         <component :is="reportIcon(report.icon)" class="h-5 w-5" />
                     </span>
 
                     <span class="min-w-0 flex-1">
                         <span class="flex items-center justify-between gap-2">
                             <span class="font-['Manrope',sans-serif] text-[15px] font-bold text-[#292D32]">{{ report.title }}</span>
-                            <ArrowRight class="h-4 w-4 shrink-0 text-[#C9CCD1] transition-transform group-hover:translate-x-0.5 group-hover:text-[#941B2B]" />
+                            <ArrowRight class="h-4 w-4 shrink-0 text-[#C9CCD1] transition-transform group-hover:translate-x-0.5 group-hover:text-[#292D32]" />
                         </span>
                         <span class="mt-1 block text-sm leading-snug text-[#737982]">{{ report.description }}</span>
                     </span>

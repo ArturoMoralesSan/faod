@@ -14,6 +14,8 @@ defineProps<{
     items: { id: number; title: string; subtitle?: string; meta?: string }[];
     emptyText: string;
     addLabel: string;
+    /** Solo consulta: sin agregar, editar ni eliminar. */
+    readonly?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -37,10 +39,10 @@ const emit = defineEmits<{
                     <p v-if="item.meta" class="text-xs text-[#858B93]">{{ item.meta }}</p>
                 </div>
 
-                <div class="flex shrink-0 gap-1">
+                <div v-if="!readonly" class="flex shrink-0 gap-1">
                     <button
                         type="button"
-                        class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE] hover:text-[#941B2B]"
+                        class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4] hover:text-[#292D32]"
                         title="Editar"
                         @click="emit('edit', item.id)"
                     >
@@ -49,7 +51,7 @@ const emit = defineEmits<{
 
                     <button
                         type="button"
-                        class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]"
+                        class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]"
                         title="Eliminar"
                         @click="emit('remove', item.id)"
                     >
@@ -61,7 +63,7 @@ const emit = defineEmits<{
 
         <p v-else class="text-sm italic text-[#858B93]">{{ emptyText }}</p>
 
-        <template #footer>
+        <template v-if="!readonly" #footer>
             <AdminButton variant="secondary" :icon="Plus" @click="emit('add')">{{ addLabel }}</AdminButton>
         </template>
     </AdminCard>

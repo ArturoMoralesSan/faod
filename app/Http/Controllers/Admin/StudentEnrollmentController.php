@@ -10,6 +10,7 @@ use App\Models\Specialty;
 use App\Models\StudentEnrollment;
 use App\Models\StudentProfile;
 use App\Models\UniversityRegistration;
+use App\Support\TeacherScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -28,6 +29,7 @@ class StudentEnrollmentController extends Controller
         $periodId = $request->integer('academic_period_id') ?: AcademicPeriod::current()?->id;
 
         $enrollments = StudentEnrollment::query()
+            ->tap(fn ($q) => TeacherScope::apply($q, TeacherScope::teacherId($request->user())))
             ->with([
                 'student:id,people_id,registration_number',
                 'student.people:id,first_name,paternal_surname,maternal_surname,phone,personal_email',
@@ -111,6 +113,8 @@ class StudentEnrollmentController extends Controller
      */
     public function show(StudentEnrollment $student): Response
     {
+        TeacherScope::ensureVisible($student, request()->user());
+
         $student->load([
             'student.people',
             'student.attachments',

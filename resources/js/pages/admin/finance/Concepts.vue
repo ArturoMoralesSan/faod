@@ -86,10 +86,10 @@ defineOptions({
                     </div>
                     <div class="flex items-center gap-1">
                         <StatusBadge :value="c.is_active" />
-                        <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE]" title="Editar" @click="open(c)">
+                        <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4]" title="Editar" @click="open(c)">
                             <Pencil class="h-4 w-4" />
                         </button>
-                        <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Eliminar" @click="destroy(c)">
+                        <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Eliminar" @click="destroy(c)">
                             <Trash2 class="h-4 w-4" />
                         </button>
                     </div>

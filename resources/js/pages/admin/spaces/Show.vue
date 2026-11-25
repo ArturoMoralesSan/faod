@@ -238,7 +238,7 @@ defineOptions({
                         <li v-for="session in upcomingSessions" :key="session.id">
                             <Link
                                 :href="admin.clinicalSessions.show(session.id).url"
-                                class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#FAF3F4] sm:px-6"
+                                class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#F4F5F6] sm:px-6"
                             >
                                 <div class="min-w-0">
                                     <p class="text-sm font-semibold text-[#292D32]">

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin\Finance;
 
 use App\Http\Controllers\Controller;
-use App\Models\CashRegister;
 use App\Models\CashMovement;
+use App\Models\CashRegister;
 use App\Models\CashRegisterSession;
 use App\Models\Clinic;
 use Illuminate\Http\RedirectResponse;

@@ -111,7 +111,7 @@ defineOptions({
                 <tr
                     v-for="department in departments.data"
                     :key="department.id"
-                    class="transition-colors hover:bg-[#FAF3F4]"
+                    class="transition-colors hover:bg-[#F4F5F6]"
                 >
                     <td class="px-5 py-4 sm:px-6">
                         <div class="flex items-center gap-3">

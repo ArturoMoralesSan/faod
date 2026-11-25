@@ -11,6 +11,7 @@ use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class DiagnosisTest extends TestCase
@@ -115,7 +116,10 @@ class DiagnosisTest extends TestCase
         $this->diagnose(['teacher_profile_id' => $other->id, 'tooth' => '11']);
         $this->diagnose(['teacher_profile_id' => null, 'tooth' => '21']);
 
-        $user = User::factory()->create()->assignRole('docente');
+        // El rol docente ya no revisa (solo consulta); la revisión es de un rol con ese permiso.
+        $reviewer = Role::firstOrCreate(['name' => 'revisor_clinico', 'guard_name' => 'web'])
+            ->givePermissionTo(['reviews.view', 'reviews.create']);
+        $user = User::factory()->create()->assignRole($reviewer);
         $teacherPeople->update(['user_id' => $user->id]);
 
         $this->actingAs($user)

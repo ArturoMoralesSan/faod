@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Diagnosis;
+use App\Models\Specialty;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -29,7 +30,7 @@ class DiagnosisController extends Controller
                 ->get(),
             'categories' => Diagnosis::whereNotNull('category')->distinct()->orderBy('category')->pluck('category'),
             'filters' => $request->only('search', 'specialty_id'),
-            'specialties' => \App\Models\Specialty::where('is_active', true)->orderBy('name')->get(['id', 'name']),
+            'specialties' => Specialty::where('is_active', true)->orderBy('name')->get(['id', 'name']),
         ]);
     }
 

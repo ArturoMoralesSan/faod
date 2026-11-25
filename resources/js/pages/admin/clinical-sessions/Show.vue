@@ -214,7 +214,7 @@ defineOptions({
                                 <td class="py-2 text-right">
                                     <button
                                         type="button"
-                                        class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]"
+                                        class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]"
                                         title="Quitar de la sesión"
                                         @click="form.students.splice(index, 1)"
                                     >
@@ -252,7 +252,7 @@ defineOptions({
                     <li v-for="incident in session.incidents" :key="incident.id">
                         <Link :href="admin.clinicIncidents.show(incident.id).url" class="group flex items-start justify-between gap-2">
                             <div class="min-w-0">
-                                <p class="truncate text-sm font-semibold text-[#292D32] group-hover:text-[#941B2B]">{{ incident.title }}</p>
+                                <p class="truncate text-sm font-semibold text-[#292D32] group-hover:text-[#292D32]">{{ incident.title }}</p>
                                 <p class="text-xs text-[#858B93]">{{ label(incident.status) }} · {{ formatDateTime(incident.occurred_at) }}</p>
                             </div>
                             <SeverityBadge :value="incident.severity" />

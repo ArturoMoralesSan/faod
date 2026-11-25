@@ -37,15 +37,15 @@ withDefaults(
             block ? 'w-full' : '',
 
             variant === 'primary'
-                ? 'border-[#941B2B] bg-[#941B2B] text-white hover:border-[#721421] hover:bg-[#721421]'
+                ? 'border-[#941B2B] bg-[#941B2B] text-white hover:border-[#941B2B] hover:bg-white hover:text-[#292D32]'
                 : '',
 
             variant === 'secondary'
-                ? 'border-[#E3E5E8] bg-white text-[#383D43] hover:border-[#941B2B] hover:bg-[#F9ECEE] hover:text-[#941B2B]'
+                ? 'border-[#E3E5E8] bg-white text-[#383D43] hover:border-[#B8BEC6] hover:bg-[#F1F2F4] hover:text-[#292D32]'
                 : '',
 
             variant === 'danger'
-                ? 'border-[#721421] bg-[#721421] text-white hover:border-[#5A101A] hover:bg-[#5A101A]'
+                ? 'border-[#721421] bg-[#721421] text-white hover:border-[#721421] hover:bg-white hover:text-[#292D32]'
                 : '',
         ]"
     >

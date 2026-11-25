@@ -142,7 +142,7 @@ defineOptions({
                             <li v-for="enrollment in person.student_profile.enrollments" :key="enrollment.id">
                                 <Link
                                     :href="admin.students.show(enrollment.id).url"
-                                    class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#FAF3F4] sm:px-6"
+                                    class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#F4F5F6] sm:px-6"
                                 >
                                     <span>
                                         <span class="block text-sm font-semibold text-[#292D32]">{{ enrollment.academic_program.name }}</span>

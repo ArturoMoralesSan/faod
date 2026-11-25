@@ -70,7 +70,7 @@ const emit = defineEmits<{
                         :value="search"
                         type="search"
                         :placeholder="searchPlaceholder"
-                        class="h-[42px] w-full rounded-xl border border-[#E3E5E8] bg-white pl-10 pr-3 text-sm text-[#292D32] outline-none transition-colors duration-[250ms] ease-in-out placeholder:text-[#858B93] hover:border-[#E8C7CC] focus:border-[#941B2B] focus:ring-2 focus:ring-[#941B2B]/10"
+                        class="h-[42px] w-full rounded-xl border border-[#E3E5E8] bg-white pl-10 pr-3 text-sm text-[#292D32] outline-none transition-colors duration-[250ms] ease-in-out placeholder:text-[#858B93] hover:border-[#B8BEC6] focus:border-[#941B2B] focus:ring-2 focus:ring-[#941B2B]/10"
                         @input="
                             emit(
                                 'update:search',
@@ -92,7 +92,7 @@ const emit = defineEmits<{
                 <button
                     v-if="showSearch"
                     type="submit"
-                    class="inline-flex h-[42px] w-full shrink-0 items-center justify-center gap-2 rounded-full border border-[#941B2B] bg-[#941B2B] px-[23px] text-[13px] font-semibold text-white transition-colors duration-[250ms] ease-in-out hover:border-[#721421] hover:bg-[#721421] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-[#E8C7CC] focus-visible:outline-offset-2 sm:col-span-2 lg:col-span-1 lg:w-auto motion-reduce:transition-none"
+                    class="inline-flex h-[42px] w-full shrink-0 items-center justify-center gap-2 rounded-full border border-[#941B2B] bg-[#941B2B] px-[23px] text-[13px] font-semibold text-white transition-colors duration-[250ms] ease-in-out hover:border-[#941B2B] hover:bg-white hover:text-[#292D32] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-[#E8C7CC] focus-visible:outline-offset-2 sm:col-span-2 lg:col-span-1 lg:w-auto motion-reduce:transition-none"
                 >
                     <Search :size="16" />
                     Buscar
@@ -112,7 +112,7 @@ const emit = defineEmits<{
 
                 <button
                     type="button"
-                    class="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold text-[#941B2B] transition-colors duration-[250ms] ease-in-out hover:bg-[#F9ECEE] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#941B2B] focus-visible:outline-offset-2 motion-reduce:transition-none"
+                    class="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold text-[#941B2B] transition-colors duration-[250ms] ease-in-out hover:bg-[#F1F2F4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#941B2B] focus-visible:outline-offset-2 motion-reduce:transition-none"
                     @click="emit('clear-filters')"
                 >
                     <FilterX :size="14" />
@@ -214,7 +214,7 @@ const emit = defineEmits<{
                         :class="
                             link.active
                                 ? 'border-[#941B2B] bg-[#941B2B] font-semibold text-white'
-                                : 'border-[#E3E5E8] bg-white text-[#383D43] hover:border-[#E8C7CC] hover:bg-[#F9ECEE] hover:text-[#941B2B]'
+                                : 'border-[#E3E5E8] bg-white text-[#383D43] hover:border-[#B8BEC6] hover:bg-[#F1F2F4] hover:text-[#292D32]'
                         "
                     >
                         <span v-html="link.label" />

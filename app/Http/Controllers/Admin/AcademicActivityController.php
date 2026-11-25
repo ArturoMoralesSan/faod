@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicActivity;
 use App\Models\ActivityParticipant;
+use App\Models\CashRegisterSession;
+use App\Models\Payment;
 use App\Models\Space;
 use App\Models\TeacherProfile;
 use Illuminate\Http\RedirectResponse;
@@ -74,8 +76,8 @@ class AcademicActivityController extends Controller
             'peopleSearchUrl' => route('admin.people.search'),
             // Cobro manual de inscripciones (lo registra quien cobra).
             'canCharge' => (bool) auth()->user()?->can('payments.create'),
-            'paymentMethods' => \App\Models\Payment::METHODS,
-            'openSessions' => \App\Models\CashRegisterSession::where('status', 'abierta')->with('register:id,name')->get(['id', 'cash_register_id']),
+            'paymentMethods' => Payment::METHODS,
+            'openSessions' => CashRegisterSession::where('status', 'abierta')->with('register:id,name')->get(['id', 'cash_register_id']),
         ]);
     }
 

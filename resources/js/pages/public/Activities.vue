@@ -35,7 +35,7 @@ const filter = (type: string | null): void => {
                 type="button"
                 role="tab"
                 :aria-selected="!type"
-                :class="['rounded-full border px-4 py-2 text-sm font-semibold transition-colors', !type ? 'border-white bg-white text-[#941B2B]' : 'border-white/30 text-white hover:bg-white/10']"
+                :class="['rounded-full border px-4 py-2 text-sm font-semibold transition-colors', !type ? 'border-white bg-white text-[#941B2B]' : 'border-white/30 text-white hover:bg-white hover:text-[#292D32]']"
                 @click="filter(null)"
             >
                 Todas
@@ -46,7 +46,7 @@ const filter = (type: string | null): void => {
                 type="button"
                 role="tab"
                 :aria-selected="type === item"
-                :class="['rounded-full border px-4 py-2 text-sm font-semibold transition-colors', type === item ? 'border-white bg-white text-[#941B2B]' : 'border-white/30 text-white hover:bg-white/10']"
+                :class="['rounded-full border px-4 py-2 text-sm font-semibold transition-colors', type === item ? 'border-white bg-white text-[#941B2B]' : 'border-white/30 text-white hover:bg-white hover:text-[#292D32]']"
                 @click="filter(item)"
             >
                 {{ label(item) }}
@@ -79,7 +79,7 @@ const filter = (type: string | null): void => {
                         v-if="link.url"
                         :href="link.url"
                         preserve-scroll
-                        :class="['inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border px-3 text-sm', link.active ? 'border-[#941B2B] bg-[#941B2B] font-semibold text-white' : 'border-[#E3E5E8] bg-white text-[#383D43] hover:border-[#E8C7CC] hover:text-[#941B2B]']"
+                        :class="['inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border px-3 text-sm', link.active ? 'border-[#941B2B] bg-[#941B2B] font-semibold text-white' : 'border-[#E3E5E8] bg-white text-[#383D43] hover:border-[#B8BEC6] hover:text-[#292D32]']"
                     >
                         <span v-html="link.label" />
                     </Link>

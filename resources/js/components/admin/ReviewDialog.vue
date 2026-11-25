@@ -58,7 +58,7 @@ const submit = (): void => {
                     type="button"
                     :class="[
                         'rounded-xl border px-3 py-2.5 text-sm font-semibold transition',
-                        form.decision === decision ? TONES[decision] : 'border-[#E3E5E8] bg-white text-[#525960] hover:border-[#E8C7CC]',
+                        form.decision === decision ? TONES[decision] : 'border-[#E3E5E8] bg-white text-[#525960] hover:border-[#B8BEC6]',
                     ]"
                     @click="form.decision = decision"
                 >

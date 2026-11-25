@@ -27,6 +27,7 @@ import SeverityBadge from '@/components/admin/SeverityBadge.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import RecordList from '@/components/admin/TeacherRecordList.vue';
 import { confirmDelete, enumOptions, formatDate, formatTime, fullName, label, recordOptions, toDateInput } from '@/lib/admin';
+import { can as hasPermission } from '@/lib/permissions';
 import admin from '@/routes/admin';
 import type { Option, PersonName, SelectOption, TeacherOption } from '@/types/admin';
 
@@ -59,6 +60,9 @@ interface Equipment {
     notes: string | null;
     space: { id: number; code: string; name: string } | null;
 }
+
+/** Sin permiso de edición la página es de solo consulta. */
+const canEdit = hasPermission('clinics.edit');
 
 const props = defineProps<{
     clinic: {
@@ -218,6 +222,7 @@ defineOptions({
             :action-icon="Pencil"
             action-label="Editar clínica"
             :action-href="admin.clinics.edit(clinic.id).url"
+            action-permission="clinics.edit"
         />
 
         <AdminCard title="Información general" :icon="Info">
@@ -256,7 +261,7 @@ defineOptions({
                         <li v-for="session in upcomingSessions" :key="session.id">
                             <Link
                                 :href="admin.clinicalSessions.show(session.id).url"
-                                class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#FAF3F4] sm:px-6"
+                                class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#F4F5F6] sm:px-6"
                             >
                                 <div class="min-w-0">
                                     <p class="text-sm font-semibold text-[#292D32]">
@@ -289,7 +294,7 @@ defineOptions({
                         <li v-for="space in clinic.spaces" :key="space.id">
                             <Link
                                 :href="admin.spaces.show(space.id).url"
-                                class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#FAF3F4] sm:px-6"
+                                class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#F4F5F6] sm:px-6"
                             >
                                 <div>
                                     <p class="text-sm font-semibold text-[#292D32]">{{ space.name }}</p>
@@ -330,9 +335,9 @@ defineOptions({
 
                             <div class="flex shrink-0 items-center gap-1">
                                 <StatusBadge :value="item.status" />
-                                <button
+                                <button v-if="canEdit"
                                     type="button"
-                                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE] hover:text-[#941B2B]"
+                                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4] hover:text-[#292D32]"
                                     title="Editar"
                                     @click="openRecord('equipment', item.id)"
                                 >
@@ -340,7 +345,7 @@ defineOptions({
                                 </button>
                                 <Link
                                     :href="admin.clinicIncidents.create({ query: { clinic_id: clinic.id, clinic_equipment_id: item.id } }).url"
-                                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]"
+                                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]"
                                     title="Reportar incidencia"
                                 >
                                     <TriangleAlert class="h-4 w-4" />
@@ -351,8 +356,8 @@ defineOptions({
 
                     <p v-else class="text-sm italic text-[#858B93]">Sin equipos registrados.</p>
 
-                    <template #footer>
-                        <button
+                    <template v-if="canEdit" #footer>
+                        <button v-if="canEdit"
                             type="button"
                             class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#941B2B] hover:underline"
                             @click="openRecord('equipment')"
@@ -370,7 +375,7 @@ defineOptions({
                         <li v-for="incident in openIncidents" :key="incident.id">
                             <Link :href="admin.clinicIncidents.show(incident.id).url" class="group flex items-start justify-between gap-2">
                                 <div class="min-w-0">
-                                    <p class="truncate text-sm font-semibold text-[#292D32] group-hover:text-[#941B2B]">{{ incident.title }}</p>
+                                    <p class="truncate text-sm font-semibold text-[#292D32] group-hover:text-[#292D32]">{{ incident.title }}</p>
                                     <p class="text-xs text-[#858B93]">{{ label(incident.type) }} · {{ formatDate(incident.occurred_at) }}</p>
                                 </div>
                                 <SeverityBadge :value="incident.severity" />

@@ -17,7 +17,7 @@ const full = computed(() => props.activity.available === 0);
 <template>
     <Link
         :href="site.activities.show(activity.id).url"
-        class="group flex h-full gap-4 rounded-2xl border border-[#E3E5E8] bg-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#E8C7CC] hover:shadow-[0_14px_36px_-18px_rgba(148,27,43,0.35)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#941B2B] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+        class="group flex h-full gap-4 rounded-2xl border border-[#E3E5E8] bg-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#B8BEC6] hover:shadow-[0_14px_36px_-18px_rgba(41,45,50,0.30)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#941B2B] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
     >
         <div
             v-if="badge"
@@ -34,7 +34,7 @@ const full = computed(() => props.activity.available === 0);
                 <span class="rounded-full bg-[#F1F2F4] px-2 py-0.5 text-[11px] font-semibold text-[#525960]">{{ label(activity.modality) }}</span>
                 <span v-if="!past && full" class="rounded-full bg-[#FDF6E7] px-2 py-0.5 text-[11px] font-semibold text-[#8A5A00]">Cupo lleno</span>
             </div>
-            <h3 class="mt-2 font-['Manrope',sans-serif] text-base font-extrabold leading-snug text-[#1F2226] group-hover:text-[#941B2B]">{{ activity.title }}</h3>
+            <h3 class="mt-2 font-['Manrope',sans-serif] text-base font-extrabold leading-snug text-[#1F2226] group-hover:text-[#292D32]">{{ activity.title }}</h3>
             <p v-if="activity.summary" class="mt-1.5 line-clamp-2 text-sm leading-6 text-[#737982]">{{ activity.summary }}</p>
 
             <div class="mt-auto flex flex-wrap gap-x-4 gap-y-1.5 pt-4 text-xs font-medium text-[#525960]">

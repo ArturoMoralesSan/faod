@@ -77,6 +77,7 @@ defineOptions({
             :action-icon="Plus"
             action-label="Nuevo paciente"
             :action-href="admin.patients.create().url"
+            action-permission="patients.create"
         />
 
         <DataTable
@@ -115,7 +116,7 @@ defineOptions({
             </template>
 
             <template #table-body>
-                <tr v-for="patient in patients.data" :key="patient.id" class="transition-colors hover:bg-[#FAF3F4]">
+                <tr v-for="patient in patients.data" :key="patient.id" class="transition-colors hover:bg-[#F4F5F6]">
                     <td class="px-5 py-4 sm:px-6">
                         <p class="flex items-center gap-1.5 font-semibold text-[#292D32]">
                             {{ fullName(patient.people) }}
@@ -131,6 +132,7 @@ defineOptions({
                     <td class="px-5 py-4 sm:px-6"><StatusBadge :value="patient.status" /></td>
 
                     <TableActions
+                        permission="patients"
                         :view-url="admin.patients.show(patient.id).url"
                         :edit-url="admin.patients.edit(patient.id).url"
                         item-name="expediente"

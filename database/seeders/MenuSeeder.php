@@ -91,6 +91,7 @@ class MenuSeeder extends Seeder
         $this->link($academic, 'Asignaturas', 'BookOpen', 5, 'admin.subjects.index', 'subjects.view');
         $this->link($academic, 'Periodos', 'CalendarDays', 6, 'admin.academic-periods.index', 'academic-periods.view');
         $this->link($academic, 'Grupos y horarios', 'CalendarClock', 7, 'admin.groups.index', 'groups.view');
+        $this->link($academic, 'Mi horario', 'CalendarClock', 0, 'admin.my-schedule.index', 'my-schedule.view');
         $this->link($academic, 'Cursos y actividades', 'Presentation', 8, 'admin.activities.index', 'activities.view');
 
         /*
@@ -104,6 +105,7 @@ class MenuSeeder extends Seeder
         $this->link($community, 'Personas', 'Users', 1, 'admin.people.index', 'people.view');
         $this->link($community, 'Alumnos', 'GraduationCap', 2, 'admin.students.index', 'students.view');
         $this->link($community, 'Docentes', 'UserRoundCheck', 3, 'admin.teachers.index', 'teachers.view');
+        $this->link($community, 'Mi expediente', 'UserRoundCheck', 0, 'admin.my-record', 'my-record.view');
         $this->link($community, 'Áreas de conocimiento', 'BookOpen', 4, 'admin.knowledge-areas.index', 'knowledge-areas.view');
 
         /*

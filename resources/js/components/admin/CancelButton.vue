@@ -22,7 +22,7 @@ withDefaults(
         :class="[
             'inline-flex min-h-12 items-center justify-center gap-[15px] rounded-full border border-[#E3E5E8] bg-white px-[23px] py-0 font-[DM_Sans,sans-serif] text-[13px] font-semibold text-[#383D43]',
             'transition-[transform,background-color,color,border-color] duration-[250ms] ease-in-out motion-reduce:transition-none',
-            'hover:-translate-y-0.5 hover:border-[#941B2B] hover:bg-[#F9ECEE] hover:text-[#941B2B]',
+            'hover:-translate-y-0.5 hover:border-[#B8BEC6] hover:bg-[#F1F2F4] hover:text-[#292D32]',
             'active:translate-y-0',
             'focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-[#E8C7CC] focus-visible:outline-offset-2',
             block ? 'w-full' : '',

@@ -117,7 +117,7 @@ defineOptions({
                 <tr
                     v-for="cohort in cohorts.data"
                     :key="cohort.id"
-                    class="transition-colors hover:bg-[#FAF3F4]"
+                    class="transition-colors hover:bg-[#F4F5F6]"
                 >
                     <td class="px-5 py-4 sm:px-6">
                         <p class="font-semibold text-[#292D32]">{{ cohort.name }}</p>

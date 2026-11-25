@@ -54,7 +54,7 @@ const basicStatuses = [
 
 const profileToggleClass = (active: boolean) => [
     'flex cursor-pointer items-center justify-between gap-4 rounded-xl border p-4 transition-[border-color,background-color] duration-200',
-    active ? 'border-[#E8C7CC] bg-[#FDF8F8]' : 'border-[#E3E5E8] bg-white hover:border-[#E8C7CC] hover:bg-[#FAF7F7]',
+    active ? 'border-[#E8C7CC] bg-[#FDF8F8]' : 'border-[#E3E5E8] bg-white hover:border-[#B8BEC6] hover:bg-[#F4F5F6]',
 ];
 </script>
 

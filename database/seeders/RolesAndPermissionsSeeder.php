@@ -118,6 +118,9 @@ class RolesAndPermissionsSeeder extends Seeder
             // Revisión docente de registros clínicos.
             'reviews.view',
             'reviews.create',
+            // Horario propio del alumno y expediente propio del docente.
+            'my-schedule.view',
+            'my-record.view',
             // Caja: consultar cortes y operar (abrir, cerrar).
             'cash.view',
             'cash.operate',
@@ -172,10 +175,11 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $roles = [
             'alumno' => [
-                'groups.view',
-                // Atiende pacientes en clínica bajo supervisión.
+                // Solo su horario; no ve la gestión de grupos.
+                'my-schedule.view',
+                // Atiende pacientes en clínica bajo supervisión. El alta de
+                // pacientes y de citas la hacen recepción y los docentes.
                 'patients.view',
-                'patients.create',
                 'patients.edit',
                 'diagnoses.view',
                 'diagnoses.create',
@@ -184,41 +188,23 @@ class RolesAndPermissionsSeeder extends Seeder
                 'treatments.create',
                 'treatments.edit',
                 'appointments.view',
-                'appointments.create',
                 'appointments.edit',
             ],
+            // Solo consulta, y solo lo suyo (App\Support\TeacherScope): sus grupos,
+            // los alumnos de esos grupos, los pacientes que supervisa, sus
+            // clínicas y su propio expediente.
             'docente' => [
+                'my-record.view',
                 'groups.view',
                 'students.view',
-                'teachers.view',
                 'study-plans.view',
                 'academic-programs.view',
-                // Clínicas: supervisa sesiones, pasa asistencia y reporta incidencias.
                 'clinics.view',
-                'clinical-sessions.view',
-                'clinical-sessions.edit',
-                'clinic-incidents.view',
-                'clinic-incidents.create',
                 'patients.view',
-                'patients.create',
-                'patients.edit',
+                // Para ver el expediente del paciente completo.
                 'diagnoses.view',
-                'diagnoses.create',
-                'diagnoses.edit',
-                'diagnoses.delete',
-                'diagnosis-catalog.view',
                 'treatments.view',
-                'treatments.create',
-                'treatments.edit',
-                'treatments.delete',
-                'procedure-catalog.view',
-                'reviews.view',
-                'reviews.create',
-                'inventory.view',
                 'activities.view',
-                'appointments.view',
-                'appointments.create',
-                'appointments.edit',
             ],
             'personal_administrativo' => [
                 'people.view',
@@ -277,6 +263,11 @@ class RolesAndPermissionsSeeder extends Seeder
         foreach ($roles as $name => $rolePermissions) {
             Role::firstOrCreate(['name' => $name, 'guard_name' => 'web'])
                 ->givePermissionTo($rolePermissions);
+        }
+
+        // Alumno y docente quedan exactamente con su lista (se quitan los que se les retiraron).
+        foreach (['alumno', 'docente'] as $name) {
+            Role::findByName($name, 'web')->syncPermissions($roles[$name]);
         }
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();

@@ -10,7 +10,9 @@ use App\Models\ClassSchedule;
 use App\Models\Cohort;
 use App\Models\Space;
 use App\Models\StudentProfile;
+use App\Models\Subject;
 use App\Models\TeacherProfile;
+use App\Support\TeacherScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -28,6 +30,7 @@ class AcademicGroupController extends Controller
         $periodId = $request->integer('academic_period_id') ?: AcademicPeriod::current()?->id;
 
         $groups = AcademicGroup::query()
+            ->tap(fn ($q) => TeacherScope::apply($q, TeacherScope::teacherId($request->user())))
             ->with(['cohort.academicProgram:id,name,code', 'academicPeriod:id,name'])
             ->withCount(['students', 'classSections'])
             ->when($periodId, fn ($q) => $q->where('academic_period_id', $periodId))
@@ -69,6 +72,8 @@ class AcademicGroupController extends Controller
      */
     public function show(AcademicGroup $group): Response
     {
+        TeacherScope::ensureVisible($group, request()->user());
+
         $group->load([
             'cohort.academicProgram:id,name,code',
             'academicPeriod:id,name',
@@ -90,7 +95,7 @@ class AcademicGroupController extends Controller
 
         // Sin plan asignado a los alumnos todavía: se ofrecen todas las asignaturas activas.
         if ($planSubjects->isEmpty()) {
-            $planSubjects = \App\Models\Subject::where('is_active', true)
+            $planSubjects = Subject::where('is_active', true)
                 ->orderBy('name')
                 ->get(['id', 'code', 'name']);
         }

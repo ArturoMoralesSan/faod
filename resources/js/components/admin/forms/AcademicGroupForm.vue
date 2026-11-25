@@ -165,7 +165,7 @@ const toggleAll = (): void => {
             <label
                 v-for="student in filteredStudents"
                 :key="student.id"
-                class="flex cursor-pointer items-center gap-3 rounded-xl border border-[#E3E5E8] bg-white px-4 py-3 transition hover:border-[#E8C7CC] hover:bg-[#FAF7F7]"
+                class="flex cursor-pointer items-center gap-3 rounded-xl border border-[#E3E5E8] bg-white px-4 py-3 transition hover:border-[#B8BEC6] hover:bg-[#F4F5F6]"
                 :class="{ 'border-[#E8C7CC] bg-[#FDF8F8]': form.student_ids.includes(student.id) }"
             >
                 <input

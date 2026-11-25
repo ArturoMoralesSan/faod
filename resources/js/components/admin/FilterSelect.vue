@@ -15,7 +15,7 @@ const model = defineModel<string>({ required: true });
     <div class="relative min-w-[160px] flex-1">
         <select
             v-model="model"
-            class="h-[42px] w-full cursor-pointer appearance-none rounded-xl border border-[#E3E5E8] bg-white pl-3 pr-9 text-sm text-[#292D32] outline-none transition-colors duration-[250ms] ease-in-out hover:border-[#E8C7CC] focus:border-[#941B2B] focus:ring-2 focus:ring-[#941B2B]/10"
+            class="h-[42px] w-full cursor-pointer appearance-none rounded-xl border border-[#E3E5E8] bg-white pl-3 pr-9 text-sm text-[#292D32] outline-none transition-colors duration-[250ms] ease-in-out hover:border-[#B8BEC6] focus:border-[#941B2B] focus:ring-2 focus:ring-[#941B2B]/10"
         >
             <option value="">{{ placeholder }}</option>
 

@@ -21,6 +21,8 @@ export type Auth = {
     roles: RoleSummary[];
     /** Rol con el que navega actualmente. */
     activeRole: RoleSummary | null;
+    /** Permisos del usuario ("*" para SuperAdmin). */
+    permissions: string[];
 };
 
 export type Passkey = {

@@ -140,10 +140,10 @@ defineOptions({
                     </div>
                     <div class="flex shrink-0 items-center gap-1">
                         <StatusBadge :value="d.is_active" />
-                        <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE]" title="Editar" @click="open(d)">
+                        <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4]" title="Editar" @click="open(d)">
                             <Pencil class="h-4 w-4" />
                         </button>
-                        <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Eliminar" @click="destroy(d)">
+                        <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Eliminar" @click="destroy(d)">
                             <Trash2 class="h-4 w-4" />
                         </button>
                     </div>

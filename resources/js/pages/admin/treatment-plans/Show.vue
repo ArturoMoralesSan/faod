@@ -481,13 +481,13 @@ defineOptions({
                                 <ClipboardCheck class="h-4 w-4" /> Validar
                             </button>
                             <template v-if="can.edit">
-                                <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE]" title="Agregar material" @click="openMaterial(p)">
+                                <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4]" title="Agregar material" @click="openMaterial(p)">
                                     <Package class="h-4 w-4" />
                                 </button>
-                                <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE]" title="Editar" @click="openProcedure(p.id)">
+                                <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4]" title="Editar" @click="openProcedure(p.id)">
                                     <Pencil class="h-4 w-4" />
                                 </button>
-                                <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Eliminar" @click="removeProcedure(p.id)">
+                                <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Eliminar" @click="removeProcedure(p.id)">
                                     <Trash2 class="h-4 w-4" />
                                 </button>
                             </template>

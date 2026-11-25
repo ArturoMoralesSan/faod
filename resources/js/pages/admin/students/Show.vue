@@ -28,6 +28,7 @@ import PageHeader from '@/components/admin/PageHeader.vue';
 import PersonPhoto from '@/components/admin/PersonPhoto.vue';
 import StatusBadge from '@/components/admin/StatusBadge.vue';
 import { confirmDelete, enumOptions, formatDate, fullName, label, recordOptions, toDateInput } from '@/lib/admin';
+import { can as hasPermission } from '@/lib/permissions';
 import admin from '@/routes/admin';
 import type { Attachment, Option, PersonName } from '@/types/admin';
 
@@ -41,6 +42,9 @@ interface Registration {
     verifier: { id: number; name: string } | null;
     attachments: Attachment[];
 }
+
+/** Sin permiso de edición la página es de solo consulta. */
+const canEdit = hasPermission('students.edit');
 
 const props = defineProps<{
     enrollment: {
@@ -167,6 +171,7 @@ defineOptions({
             :action-icon="Pencil"
             action-label="Editar inscripción"
             :action-href="admin.students.edit(enrollment.id).url"
+            action-permission="students.edit"
         >
             <template #details>
                 <div class="mt-2 flex flex-wrap gap-2">
@@ -225,10 +230,10 @@ defineOptions({
 
                                 <div class="flex items-center gap-2">
                                     <StatusBadge :value="registration.status" />
-                                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE] hover:text-[#941B2B]" title="Editar" @click="openRegistration(registration)">
+                                    <button v-if="canEdit" type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4] hover:text-[#292D32]" title="Editar" @click="openRegistration(registration)">
                                         <Pencil class="h-4 w-4" />
                                     </button>
-                                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Eliminar" @click="destroyRegistration(registration)">
+                                    <button v-if="canEdit" type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Eliminar" @click="destroyRegistration(registration)">
                                         <Trash2 class="h-4 w-4" />
                                     </button>
                                 </div>
@@ -250,8 +255,8 @@ defineOptions({
 
                     <EmptyState v-else :icon="Landmark" title="Sin registros" description="Registra la situación del alumno en el periodo actual." />
 
-                    <template #footer>
-                        <AdminButton :icon="Plus" @click="openRegistration()">Registrar situación</AdminButton>
+                    <template v-if="canEdit" #footer>
+                        <AdminButton v-if="canEdit" :icon="Plus" @click="openRegistration()">Registrar situación</AdminButton>
                     </template>
                 </AdminCard>
 
@@ -299,7 +304,7 @@ defineOptions({
                     <ul v-if="enrollment.student.groups.length" class="flex flex-col gap-3">
                         <li v-for="group in enrollment.student.groups" :key="group.id">
                             <Link :href="admin.groups.show(group.id).url" class="group block">
-                                <p class="text-sm font-semibold text-[#292D32] group-hover:text-[#941B2B]">Grupo {{ group.code }}</p>
+                                <p class="text-sm font-semibold text-[#292D32] group-hover:text-[#292D32]">Grupo {{ group.code }}</p>
                                 <p class="text-xs text-[#858B93]">{{ group.academic_period.name }} · Semestre {{ group.period_number }}</p>
                             </Link>
                         </li>

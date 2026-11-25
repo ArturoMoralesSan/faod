@@ -33,7 +33,7 @@ const model = defineModel<boolean>({ required: true });
 
         <label
             :for="id"
-            class="flex items-center justify-between gap-4 rounded-xl border border-[#E3E5E8] bg-white p-4 transition-[border-color,background-color] duration-200 ease-in-out hover:border-[#E8C7CC] hover:bg-[#FAF7F7]"
+            class="flex items-center justify-between gap-4 rounded-xl border border-[#E3E5E8] bg-white p-4 transition-[border-color,background-color] duration-200 ease-in-out hover:border-[#B8BEC6] hover:bg-[#F4F5F6]"
             :class="{
                 'cursor-pointer': !disabled,
                 'cursor-not-allowed opacity-60': disabled,

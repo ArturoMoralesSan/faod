@@ -132,7 +132,7 @@ defineOptions({
                 </thead>
 
                 <tbody class="divide-y divide-[#E3E5E8]">
-                    <tr v-for="item in catalog.items" :key="item.id" class="hover:bg-[#FAF3F4]">
+                    <tr v-for="item in catalog.items" :key="item.id" class="hover:bg-[#F4F5F6]">
                         <td class="px-5 py-3 text-[#858B93] sm:px-6">{{ item.sort }}</td>
                         <td class="px-5 py-3 font-mono text-xs text-[#525960] sm:px-6">{{ item.code }}</td>
                         <td class="px-5 py-3 font-semibold text-[#292D32] sm:px-6">{{ item.name }}</td>
@@ -141,7 +141,7 @@ defineOptions({
                             <div class="flex justify-end gap-1.5">
                                 <button
                                     type="button"
-                                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#383D43] transition-colors hover:bg-[#F9ECEE] hover:text-[#941B2B]"
+                                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#383D43] transition-colors hover:bg-[#F1F2F4] hover:text-[#292D32]"
                                     title="Editar"
                                     @click="openEdit(item)"
                                 >
@@ -150,7 +150,7 @@ defineOptions({
 
                                 <button
                                     type="button"
-                                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#941B2B] transition-colors hover:bg-[#F9ECEE]"
+                                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#941B2B] transition-colors hover:bg-[#F1F2F4]"
                                     title="Eliminar"
                                     @click="destroy(item)"
                                 >

@@ -7,7 +7,9 @@ import {
     Trash2,
 } from 'lucide-vue-next';
 
-withDefaults(
+import { can } from '@/lib/permissions';
+
+const props = withDefaults(
     defineProps<{
         viewUrl?: string;
         editUrl?: string;
@@ -20,6 +22,8 @@ withDefaults(
         showQuestions?: boolean;
         showDelete?: boolean;
         loading?: boolean;
+        /** Módulo de permisos (p. ej. "patients"): oculta Editar y Eliminar sin permiso. */
+        permission?: string;
     }>(),
     {
         showView: true,
@@ -30,8 +34,11 @@ withDefaults(
         deleteLabel: 'Eliminar',
         itemName: 'registro',
         loading: false,
+        permission: '',
     },
 );
+
+const allowed = (action: 'edit' | 'delete'): boolean => !props.permission || can(`${props.permission}.${action}`);
 
 const emit = defineEmits<{
     delete: [];
@@ -52,7 +59,7 @@ const emit = defineEmits<{
                 :href="questionsUrl"
                 title="Administrar preguntas"
                 aria-label="Administrar preguntas"
-                class="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold text-[#737982] transition-colors duration-[250ms] ease-in-out hover:bg-[#F9ECEE] hover:text-[#941B2B] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#941B2B] focus-visible:outline-offset-2 motion-reduce:transition-none"
+                class="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold text-[#737982] transition-colors duration-[250ms] ease-in-out hover:bg-[#F1F2F4] hover:text-[#292D32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#941B2B] focus-visible:outline-offset-2 motion-reduce:transition-none"
             >
                 <HelpCircle :size="16" :stroke-width="1.8" />
                 <span>Preguntas</span>
@@ -64,18 +71,18 @@ const emit = defineEmits<{
                 :href="viewUrl"
                 :title="`Ver ${itemName}`"
                 :aria-label="`Ver ${itemName}`"
-                class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#941B2B] transition-colors duration-[250ms] ease-in-out hover:bg-[#F9ECEE] hover:text-[#721421] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#941B2B] focus-visible:outline-offset-2 motion-reduce:transition-none"
+                class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#941B2B] transition-colors duration-[250ms] ease-in-out hover:bg-[#F1F2F4] hover:text-[#292D32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#941B2B] focus-visible:outline-offset-2 motion-reduce:transition-none"
             >
                 <Eye :size="17" :stroke-width="1.8" />
             </Link>
 
             <!-- Editar -->
             <Link
-                v-if="showEdit && editUrl"
+                v-if="showEdit && editUrl && allowed('edit')"
                 :href="editUrl"
                 :title="`Editar ${itemName}`"
                 :aria-label="`Editar ${itemName}`"
-                class="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-[#E3E5E8] bg-white px-3 text-xs font-semibold text-[#383D43] transition-colors duration-[250ms] ease-in-out hover:border-[#941B2B] hover:bg-[#F9ECEE] hover:text-[#941B2B] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#941B2B] focus-visible:outline-offset-2 motion-reduce:transition-none"
+                class="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-[#E3E5E8] bg-white px-3 text-xs font-semibold text-[#383D43] transition-colors duration-[250ms] ease-in-out hover:border-[#B8BEC6] hover:bg-[#F1F2F4] hover:text-[#292D32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#941B2B] focus-visible:outline-offset-2 motion-reduce:transition-none"
             >
                 <Pencil :size="15" :stroke-width="1.8" />
                 <span>Editar</span>
@@ -83,12 +90,12 @@ const emit = defineEmits<{
 
             <!-- Eliminar -->
             <button
-                v-if="showDelete"
+                v-if="showDelete && allowed('delete')"
                 type="button"
                 :title="deleteTitle || `Eliminar ${itemName}`"
                 :aria-label="deleteTitle || `Eliminar ${itemName}`"
                 :disabled="loading"
-                class="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-[#E8C7CC] bg-white px-3 text-xs font-semibold text-[#941B2B] transition-colors duration-[250ms] ease-in-out hover:border-[#721421] hover:bg-[#721421] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#941B2B] focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
+                class="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-[#E8C7CC] bg-white px-3 text-xs font-semibold text-[#941B2B] transition-colors duration-[250ms] ease-in-out hover:border-[#B8BEC6] hover:bg-[#F1F2F4] hover:text-[#292D32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#941B2B] focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
                 @click="emit('delete')"
             >
                 <Trash2 :size="15" :stroke-width="1.8" />

@@ -5,15 +5,17 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StorePeopleRequest;
 use App\Http\Requests\Admin\UpdatePeopleRequest;
+use App\Models\Department;
 use App\Models\People;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\Permission\Models\Role;
 
 class PeopleController extends Controller
 {
@@ -57,7 +59,7 @@ class PeopleController extends Controller
     /**
      * Búsqueda de personas para selectores (JSON con {id, label, hint}).
      */
-    public function search(Request $request): \Illuminate\Http\JsonResponse
+    public function search(Request $request): JsonResponse
     {
         $search = trim((string) $request->input('q'));
 
@@ -301,7 +303,7 @@ class PeopleController extends Controller
 
     private function departments()
     {
-        return \App\Models\Department::where('is_active', true)
+        return Department::where('is_active', true)
             ->orderBy('name')
             ->get(['id', 'name']);
     }
@@ -310,7 +312,7 @@ class PeopleController extends Controller
     {
         if (
             $user &&
-            \Spatie\Permission\Models\Role::where('name', $role)
+            Role::where('name', $role)
                 ->where('guard_name', 'web')
                 ->exists()
         ) {

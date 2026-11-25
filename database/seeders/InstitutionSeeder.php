@@ -56,13 +56,22 @@ class InstitutionSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
+        // Estructura según el Plan de Desarrollo FAOD 2019-2025.
         $direccion = $this->department('DIR', 'Dirección', 'departamento');
+        $this->department('SGEN', 'Secretaría General', 'departamento', $direccion);
         $academica = $this->department('SAC', 'Secretaría Académica', 'departamento', $direccion);
         $administrativa = $this->department('SAD', 'Secretaría Administrativa', 'departamento', $direccion);
+        $this->department('DEPI', 'División de Estudios de Posgrado e Investigación', 'departamento', $direccion);
 
         $this->department('POSG', 'Coordinación de Posgrado', 'coordinacion', $academica);
         $this->department('CLIN', 'Coordinación de Clínicas', 'coordinacion', $academica);
-        $this->department('EDUC', 'Coordinación de Educación Continua', 'coordinacion', $academica);
+        $this->department('EDUC', 'Coordinación de Educación Continua y Seguimiento de Egresados', 'coordinacion', $academica);
+        $this->department('TUT', 'Coordinación de Tutorías', 'coordinacion', $academica);
+        $this->department('BIB', 'Coordinación Académica de Biblioteca', 'coordinacion', $academica);
+        $this->department('SSO', 'Coordinación de Servicio Social', 'coordinacion', $academica);
+        $this->department('ESC', 'Coordinación de Servicios Escolares', 'coordinacion', $academica);
+        $this->department('VINC', 'Coordinación de Vinculación', 'coordinacion', $academica);
+        $this->department('PSI', 'Coordinación de Psicología', 'coordinacion', $academica);
         $this->department('ALM', 'Almacén', 'coordinacion', $administrativa);
         $this->department('CAJA', 'Caja', 'coordinacion', $administrativa);
     }

@@ -102,7 +102,7 @@ defineOptions({
         <AdminCard title="Turnos recientes" :icon="Wallet" :padding="false">
             <ul v-if="sessions.length" class="divide-y divide-[#E3E5E8]">
                 <li v-for="s in sessions" :key="s.id">
-                    <Link :href="admin.finance.cashSessions.show(s.id).url" class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#FAF3F4] sm:px-6">
+                    <Link :href="admin.finance.cashSessions.show(s.id).url" class="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#F4F5F6] sm:px-6">
                         <div>
                             <p class="text-sm font-semibold text-[#292D32]">{{ s.register?.name }} · {{ formatDateTime(s.opened_at) }}</p>
                             <p class="text-xs text-[#858B93]">

@@ -96,6 +96,7 @@ defineOptions({
             :action-icon="Plus"
             action-label="Inscribir alumno"
             :action-href="admin.students.create().url"
+            action-permission="students.create"
         />
 
         <DataTable
@@ -142,7 +143,7 @@ defineOptions({
                 <tr
                     v-for="enrollment in enrollments.data"
                     :key="enrollment.id"
-                    class="transition-colors hover:bg-[#FAF3F4]"
+                    class="transition-colors hover:bg-[#F4F5F6]"
                 >
                     <td class="px-5 py-4 sm:px-6">
                         <div class="flex items-center gap-3">
@@ -169,6 +170,7 @@ defineOptions({
                     <td class="px-5 py-4 sm:px-6"><StatusBadge :value="universityStatus(enrollment)" /></td>
 
                     <TableActions
+                        permission="students"
                         :view-url="admin.students.show(enrollment.id).url"
                         :edit-url="admin.students.edit(enrollment.id).url"
                         item-name="inscripción"

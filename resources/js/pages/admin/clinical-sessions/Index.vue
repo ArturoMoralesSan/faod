@@ -49,7 +49,7 @@ const { filters, hasFilters, submit, clear } = useIndexFilters(
 
 // Mismo aspecto que FilterSelect.
 const dateInputClass =
-    'h-[42px] rounded-xl border border-[#E3E5E8] bg-white px-3 text-sm text-[#292D32] outline-none hover:border-[#E8C7CC] focus:border-[#941B2B] focus:ring-2 focus:ring-[#941B2B]/10';
+    'h-[42px] rounded-xl border border-[#E3E5E8] bg-white px-3 text-sm text-[#292D32] outline-none hover:border-[#B8BEC6] focus:border-[#941B2B] focus:ring-2 focus:ring-[#941B2B]/10';
 
 const clinicName =(id: string) => props.clinics.find((c) => String(c.id) === id)?.name;
 
@@ -122,7 +122,7 @@ defineOptions({
             </template>
 
             <template #table-body>
-                <tr v-for="session in sessions.data" :key="session.id" class="transition-colors hover:bg-[#FAF3F4]">
+                <tr v-for="session in sessions.data" :key="session.id" class="transition-colors hover:bg-[#F4F5F6]">
                     <td class="px-5 py-4 sm:px-6">
                         <p class="font-semibold text-[#292D32]">{{ formatDate(session.date) }}</p>
                         <p class="mt-0.5 text-xs text-[#858B93]">{{ formatTime(session.start_time) }} – {{ formatTime(session.end_time) }}</p>

@@ -7,6 +7,7 @@ use App\Models\AcademicPeriod;
 use App\Models\Charge;
 use App\Models\Cohort;
 use App\Models\FeeConcept;
+use App\Models\Payment;
 use App\Models\TreatmentPlan;
 use App\Services\FinanceService;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -21,9 +22,7 @@ use Inertia\Response;
  */
 class ChargeController extends Controller
 {
-    public function __construct(private FinanceService $finance)
-    {
-    }
+    public function __construct(private FinanceService $finance) {}
 
     public function index(Request $request): Response
     {
@@ -140,7 +139,7 @@ class ChargeController extends Controller
     }
 
     /** Agrega nombre y enlace de la cuenta del pagador para la vista. */
-    public static function describePayer(Charge|\App\Models\Payment $record): void
+    public static function describePayer(Charge|Payment $record): void
     {
         $payer = $record->payer;
         $type = ($record->payer_type ? Charge::payerAlias($record->payer_type) : null) ?? 'patient';
@@ -154,7 +153,7 @@ class ChargeController extends Controller
                 'url' => route('admin.finance.accounts.show', ['type' => $type, 'id' => $payer->id]),
             ],
             // Ingreso sin alumno ni paciente: se muestra el nombre capturado.
-            $record instanceof \App\Models\Payment && $record->payer_type === null => [
+            $record instanceof Payment && $record->payer_type === null => [
                 'type' => 'externo',
                 'id' => null,
                 'name' => $record->payer_name ?? 'Sin nombre',

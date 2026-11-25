@@ -78,6 +78,7 @@ defineOptions({
             :action-icon="Plus"
             action-label="Nuevo programa"
             :action-href="admin.academicPrograms.create().url"
+            action-permission="academic-programs.create"
         />
 
         <DataTable
@@ -123,7 +124,7 @@ defineOptions({
                 <tr
                     v-for="program in programs.data"
                     :key="program.id"
-                    class="transition-colors hover:bg-[#FAF3F4]"
+                    class="transition-colors hover:bg-[#F4F5F6]"
                 >
                     <td class="px-5 py-4 sm:px-6">
                         <div class="flex items-center gap-3">
@@ -163,6 +164,7 @@ defineOptions({
                     <td class="px-5 py-4 sm:px-6"><StatusBadge :value="program.is_active" /></td>
 
                     <TableActions
+                        permission="academic-programs"
                         :view-url="admin.academicPrograms.show(program.id).url"
                         :edit-url="admin.academicPrograms.edit(program.id).url"
                         item-name="programa"

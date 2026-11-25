@@ -127,7 +127,7 @@ const close = (): void => {
                 <li v-if="loading" class="px-4 py-2 text-sm text-[#858B93]">Buscando...</li>
                 <template v-else>
                     <li v-for="result in results" :key="result.id">
-                        <button type="button" class="block w-full px-4 py-2 text-left hover:bg-[#F9ECEE]" @mousedown.prevent="choose(result)">
+                        <button type="button" class="block w-full px-4 py-2 text-left hover:bg-[#F1F2F4]" @mousedown.prevent="choose(result)">
                             <span class="block text-sm font-semibold text-[#292D32]">{{ result.label }}</span>
                             <span v-if="result.hint" class="block text-xs text-[#858B93]">{{ result.hint }}</span>
                         </button>

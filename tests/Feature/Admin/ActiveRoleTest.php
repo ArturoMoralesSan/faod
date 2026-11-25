@@ -35,7 +35,7 @@ class ActiveRoleTest extends TestCase
 
         $this->switchTo($user, 'docente');
         $this->get(route('admin.users.index'))->assertForbidden();
-        $this->get(route('admin.clinical-sessions.index'))->assertOk();
+        $this->get(route('admin.groups.index'))->assertOk();
         $this->assertFalse($user->fresh()->can('users.view'));
 
         $this->switchTo($user, 'admin');

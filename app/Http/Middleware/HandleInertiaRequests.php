@@ -52,6 +52,13 @@ class HandleInertiaRequests extends Middleware
                 'activeRole' => fn () => ($role = $request->user()?->currentRole())
                     ? ['id' => $role->id, 'name' => $role->name]
                     : null,
+
+                // Para ocultar botones sin permiso (el servidor valida de nuevo).
+                'permissions' => fn () => match (true) {
+                    ! $request->user() => [],
+                    $request->user()->isSuperAdmin() => ['*'],
+                    default => $request->user()->getAllPermissions()->pluck('name')->values(),
+                },
             ],
 
             'profile' => fn () => $request->user()?->profile,

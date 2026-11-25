@@ -200,10 +200,10 @@ defineOptions({
                         <td class="px-4 py-3"><StatusBadge :value="c.status" /></td>
                         <td class="px-4 py-3">
                             <div v-if="['pendiente', 'parcial'].includes(c.status)" class="flex justify-end gap-1">
-                                <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F9ECEE]" title="Descuento" @click="openAction(c, 'discount')">
+                                <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#383D43] hover:bg-[#F1F2F4]" title="Descuento" @click="openAction(c, 'discount')">
                                     <BadgePercent class="h-4 w-4" />
                                 </button>
-                                <button v-if="!c.paid_amount" type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F9ECEE]" title="Cancelar" @click="openAction(c, 'cancel')">
+                                <button v-if="!c.paid_amount" type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#941B2B] hover:bg-[#F1F2F4]" title="Cancelar" @click="openAction(c, 'cancel')">
                                     <Ban class="h-4 w-4" />
                                 </button>
                             </div>
@@ -217,7 +217,7 @@ defineOptions({
         <AdminCard title="Pagos" :icon="Banknote" :padding="false">
             <ul v-if="payments.length" class="divide-y divide-[#E3E5E8]">
                 <li v-for="p in payments" :key="p.id">
-                    <Link :href="admin.finance.payments.show(p.id).url" :class="['flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#FAF3F4] sm:px-6', p.cancelled_at ? 'opacity-60' : '']">
+                    <Link :href="admin.finance.payments.show(p.id).url" :class="['flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#F4F5F6] sm:px-6', p.cancelled_at ? 'opacity-60' : '']">
                         <div class="min-w-0">
                             <p class="text-sm font-semibold text-[#292D32]">{{ p.folio }} · {{ formatMoney(p.amount) }} · {{ label(p.method) }}</p>
                             <p class="truncate text-xs text-[#858B93]">

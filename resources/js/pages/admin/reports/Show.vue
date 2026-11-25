@@ -152,7 +152,7 @@ defineOptions({
             <div class="flex shrink-0 flex-wrap gap-2">
                 <Link
                     :href="admin.reports.index().url"
-                    class="inline-flex h-11 items-center gap-2 rounded-full border border-[#E3E5E8] bg-white px-5 text-[13px] font-semibold text-[#383D43] transition-colors hover:border-[#E8C7CC] hover:text-[#941B2B]"
+                    class="inline-flex h-11 items-center gap-2 rounded-full border border-[#E3E5E8] bg-white px-5 text-[13px] font-semibold text-[#383D43] transition-colors hover:border-[#B8BEC6] hover:text-[#292D32]"
                 >
                     <ArrowLeft class="h-4 w-4" /> Reportes
                 </Link>
@@ -167,7 +167,7 @@ defineOptions({
                     :href="pdfUrl"
                     target="_blank"
                     rel="noopener"
-                    class="inline-flex h-11 items-center gap-2 rounded-full border border-[#941B2B] bg-[#941B2B] px-5 text-[13px] font-semibold text-white transition-colors hover:border-[#721421] hover:bg-[#721421]"
+                    class="inline-flex h-11 items-center gap-2 rounded-full border border-[#941B2B] bg-[#941B2B] px-5 text-[13px] font-semibold text-white transition-colors hover:border-[#941B2B] hover:bg-white hover:text-[#292D32]"
                 >
                     <FileDown class="h-4 w-4" /> PDF
                 </a>
@@ -186,7 +186,7 @@ defineOptions({
                         :key="preset.key"
                         type="button"
                         class="rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors"
-                        :class="activePreset === preset.key ? 'border-[#941B2B] bg-[#941B2B] text-white' : 'border-[#E3E5E8] bg-white text-[#525960] hover:border-[#E8C7CC] hover:text-[#941B2B]'"
+                        :class="activePreset === preset.key ? 'border-[#941B2B] bg-[#941B2B] text-white' : 'border-[#E3E5E8] bg-white text-[#525960] hover:border-[#B8BEC6] hover:text-[#292D32]'"
                         :aria-pressed="activePreset === preset.key"
                         @click="applyPreset(preset.key)"
                     >
@@ -220,7 +220,7 @@ defineOptions({
                 <button
                     v-if="searchFilter"
                     type="submit"
-                    class="inline-flex h-[42px] items-center gap-2 rounded-full border border-[#941B2B] bg-[#941B2B] px-5 text-[13px] font-semibold text-white hover:bg-[#721421]"
+                    class="inline-flex h-[42px] items-center gap-2 rounded-full border border-[#941B2B] bg-[#941B2B] px-5 text-[13px] font-semibold text-white hover:bg-white hover:text-[#292D32] hover:ring-1 hover:ring-inset hover:ring-[#941B2B]"
                 >
                     <Search class="h-4 w-4" /> Buscar
                 </button>
@@ -228,7 +228,7 @@ defineOptions({
                 <button
                     v-if="hasFilters"
                     type="button"
-                    class="inline-flex h-[42px] items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-[#941B2B] hover:bg-[#F9ECEE]"
+                    class="inline-flex h-[42px] items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-[#941B2B] hover:bg-[#F1F2F4]"
                     @click="clearFilters"
                 >
                     <FilterX class="h-4 w-4" /> Limpiar filtros
@@ -265,7 +265,7 @@ defineOptions({
             </template>
 
             <template #table-body>
-                <tr v-for="(row, index) in rows.data" :key="index" class="transition-colors hover:bg-[#FAF3F4]">
+                <tr v-for="(row, index) in rows.data" :key="index" class="transition-colors hover:bg-[#F4F5F6]">
                     <td
                         v-for="column in columns"
                         :key="column.key"

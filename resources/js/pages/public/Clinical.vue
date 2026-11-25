@@ -37,10 +37,10 @@ const BRING = ['Identificación oficial', 'CURP', 'Lista de medicamentos que tom
         :crumbs="[{ label: 'Atención clínica' }]"
     >
         <div class="mt-8 flex flex-wrap gap-3">
-            <a :href="INSTITUTION.phoneHref" class="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-bold text-[#941B2B] hover:bg-[#F9ECEE]">
+            <a :href="INSTITUTION.phoneHref" class="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 text-sm font-bold text-[#941B2B] hover:bg-[#F1F2F4]">
                 <Phone class="size-4" /> Pedir cita: {{ INSTITUTION.phone }}
             </a>
-            <a :href="INSTITUTION.map" target="_blank" rel="noopener" class="inline-flex h-12 items-center gap-2 rounded-full border border-white/40 px-6 text-sm font-semibold hover:bg-white/10">
+            <a :href="INSTITUTION.map" target="_blank" rel="noopener" class="inline-flex h-12 items-center gap-2 rounded-full border border-white/40 px-6 text-sm font-semibold hover:bg-white hover:text-[#292D32]">
                 <MapPin class="size-4" /> Cómo llegar
             </a>
         </div>
@@ -79,7 +79,7 @@ const BRING = ['Identificación oficial', 'CURP', 'Lista de medicamentos que tom
                         type="button"
                         role="tab"
                         :aria-selected="activeGroup === group.group"
-                        :class="['flex shrink-0 items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors', activeGroup === group.group ? 'bg-[#941B2B] text-white' : 'bg-[#F7F8FA] text-[#383D43] hover:bg-[#F9ECEE] hover:text-[#941B2B]']"
+                        :class="['flex shrink-0 items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors', activeGroup === group.group ? 'bg-[#941B2B] text-white' : 'bg-[#F7F8FA] text-[#383D43] hover:bg-[#F1F2F4] hover:text-[#292D32]']"
                         @click="activeGroup = group.group"
                     >
                         {{ group.group }} <span :class="['text-xs', activeGroup === group.group ? 'text-white/75' : 'text-[#858B93]']">{{ group.items.length }}</span>
@@ -143,10 +143,10 @@ const BRING = ['Identificación oficial', 'CURP', 'Lista de medicamentos que tom
             <div class="rounded-3xl bg-white p-7 text-[#292D32]">
                 <p class="font-['Manrope',sans-serif] text-xl font-bold text-[#1F2226]">Agenda tu valoración</p>
                 <p class="mt-2 text-sm leading-6 text-[#737982]">Te damos fecha y hora en la clínica que corresponda a tu tratamiento.</p>
-                <a :href="INSTITUTION.phoneHref" class="mt-5 flex h-12 items-center justify-center gap-2 rounded-full bg-[#941B2B] text-sm font-bold text-white hover:bg-[#721421]">
+                <a :href="INSTITUTION.phoneHref" class="mt-5 flex h-12 items-center justify-center gap-2 rounded-full bg-[#941B2B] text-sm font-bold text-white hover:bg-white hover:text-[#292D32] hover:ring-1 hover:ring-inset hover:ring-[#941B2B]">
                     <Phone class="size-4" /> {{ INSTITUTION.phone }}
                 </a>
-                <a :href="`mailto:${INSTITUTION.email}`" class="mt-2 flex h-12 items-center justify-center gap-2 rounded-full border border-[#E3E5E8] text-sm font-semibold text-[#383D43] hover:border-[#E8C7CC] hover:text-[#941B2B]">
+                <a :href="`mailto:${INSTITUTION.email}`" class="mt-2 flex h-12 items-center justify-center gap-2 rounded-full border border-[#E3E5E8] text-sm font-semibold text-[#383D43] hover:border-[#B8BEC6] hover:text-[#292D32]">
                     <Mail class="size-4" /> {{ INSTITUTION.email }}
                 </a>
                 <p class="mt-4 flex items-start gap-2 text-xs text-[#858B93]"><MapPin class="mt-0.5 size-4 shrink-0" /> {{ INSTITUTION.address }}</p>

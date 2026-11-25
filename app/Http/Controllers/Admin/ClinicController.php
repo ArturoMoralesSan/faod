@@ -9,7 +9,9 @@ use App\Models\ClinicEquipment;
 use App\Models\ClinicIncident;
 use App\Models\ClinicSupervisor;
 use App\Models\Department;
+use App\Models\Specialty;
 use App\Models\TeacherProfile;
+use App\Support\TeacherScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,6 +22,7 @@ class ClinicController extends Controller
     public function index(Request $request): Response
     {
         $clinics = Clinic::query()
+            ->tap(fn ($q) => TeacherScope::apply($q, TeacherScope::teacherId($request->user())))
             ->with('department:id,name')
             ->withCount('spaces')
             ->when($request->search, fn ($q, $search) => $q->where('name', 'like', "%{$search}%"))
@@ -53,6 +56,8 @@ class ClinicController extends Controller
      */
     public function show(Clinic $clinic): Response
     {
+        TeacherScope::ensureVisible($clinic, request()->user());
+
         $clinic->load([
             'department:id,name',
             'areas.specialty:id,name',
@@ -83,7 +88,7 @@ class ClinicController extends Controller
             'supervisorRoles' => ClinicSupervisor::ROLES,
             'equipmentStatuses' => ClinicEquipment::STATUSES,
             'equipmentKinds' => ClinicEquipment::KINDS,
-            'specialties' => \App\Models\Specialty::where('is_active', true)->orderBy('name')->get(['id', 'name']),
+            'specialties' => Specialty::where('is_active', true)->orderBy('name')->get(['id', 'name']),
         ]);
     }
 

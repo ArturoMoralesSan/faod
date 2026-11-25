@@ -89,7 +89,7 @@ const setDuration = (minutes: number): void => {
                     <FormInput id="end_time" v-model="form.end_time" type="time" label="Fin" :error="form.errors.end_time" required />
                 </div>
                 <div class="mt-2 flex gap-2 text-xs">
-                    <button v-for="m in [30, 60, 90, 120]" :key="m" type="button" class="rounded-full border border-[#E3E5E8] px-2.5 py-1 font-semibold text-[#525960] hover:border-[#E8C7CC]" @click="setDuration(m)">
+                    <button v-for="m in [30, 60, 90, 120]" :key="m" type="button" class="rounded-full border border-[#E3E5E8] px-2.5 py-1 font-semibold text-[#525960] hover:border-[#B8BEC6]" @click="setDuration(m)">
                         {{ m < 60 ? `${m} min` : `${m / 60} h` }}
                     </button>
                 </div>

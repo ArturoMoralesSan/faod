@@ -79,6 +79,7 @@ defineOptions({
             :action-icon="Plus"
             action-label="Nuevo grupo"
             :action-href="admin.groups.create().url"
+            action-permission="groups.create"
         />
 
         <DataTable
@@ -115,7 +116,7 @@ defineOptions({
                 <tr
                     v-for="group in groups.data"
                     :key="group.id"
-                    class="transition-colors hover:bg-[#FAF3F4]"
+                    class="transition-colors hover:bg-[#F4F5F6]"
                 >
                     <td class="px-5 py-4 sm:px-6">
                         <div class="flex items-center gap-3">
@@ -144,6 +145,7 @@ defineOptions({
                     <td class="px-5 py-4 text-[#525960] sm:px-6">{{ group.class_sections_count }}</td>
 
                     <TableActions
+                        permission="groups"
                         :view-url="admin.groups.show(group.id).url"
                         :edit-url="admin.groups.edit(group.id).url"
                         item-name="grupo"

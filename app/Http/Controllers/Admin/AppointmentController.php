@@ -10,6 +10,7 @@ use App\Models\Patient;
 use App\Models\Space;
 use App\Models\StudentProfile;
 use App\Models\TeacherProfile;
+use App\Models\TreatmentPlan;
 use App\Notifications\AppointmentReminder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -267,7 +268,7 @@ class AppointmentController extends Controller
             'students' => $this->students(),
             'teachers' => $this->teachers(),
             'treatmentPlans' => $patientId
-                ? \App\Models\TreatmentPlan::where('patient_id', $patientId)
+                ? TreatmentPlan::where('patient_id', $patientId)
                     ->whereIn('status', ['en_proceso'])
                     ->get(['id', 'patient_id', 'title'])
                 : [],

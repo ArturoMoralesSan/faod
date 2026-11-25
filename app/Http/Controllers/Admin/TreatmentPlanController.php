@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\InventoryItem;
 use App\Models\OdontogramEntry;
-use App\Models\Warehouse;
 use App\Models\Patient;
 use App\Models\Procedure;
 use App\Models\Review;
@@ -13,6 +12,8 @@ use App\Models\StudentProfile;
 use App\Models\TeacherProfile;
 use App\Models\TreatmentPlan;
 use App\Models\TreatmentProcedure;
+use App\Models\Warehouse;
+use App\Support\TeacherScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -39,6 +40,8 @@ class TreatmentPlanController extends Controller
 
     public function show(TreatmentPlan $treatmentPlan): Response
     {
+        TeacherScope::ensureVisible($treatmentPlan, request()->user());
+
         $people = ':id,first_name,middle_name,paternal_surname,maternal_surname';
 
         $treatmentPlan->load([

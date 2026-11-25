@@ -21,9 +21,7 @@ class InventoryMovementController extends Controller
 {
     public const OPERATIONS = ['entrada', 'salida', 'entrega', 'devolucion', 'merma', 'danado', 'ajuste', 'traspaso'];
 
-    public function __construct(private InventoryService $inventory)
-    {
-    }
+    public function __construct(private InventoryService $inventory) {}
 
     public function index(Request $request): Response
     {

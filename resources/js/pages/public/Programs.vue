@@ -33,7 +33,7 @@ const total = computed(() => props.levels.reduce((sum, group) => sum + group.pro
                 type="button"
                 role="tab"
                 :aria-selected="!selected"
-                :class="['rounded-full border px-4 py-2 text-sm font-semibold transition-colors', !selected ? 'border-white bg-white text-[#941B2B]' : 'border-white/30 text-white hover:bg-white/10']"
+                :class="['rounded-full border px-4 py-2 text-sm font-semibold transition-colors', !selected ? 'border-white bg-white text-[#941B2B]' : 'border-white/30 text-white hover:bg-white hover:text-[#292D32]']"
                 @click="selected = null"
             >
                 Todos <span class="ml-1 text-xs opacity-70">{{ total }}</span>
@@ -44,7 +44,7 @@ const total = computed(() => props.levels.reduce((sum, group) => sum + group.pro
                 type="button"
                 role="tab"
                 :aria-selected="selected === group.level"
-                :class="['rounded-full border px-4 py-2 text-sm font-semibold transition-colors', selected === group.level ? 'border-white bg-white text-[#941B2B]' : 'border-white/30 text-white hover:bg-white/10']"
+                :class="['rounded-full border px-4 py-2 text-sm font-semibold transition-colors', selected === group.level ? 'border-white bg-white text-[#941B2B]' : 'border-white/30 text-white hover:bg-white hover:text-[#292D32]']"
                 @click="selected = group.level"
             >
                 {{ LEVEL_TITLES[group.level]?.title ?? group.level }} <span class="ml-1 text-xs opacity-70">{{ group.programs.length }}</span>
@@ -70,7 +70,7 @@ const total = computed(() => props.levels.reduce((sum, group) => sum + group.pro
             <GraduationCap class="mx-auto size-12 text-[#941B2B]" />
             <p class="mt-4 font-['Manrope',sans-serif] text-xl font-bold text-[#1F2226]">La oferta académica se publicará próximamente</p>
             <p class="mx-auto mt-2 max-w-md text-sm text-[#737982]">Mientras tanto, solicita informes de convocatorias y requisitos de ingreso:</p>
-            <a :href="`mailto:${INSTITUTION.email}`" class="mt-5 inline-flex h-11 items-center gap-2 rounded-full bg-[#941B2B] px-5 text-sm font-semibold text-white hover:bg-[#721421]">
+            <a :href="`mailto:${INSTITUTION.email}`" class="mt-5 inline-flex h-11 items-center gap-2 rounded-full bg-[#941B2B] px-5 text-sm font-semibold text-white hover:bg-white hover:text-[#292D32] hover:ring-1 hover:ring-inset hover:ring-[#941B2B]">
                 <Mail class="size-4" /> {{ INSTITUTION.email }}
             </a>
         </div>

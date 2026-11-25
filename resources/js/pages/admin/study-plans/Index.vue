@@ -67,6 +67,7 @@ defineOptions({
             :action-icon="Plus"
             action-label="Nuevo plan"
             :action-href="admin.studyPlans.create().url"
+            action-permission="study-plans.create"
         />
 
         <DataTable
@@ -104,7 +105,7 @@ defineOptions({
                 <tr
                     v-for="plan in plans.data"
                     :key="plan.id"
-                    class="transition-colors hover:bg-[#FAF3F4]"
+                    class="transition-colors hover:bg-[#F4F5F6]"
                 >
                     <td class="px-5 py-4 sm:px-6">
                         <p class="font-semibold text-[#292D32]">{{ plan.name }} <span class="text-[#858B93]">v{{ plan.version }}</span></p>
@@ -116,6 +117,7 @@ defineOptions({
                     <td class="px-5 py-4 sm:px-6"><StatusBadge :value="plan.is_active" /></td>
 
                     <TableActions
+                        permission="study-plans"
                         :view-url="admin.studyPlans.show(plan.id).url"
                         :edit-url="admin.studyPlans.edit(plan.id).url"
                         item-name="plan"

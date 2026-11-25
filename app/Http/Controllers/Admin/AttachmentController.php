@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attachment;
+use App\Models\TeacherProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -48,7 +49,13 @@ class AttachmentController extends Controller
 
     public function download(Request $request, Attachment $attachment): StreamedResponse
     {
-        $this->authorizeModule($request, $attachment->attachable_type, ['view']);
+        // El docente puede descargar los documentos de su propio expediente.
+        $own = $attachment->attachable_type === TeacherProfile::class
+            && $request->user()->people?->teacherProfile?->id === (int) $attachment->attachable_id;
+
+        if (! $own) {
+            $this->authorizeModule($request, $attachment->attachable_type, ['view']);
+        }
 
         return Storage::disk($attachment->disk)
             ->download($attachment->path, $attachment->original_name);
